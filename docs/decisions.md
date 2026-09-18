@@ -90,10 +90,20 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Status:** accepted
 - **Decision:** Display names live on the game. No global player roster in MVP.
 
-### D13. Turn order is freeform (was O5)
+### D13. Turn order: soft rotation (was O5)
 
-- **Status:** accepted (default; user did not override)
-- **Decision:** Any player on the game may be given a score at any time. The app does **not** enforce seating rotation. A “likely next player” hint is not MVP.
+- **Status:** accepted
+- **Decision:** Soft rotation.
+  - Players have a **seating order** (order they were added = seat order for MVP).
+  - The domain tracks a **suggested current player** (whose turn it is at the table).
+  - After a turn is recorded for player P, the suggested player becomes the **next seat after P** (wrap around).
+  - The UI highlights the suggested player, but the user **may still record a turn for a different player** (late logging / catch-up).
+  - A **pass** is a normal turn with score `0` (optional empty word). No separate pass entity in MVP.
+  - **Undo last turn** also restores the previous suggested current player (so the pointer stays consistent with history).
+- **In domain (tested game logic):** seating order, suggested-current pointer (or equivalent), advance-after-turn rule, allow non-suggested player when recording, restore pointer on undo-last.
+- **Not in MVP domain:** tile bag, exchanges as a special action, challenges, “skip twice → eliminated,” automatic end when everyone passes in a row. The user still **finishes** the game manually.
+- **Why soft, not strict:** Physical Scrabble is rotational; the app should reflect that. Soft mode keeps the rule in logic without blocking the scorepad when logging lags the board.
+- **Why not full Scrabble turn ruleset now:** This product is a scorepad (D1). Encoding every official end-condition and house rule (e.g. two skips → drop out) is a scope expansion; leave seams, implement later if wanted.
 
 ### D14. Score constraints (was O6)
 
@@ -133,11 +143,43 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ---
 
+### D21. Package manager: npm
+
+- **Status:** accepted
+- **Decision:** Use npm (not pnpm/yarn) for install and scripts.
+- **Why:** No extra tool on Windows; matches Vite defaults.
+
+### D22. Styling: Tailwind CSS
+
+- **Status:** accepted
+- **Decision:** Use Tailwind CSS for UI styling in MVP.
+- **Why:** User preference; speeds mobile-first layout work. Still keep visual design simple.
+
+### D23. Player names unique within a game
+
+- **Status:** accepted
+- **Decision:** Display names must be unique within a game after trim. Reject blank/whitespace-only names. Case handling: compare trimmed names case-insensitively for uniqueness (so “Aino” and “aino” collide).
+- **Why:** User preference; avoids ambiguous standings labels.
+
+### D24. Routing deferred past scaffold
+
+- **Status:** accepted
+- **Decision:** T0.2 scaffold has a single placeholder screen and no router. Add a router when multi-screen UI work starts (T4), if still needed.
+- **Why:** Avoid an early dependency for a hello screen; routing is not required to start the app or run Vitest.
+
+---
+
 ## Open (does not block scaffold)
 
 ### O12b. Hosting provider
 
 When the family should use a public URL, pick a static host. Until then, develop locally.
+
+### Possible scope expansion (not in MVP)
+
+- Skip-twice → player drops out; remaining players continue.
+- Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
+- Tile exchange as a first-class turn type (vs recording 0).
 
 ---
 
@@ -148,3 +190,5 @@ When the family should use a public URL, pick a static host. Until then, develop
 | D1–D7 | 2026-09-18 | Product/architecture principles accepted from project brief |
 | D8–D20 | 2026-09-18 | Stack (Vite + React + TS), Finnish UI, and MVP defaults from planning review |
 | O12b | 2026-09-18 | Hosting provider deferred until distribution |
+| D13 | 2026-09-18 | Soft rotation accepted; full Scrabble turn/end rules deferred |
+| D21–D24 | 2026-09-18 | npm, Tailwind, unique names, routing deferred |

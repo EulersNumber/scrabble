@@ -42,13 +42,15 @@ These may be considered later. The architecture should leave a seam for **word v
 - A user can start a new game.
 - The game has between 2 and 4 players (inclusive).
 - Each player has a display name for that game.
+- Names must be unique within the game (trimmed, case-insensitive); blank names are not allowed.
 
 ### 2. Enter a player’s score for each turn
 
 - After a physical turn, the user records that player’s score.
-- Logging is **freeform**: any of the 2–4 players may be given a score at any time (no enforced rotation).
-- A turn belongs to exactly one player and has an integer score (zero and negatives allowed).
+- **Soft rotation:** the app tracks seating order and highlights whose turn it is; the user may still log a different player if needed. After a logged turn for P, suggestion advances to the next seat after P.
+- A turn belongs to exactly one player and has an integer score (zero and negatives allowed). Zero records a pass.
 - The app does not calculate the score from tiles; the user types (or otherwise enters) the points.
+- Player elimination after consecutive skips, and automatic end-of-game from pass streaks, are **not** MVP.
 
 ### 3. Show cumulative scores and standings
 
@@ -109,7 +111,9 @@ The following are **not** required for MVP even if they often appear in “real�
 - Passing, challenging, or exchanging tiles as first-class actions (a 0-point turn can record a pass)
 - Clock / timer
 - Global player profiles / roster across games
-- Enforced turn rotation
+- Enforced-only turn rotation (strict mode); soft rotation **is** in MVP
+- Automatic “skip twice → drop out of the game” elimination
+- Automatic finish after a full round of consecutive passes
 
 ## Success criteria for MVP
 
@@ -124,4 +128,4 @@ The family can:
 
 ## Product decisions
 
-MVP product rules (correction model, scores, ties, finish/reopen, resume, word field, Finnish UI) are **accepted** in `docs/decisions.md` (D8–D20). Hosting provider is deferred until family distribution.
+MVP product rules are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation (D13). Hosting provider (O12b) is deferred until family distribution.

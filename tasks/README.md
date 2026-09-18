@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP product defaults are **accepted** in `docs/decisions.md` (D8–D20). **T0.1 is done.** Do not scaffold (T0.2) until the user asks. Do not install dependencies except as part of T0.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1 is done.** Do not scaffold (T0.2) until the user asks. Do not install dependencies except as part of T0.2.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -15,26 +15,30 @@ Suggested order is the numbering below. A task may be split further if it grows.
 - **Status:** done (docs only; 2026-09-18).
 - **Goal:** Record choices for language/framework, persistence, offline definition, and product defaults.
 - **Acceptance:**
-  - `docs/decisions.md` updated: D8–D20 accepted; hosting provider deferred (O12b).
+  - `docs/decisions.md` updated: D8–D24 accepted; hosting deferred (O12b).
   - No app code required.
 
 ### T0.2 Scaffold the project
 
-- **Goal:** Empty runnable app shell: TypeScript + React + Vite, Vitest, layer folders matching `docs/architecture.md`.
+- **Goal:** Empty runnable app shell: TypeScript + React + Vite, Tailwind CSS, Vitest, npm, layer folders matching `docs/architecture.md`.
 - **Acceptance:**
   - App starts locally (hello/placeholder screen is enough; Finnish UI later).
   - Vitest runs (even if only a placeholder test).
+  - Tailwind is configured and usable on the placeholder screen.
   - Domain / application / persistence / UI folders (or equivalent) exist and are empty-or-minimal.
+  - No router yet.
   - No feature logic yet.
-  - No extra dependencies beyond Vite, React, TypeScript, and the test runner.
+  - Dependencies limited to Vite, React, TypeScript, Tailwind, and the test runner.
 
 ### T0.3 Domain types and invariants (tests first)
 
 - **Goal:** `Game`, `Player`, `Turn` plus functions to create a game with 2–4 players.
 - **Acceptance:**
   - Creating a game with 1 or 5+ players is rejected.
-  - Creating with 2–4 unique players succeeds.
+  - Creating with 2–4 players with unique non-blank names succeeds.
+  - Duplicate names (case-insensitive after trim) and blank names are rejected.
   - Game starts `in_progress` with empty turns.
+  - Seating order = player list order; suggested current starts as the first player.
   - Tests cover these cases.
 
 ---
@@ -43,13 +47,15 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T1.1 Record a turn
 
-- **Goal:** Append a turn: player, integer score, timestamp, optional word.
+- **Goal:** Append a turn; soft rotation advances suggested current player (D13).
 - **Acceptance:**
-  - Turn is added for a player on the game.
+  - Turn is added for any player on the game (soft: non-suggested allowed).
+  - After a turn for P, suggested current becomes the next seat after P (wrap).
   - Unknown player is rejected.
   - Missing/empty word is allowed.
-  - Non-integer scores are rejected; 0 and negatives are allowed.
-  - Tests cover success and rejection.
+  - Non-integer scores are rejected; 0 and negatives are allowed (0 = pass).
+  - New game starts with suggested current = first seated player.
+  - Tests cover success, rejection, and pointer advance (including wrap and logging a non-suggested player).
 
 ### T1.2 Derived totals and standings
 
@@ -67,7 +73,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
   - After undo/edit, standings match the remaining/changed turns.
   - Cannot delete a non-last turn.
   - Invalid edits are rejected (e.g. unknown turn).
-  - Tests cover at least: undo last; one edit that changes a total; edit player.
+  - Tests cover at least: undo last (including restored suggested player); one edit that changes a total; edit player.
 
 ### T1.4 Finish, reopen, and reject mutations while finished
 
@@ -123,7 +129,7 @@ Build screens against the use cases. Visual polish is secondary to usable flow. 
 
 ### T4.2 Active game: standings + add turn
 
-- **Acceptance:** User picks any player (freeform), enters an integer score, optionally a word, submits. Standings update immediately. Usable on a phone-width layout.
+- **Acceptance:** UI highlights suggested current player; user may pick another. Integer score, optional word (0 = pass). Standings update immediately. Usable on a phone-width layout. Tailwind for layout.
 
 ### T4.3 Active game: undo/edit
 

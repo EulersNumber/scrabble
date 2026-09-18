@@ -1,6 +1,6 @@
 # Architecture
 
-Initial architecture for a small, testable, offline scorekeeping app. Stack and MVP product defaults are recorded in `docs/decisions.md` (D8–D20).
+Initial architecture for a small, testable, offline scorekeeping app. Stack and MVP product defaults are recorded in `docs/decisions.md` (D8–D24).
 
 ## Design goals
 
@@ -15,10 +15,13 @@ Initial architecture for a small, testable, offline scorekeeping app. Stack and 
 ## Chosen stack
 
 - **Language / UI:** TypeScript, React, Vite
+- **Package manager:** npm
+- **Styling:** Tailwind CSS
 - **Delivery:** Mobile-first web app; PWA shell caching is a later task (T5), not part of first scaffold
 - **Persistence:** JSON game documents in `localStorage`, behind a `GameStore` interface
 - **Tests:** Vitest for domain and use cases (pure TypeScript)
 - **UI language:** Finnish copy; English code and docs
+- **Routing:** Not in scaffold; add when multi-screen UI starts
 
 Do not add React Native, Expo, a database library, or an i18n framework in MVP.
 
@@ -98,15 +101,18 @@ A game is the aggregate root.
 | `createdAt` | When the game was started |
 | `status` | `in_progress` or `finished` |
 | `finishedAt` | Set when finished; empty while in progress |
-| `players` | 2–4 players, order as added (or seating order if we later define it) |
+| `players` | 2–4 players, seating order = list order |
 | `turns` | Ordered list of turns; **source of truth** for scores |
+| `currentPlayerId` | Suggested whose-turn (soft rotation); advanced after each recorded turn |
 
 Suggested invariants:
 
 - `players.length` is 2, 3, or 4.
 - Player ids are unique within the game.
+- Player display names are unique within the game (trimmed, case-insensitive); blank names rejected.
 - Turns refer to a player id that exists on the game.
-- Turns are ordered. Append a new turn for any player (freeform). Remove only the last turn; edit score/word/player on any turn.
+- Turns are ordered. Append a turn for any player (soft rotation: suggested player is highlighted in UI, not enforced). Remove only the last turn; edit score/word/player on any turn.
+- After recording a turn for player P, set suggested current to the next seat after P (wrap).
 - When `status` is `finished`, scoring mutations are not allowed until the game is reopened.
 - Deleting a game removes its document (UI confirms first).
 - Totals are not stored as required fields on the game.
@@ -146,7 +152,7 @@ Not stored as authority:
 ## Data flow (happy path)
 
 1. User creates a game with 2–4 names → application creates a `Game` (`in_progress`) → persistence saves it.
-2. User enters a score (optional word) for a player → application appends a `Turn` → persistence saves → UI shows derived standings.
+2. User enters a score (optional word) for a player (default: suggested current; other players allowed) → application appends a `Turn`, advances suggested current to next seat → persistence saves → UI shows derived standings.
 3. User corrects a mistake → application removes or replaces a turn → persistence saves → standings recompute from turns.
 4. User finishes the game → status becomes `finished`, `finishedAt` set → persistence saves. Reopen returns it to `in_progress` so scores can be fixed.
 5. User opens history → persistence lists in-progress and finished games → UI shows summaries derived from stored turns.
@@ -180,3 +186,5 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 
 - Static hosting provider for family phones (`docs/decisions.md` O12b)
 - PWA service worker / Add to Home Screen polish (task T5)
+- Client-side router until multi-screen UI (T4)
+- Full Scrabble turn/end rules beyond soft rotation (elimination, auto-end on all-pass, exchanges)

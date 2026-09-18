@@ -44,10 +44,14 @@ Turn history is the source of truth. Cumulative scores and rankings are derived 
 ## Technical choices (locked for MVP)
 
 - TypeScript + React + Vite (mobile-first web). Not Expo / React Native.
+- Package manager: npm. Styling: Tailwind CSS.
 - Persist games as JSON in `localStorage` behind a store interface. No database library.
 - UI copy in Finnish; code, comments, tests, and docs in English. No i18n framework.
 - Domain must not import React.
 - Do not add a PWA plugin until task T5.
+- Do not add a router in scaffold; add when multi-screen UI needs it.
+- Player names unique within a game (trimmed, case-insensitive).
+- Soft rotation: seating order + suggested current player in domain; logging other players still allowed; pass = score 0.
 - If a task requires a **new** major choice not in `docs/decisions.md`, stop and ask.
 
 ## Tests
