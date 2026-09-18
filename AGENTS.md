@@ -13,13 +13,27 @@ Before changing code or expanding scope, read:
 
 Do not invent product features that are not in the spec.
 
-## How to work
+## Development workflow
 
-- Implement **one small task at a time**, with tests for important logic.
-- Prefer Git-based incremental development: one focused change per commit when the user asks to commit.
-- Keep the code easy to understand. Prefer a simple solution over premature extensibility.
-- Do not add dependencies unless they are clearly needed for the current task. Ask first if unsure.
-- Do not introduce agent/subagent/tooling complexity that the user did not request.
+Do **one task at a time**, then stop for human review.
+
+1. Read the task and only the docs needed for it.
+2. State the approach briefly. Ask before a product or architecture decision that is not already in `docs/decisions.md`.
+3. Implement only that task. Prefer a simple, readable solution. Do not add dependencies or extra abstractions unless they are clearly needed.
+4. Add or update tests for important logic. Run the relevant tests, typecheck, and build. Check the task’s acceptance criteria and fix obvious issues.
+5. Summarize what changed, what was verified, and anything still open. Then stop.
+
+Do not start the next task, merge, open a PR, or push unless asked. Do not add agent/subagent/tooling complexity that was not requested.
+
+When asked to commit, make one focused commit for the task.
+
+### Human review
+
+The human decides when a task is ready to merge.
+
+They do not need every line explained. The summary should make clear what changed, why it mattered, how it was tested, and any architectural implications.
+
+If they ask about unfamiliar technology or code, explain it before making further changes. If they request a fix, change it and re-verify.
 
 ## Scope rules
 
