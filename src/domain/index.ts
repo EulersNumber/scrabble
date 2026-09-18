@@ -1,3 +1,7 @@
 export { createGame } from './createGame'
 export { DomainError } from './errors'
+export { recordTurn } from './recordTurn'
+export type { RecordTurnInput } from './recordTurn'
+export { getStandings } from './standings'
+export type { Standing } from './standings'
 export type { Game, GameStatus, Player, Turn } from './types'

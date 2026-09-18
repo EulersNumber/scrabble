@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T0.3 are done.** Continue from T1.1.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T1.2 are done.** Continue from T1.3.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -49,6 +49,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T1.1 Record a turn
 
+- **Status:** done (2026-09-18).
 - **Goal:** Append a turn; soft rotation advances suggested current player (D13).
 - **Acceptance:**
   - Turn is added for any player on the game (soft: non-suggested allowed).
@@ -61,6 +62,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T1.2 Derived totals and standings
 
+- **Status:** done (2026-09-18).
 - **Goal:** Compute totals and ranking from turns only.
 - **Acceptance:**
   - Totals equal the sum of that player’s turn scores.
@@ -175,7 +177,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 
 1. Confirm decisions (T0.1) — done
 2. Scaffold Vite + React + Vitest (T0.2) — done
-3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — T0.3 done
+3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — T0.3–T1.2 done
 4. Persistence + resume (T2)
 5. Use cases (T3)
 6. Finnish UI flows (T4)
