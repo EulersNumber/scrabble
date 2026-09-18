@@ -41,15 +41,18 @@ Separate, where practical:
 
 Turn history is the source of truth. Cumulative scores and rankings are derived from turns, not stored as a second source of truth.
 
-## Technical choices
+## Technical choices (locked for MVP)
 
-Do not lock in framework, language, persistence, or packaging unless `docs/decisions.md` already records the choice, or the user has explicitly decided.
-
-If a task requires a major technical choice that is still open, stop and ask.
+- TypeScript + React + Vite (mobile-first web). Not Expo / React Native.
+- Persist games as JSON in `localStorage` behind a store interface. No database library.
+- UI copy in Finnish; code, comments, tests, and docs in English. No i18n framework.
+- Domain must not import React.
+- Do not add a PWA plugin until task T5.
+- If a task requires a **new** major choice not in `docs/decisions.md`, stop and ask.
 
 ## Tests
 
-- Domain and game-logic rules must have tests (player count, scoring, undo/edit, finish, derived standings).
+- Domain and game-logic rules must have tests (player count, scoring, undo/edit, finish/reopen, derived standings).
 - Do not require heavy UI E2E coverage for the first vertical slices.
 - Do not skip tests in order to “move faster” on core logic.
 

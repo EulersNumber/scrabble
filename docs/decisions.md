@@ -53,110 +53,91 @@ Status: `accepted` | `proposed` | `open`
 
 ---
 
-## Proposed (defaults if you agree; not locked)
+## Accepted (MVP architecture, 2026-09-18)
 
-These are **recommendations**, not implementation licenses. Confirm or replace them.
+Chosen with the user (stack, UI language) or as recorded agent defaults after the planning review. Override here explicitly if the product changes.
 
-### P1. Delivery: mobile-first web app that works offline
+### D8. Stack: TypeScript + React + Vite (was O1)
 
-- **Status:** proposed
-- **Suggestion:** A local, mobile-first web app (later optionally installable as a PWA) rather than a native store app for MVP.
-- **Why:** Fastest path for a learning project, easy to test, no app-store account. Offline via local storage + (later) a service worker if we need true offline load of the app shell.
-- **Tradeoff:** “Works offline” for **data** is easier than “open the app with no network on first visit.” A native app packages the UI; a web app needs a caching story for the shell.
-- **Needs your input:** web vs PWA vs Capacitor/native.
+- **Status:** accepted
+- **Decision:** Mobile-first web app: TypeScript, React, Vite. Not React Native / Expo, Flutter, or a native store app for MVP.
+- **Why:** Simplest Windows workflow, strong learning overlap with AI-assisted web development, enough mobile UX for a scorepad, easy local testing. Domain stays plain TypeScript so it could move later.
+- **Rejected:** Expo (native UX, but heavier tooling and family/iOS distribution). Other UI kits: no strong reason.
 
-### P2. Persistence: one local document per game
+### D9. Persistence: localStorage behind a GameStore (was O2, P2)
 
-- **Status:** proposed
-- **Suggestion:** Store each game as one record (id, status, players, turns). Mechanism TBD with the stack.
-- **Why:** Matches the aggregate; simple save/load; easy to test.
+- **Status:** accepted
+- **Decision:** Each game is one JSON document (id, status, players, ordered turns). Persist via `localStorage`, accessed only through a `GameStore` (or equivalent) interface so IndexedDB or sync can replace it later. No database library in MVP.
+- **Why:** Game data is tiny; round-trips are easy to test; matches the `Game` aggregate.
 
-### P3. Correction model: undo last turn + edit any turn’s score/word
+### D10. Offline bar for MVP (was O3)
 
-- **Status:** proposed (product)
-- **Suggestion:** Support deleting/undoing the most recent turn, and editing score/word on an existing turn. Recalculate standings from the list. Do not require a full event-sourcing undo stack of UI actions.
-- **Why:** Covers “I entered 24 instead of 26” and “I logged the wrong player just now.”
-- **Needs your input:** undo-last-only vs edit-any vs both.
+- **Status:** accepted
+- **Decision:** After the app has loaded, scoring and history work with the network off. An installable / offline app shell (PWA service worker) is **T5**, not a scaffold requirement. First-ever visit with no network, and App Store binaries, are out of MVP.
 
-### P4. Player identity is per game
+### D11. Correction model (was O4, P3)
 
-- **Status:** proposed
-- **Suggestion:** Names live on the game. No global player roster in MVP.
-- **Why:** Avoids accounts and merge logic. History still shows names as they were that day.
+- **Status:** accepted
+- **Decision:**
+  - Undo / remove the **last** turn only.
+  - **Edit** score, optional word, and **player** on **any** turn.
+  - Do not delete arbitrary older turns.
+  - Standings always recompute from the turn list.
+- **Why:** Covers “wrong points two turns ago” and “I logged the last play on the wrong person” without a full history editor.
+
+### D12. Players are per game (was P4)
+
+- **Status:** accepted
+- **Decision:** Display names live on the game. No global player roster in MVP.
+
+### D13. Turn order is freeform (was O5)
+
+- **Status:** accepted (default; user did not override)
+- **Decision:** Any player on the game may be given a score at any time. The app does **not** enforce seating rotation. A “likely next player” hint is not MVP.
+
+### D14. Score constraints (was O6)
+
+- **Status:** accepted
+- **Decision:** Integer scores only. Zero is allowed (pass). Negatives are allowed (challenge / table correction). No automatic bingo rule. Reject non-integers. No domain max; the UI may use a sanity cap (e.g. 9999) to catch typos.
+
+### D15. Ties in standings (was O7)
+
+- **Status:** accepted
+- **Decision:** Rank by total descending. Equal totals **share a rank** (1, 1, 3). Display order: total descending, then original player order. No extra tie-break.
+
+### D16. Finished games (was O8)
+
+- **Status:** accepted
+- **Decision:** Finish is **reversible** (reopen to fix a missed turn). Finished games are read-only until reopened. Deleting a game from history is allowed, with confirmation.
+
+### D17. Resume in-progress games (was O9)
+
+- **Status:** accepted
+- **Decision:** Unfinished games persist across reload/restart. Home lists in-progress and finished games. More than one in-progress game is allowed.
+
+### D18. Optional word (was O10)
+
+- **Status:** accepted
+- **Decision:** At most one optional Unicode string per turn (Finnish letters allowed). Empty/omitted means not recorded. Do not model extra crossword words. No dictionary in MVP.
+
+### D19. Finnish UI, English code (was O11)
+
+- **Status:** accepted
+- **Decision:** User-facing copy is Finnish. Identifiers, comments, docs, and tests stay English. No i18n framework; a small strings module is enough.
+
+### D20. Distribution shape (was O12, P1)
+
+- **Status:** accepted (shape); hosting provider still open
+- **Decision:** Family distribution is a **static HTTPS URL** plus optional Add to Home Screen. Local Vite dev server is enough until then. Not TestFlight, Play Store, or sideloaded native builds for MVP.
+- **Still open:** Which host (GitHub Pages or otherwise) — does not block scaffold.
 
 ---
 
-## Open — need your input
+## Open (does not block scaffold)
 
-### O1. Language, framework, and runtime
+### O12b. Hosting provider
 
-What should we use (examples only: TypeScript + Vite + React; Svelte; Flutter; native Android)?
-
-Until this is decided, do not scaffold the application.
-
-### O2. Persistence mechanism
-
-Once O1 is known: `localStorage`, IndexedDB, SQLite, files, something else?
-
-Constraint: must work offline and survive app restart.
-
-### O3. How “offline” is defined
-
-- **A:** Data operations work offline after the app is already loaded.
-- **B:** The app can be opened and used with no network (installed PWA or native).
-
-MVP wording requires a core experience that works offline; B is stronger and affects packaging.
-
-### O4. Undo vs edit
-
-- Undo only the last turn?
-- Edit any past turn (player, score, word)?
-- Delete any turn?
-- Can you change who scored after the fact?
-
-### O5. Turn order
-
-- Freeform: any player can be given a score at any time (flexible if someone forgot to log).
-- Strict rotation: the app enforces whose turn it is.
-
-Family scorekeeping often works better as **freeform**, but this should be chosen.
-
-### O6. Score constraints
-
-- Integers only?
-- Zero allowed (pass)?
-- Negative allowed (challenge penalty / correction)?
-- Maximum score?
-
-### O7. Ties in standings
-
-- Equal totals share a rank?
-- Stable order by player add-order?
-- Something else?
-
-### O8. Finished games
-
-- Is finish irreversible?
-- Can you reopen a finished game to fix a score?
-- Can you delete a game from history?
-
-### O9. In-progress games across sessions
-
-Should an unfinished game persist and be resumable after closing the app? (Recommended: **yes**, given offline/family use.) How many in-progress games?
-
-### O10. Optional word
-
-- One string per turn (simplest)?
-- Multiple words (main word + crosses)?
-- Character set / Finnish letters (ä, ö) without validation?
-
-### O11. UI language
-
-English UI, Finnish UI, or bilingual? (Family context is Finnish; the repo and docs are currently English.)
-
-### O12. Distribution
-
-How will family phones run it: local URL, hosted static site, installed PWA, sideloaded native app? Hosting is out of MVP functionally but affects O1/O3.
+When the family should use a public URL, pick a static host. Until then, develop locally.
 
 ---
 
@@ -165,5 +146,5 @@ How will family phones run it: local URL, hosted static site, installed PWA, sid
 | ID | Date | Decision |
 | --- | --- | --- |
 | D1–D7 | 2026-09-18 | Product/architecture principles accepted from project brief |
-| P1–P4 | 2026-09-18 | Proposed defaults; awaiting confirmation |
-| O1–O12 | 2026-09-18 | Open; required before or during related tasks |
+| D8–D20 | 2026-09-18 | Stack (Vite + React + TS), Finnish UI, and MVP defaults from planning review |
+| O12b | 2026-09-18 | Hosting provider deferred until distribution |

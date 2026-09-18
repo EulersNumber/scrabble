@@ -1,6 +1,6 @@
 # Architecture
 
-Initial architecture for a small, testable, offline scorekeeping app. **Stack (language, UI framework, persistence library, packaging) is not decided.** This document describes layers, the domain model, and boundaries so implementation can stay simple once those choices are made.
+Initial architecture for a small, testable, offline scorekeeping app. Stack and MVP product defaults are recorded in `docs/decisions.md` (D8–D20).
 
 ## Design goals
 
@@ -11,6 +11,16 @@ Initial architecture for a small, testable, offline scorekeeping app. **Stack (l
 - Few dependencies
 - Clear separation of UI, application logic, persistence, and future Scrabble-specific logic
 - Prefer simple solutions over speculative frameworks or plugin systems
+
+## Chosen stack
+
+- **Language / UI:** TypeScript, React, Vite
+- **Delivery:** Mobile-first web app; PWA shell caching is a later task (T5), not part of first scaffold
+- **Persistence:** JSON game documents in `localStorage`, behind a `GameStore` interface
+- **Tests:** Vitest for domain and use cases (pure TypeScript)
+- **UI language:** Finnish copy; English code and docs
+
+Do not add React Native, Expo, a database library, or an i18n framework in MVP.
 
 ## Proposed layers
 
@@ -35,7 +45,7 @@ Keep these as **module boundaries**, not a heavy framework:
                   │ saved by
 ┌─────────────────▼───────────────────┐
 │  Persistence                        │
-│  local store of games               │
+│  GameStore → localStorage JSON      │
 └─────────────────────────────────────┘
 
 Later (not now), isolated modules:
@@ -45,14 +55,14 @@ Later (not now), isolated modules:
 
 ### UI
 
-- Presents screens and collects input.
+- Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
 - Does not own scoring rules or persistence details.
-- Should remain replaceable (e.g. if the delivery model changes) without rewriting domain logic.
+- Should remain replaceable without rewriting domain logic. Domain must not import React.
 
 ### Application / game use cases
 
 - Orchestrates one user action: validate input at the use-case level, update the `Game`, persist, return data for the UI.
-- Examples: `createGame`, `recordTurn`, `editTurn` / `undoTurn`, `finishGame`, `listGames`, `getGame`.
+- Examples: `createGame`, `recordTurn`, `editTurn` / `undoTurn`, `finishGame`, `reopenGame`, `deleteGame`, `listGames`, `getGame`.
 
 ### Domain
 
@@ -64,7 +74,7 @@ Later (not now), isolated modules:
 ### Persistence
 
 - Saves and loads games locally so a refresh, app restart, or offline session does not lose an in-progress or finished game.
-- Mechanism (files, SQLite, IndexedDB, etc.) is an open technical decision.
+- Mechanism: `localStorage` + JSON, wrapped so the rest of the app depends on a store interface, not on `localStorage` directly.
 - Store the **game document** (players + ordered turns + status). Do not persist derived standings as an independent source of truth. Derived values may be cached in memory for the UI.
 
 ### Future Scrabble-specific logic (boundary only)
@@ -96,8 +106,9 @@ Suggested invariants:
 - `players.length` is 2, 3, or 4.
 - Player ids are unique within the game.
 - Turns refer to a player id that exists on the game.
-- Turns are ordered (append-only except for undo/edit).
-- When `status` is `finished`, scoring mutations are not allowed (unless a later decision allows reopening).
+- Turns are ordered. Append a new turn for any player (freeform). Remove only the last turn; edit score/word/player on any turn.
+- When `status` is `finished`, scoring mutations are not allowed until the game is reopened.
+- Deleting a game removes its document (UI confirms first).
 - Totals are not stored as required fields on the game.
 
 ### Player
@@ -129,7 +140,7 @@ The product does not require modeling the physical board. A turn is a scoring ev
 Not stored as authority:
 
 - **Player total** = sum of `turn.score` where `turn.playerId` matches.
-- **Standings** = players ordered by total (tie-break rule is an open decision).
+- **Standings** = rank by total descending; equal totals share a rank (1, 1, 3); display order is total desc then original player order.
 - **Final result** of a finished game = standings at finish time, which equals standings from the same turn list.
 
 ## Data flow (happy path)
@@ -137,8 +148,8 @@ Not stored as authority:
 1. User creates a game with 2–4 names → application creates a `Game` (`in_progress`) → persistence saves it.
 2. User enters a score (optional word) for a player → application appends a `Turn` → persistence saves → UI shows derived standings.
 3. User corrects a mistake → application removes or replaces a turn → persistence saves → standings recompute from turns.
-4. User finishes the game → status becomes `finished`, `finishedAt` set → persistence saves.
-5. User opens history → persistence lists games → UI shows summaries derived from stored turns.
+4. User finishes the game → status becomes `finished`, `finishedAt` set → persistence saves. Reopen returns it to `in_progress` so scores can be fixed.
+5. User opens history → persistence lists in-progress and finished games → UI shows summaries derived from stored turns.
 
 ## UI shape (conceptual, not a design system)
 
@@ -147,14 +158,14 @@ Enough screens to support MVP; names can change:
 1. **Home / history** — list of games; start new game.
 2. **New game** — enter 2–4 player names; start.
 3. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish.
-4. **Game detail (past)** — read-only (or same view with mutations disabled) turn list and final standings.
+4. **Game detail (past)** — read-only until reopened; turn list and final standings.
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 
 ## Testing strategy
 
-- **Domain/unit tests** for invariants and derivations: player count, turn append, totals, rankings, undo/edit, finish, reject invalid operations.
-- **Persistence tests** once a store is chosen: save/load round-trip of a game document.
+- **Domain/unit tests** (Vitest) for invariants and derivations: player count, turn append, totals, rankings, undo/edit, finish/reopen, reject invalid operations.
+- **Persistence tests** for the `GameStore` / `localStorage` round-trip of a game document.
 - **UI tests** only as needed; not a blocker for the first domain slice.
 
 ## What this architecture deliberately does not include
@@ -165,11 +176,7 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 - Plugin architecture for rulesets
 - Shared kernel / DDD ceremony beyond one aggregate (`Game`)
 
-## Open technical choices
+## Deferred (does not block scaffold)
 
-See `docs/decisions.md`. Implementation must not assume a stack until those are decided:
-
-- Delivery: e.g. installable web app vs native wrapper vs native app
-- Language and UI framework
-- Local persistence mechanism
-- How the app is run on a family phone (browser bookmark vs installed PWA vs store)
+- Static hosting provider for family phones (`docs/decisions.md` O12b)
+- PWA service worker / Add to Home Screen polish (task T5)

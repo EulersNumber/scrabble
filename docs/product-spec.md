@@ -46,7 +46,8 @@ These may be considered later. The architecture should leave a seam for **word v
 ### 2. Enter a player’s score for each turn
 
 - After a physical turn, the user records that player’s score.
-- A turn belongs to exactly one player and has a numeric score.
+- Logging is **freeform**: any of the 2–4 players may be given a score at any time (no enforced rotation).
+- A turn belongs to exactly one player and has an integer score (zero and negatives allowed).
 - The app does not calculate the score from tiles; the user types (or otherwise enters) the points.
 
 ### 3. Show cumulative scores and standings
@@ -57,23 +58,26 @@ These may be considered later. The architecture should leave a seam for **word v
 
 ### 4. Undo / edit incorrect turns
 
-- The user can correct a mistake.
-- At minimum, they can undo or edit a recorded turn so the derived totals become correct again.
-- Exact interaction (undo last only vs edit any turn) is an open product decision; see `docs/decisions.md`.
+- Undo / remove the **last** turn only.
+- Edit score, optional word, and player on **any** turn.
+- Derived totals must match the updated turn list.
 
 ### 5. Finish and save a game
 
 - The user can mark a game as finished.
 - A finished game is retained in history with its players, turns, and derived final scores.
+- Finish is reversible (reopen) so a missed turn can be fixed. Finished games are read-only until reopened.
+- A game may be deleted from history after confirmation.
 
 ### 6. View previous games
 
-- The user can open a list of previously saved games.
+- The user can open a list of previously saved games (in progress and finished).
 - The user can open a past game and see its outcome and turn history.
+- Unfinished games persist across reload and can be resumed. More than one in-progress game is allowed.
 
 ### 7. Optional word on a turn
 
-- When recording a turn, the user **may** enter the word that was played.
+- When recording a turn, the user **may** enter the word that was played (one Unicode string; Finnish letters allowed).
 - Word is optional. Empty/missing word is valid.
 - The app does **not** check whether the word is legal.
 
@@ -84,6 +88,7 @@ These may be considered later. The architecture should leave a seam for **word v
 - **Forgiving.** Mistakes are expected; correction is part of the main flow.
 - **Offline-first.** Local data is enough for MVP.
 - **Mobile-first.** Primary layout and interaction target is a phone in the hand or on the table.
+- **Finnish UI.** Visible copy is Finnish; code and documentation stay English.
 
 ## Domain concepts (product view)
 
@@ -93,7 +98,7 @@ These may be considered later. The architecture should leave a seam for **word v
 | Player | A named participant in a specific game (2–4 per game). |
 | Turn | One scoring event: who scored, how many points, when, optional word. |
 
-Turn history is the source of truth. Cumulative scores are the sum of that player’s turn scores. Rankings are an ordering of those totals.
+Turn history is the source of truth. Cumulative scores are the sum of that player’s turn scores. Rankings use shared ranks on a tie (1, 1, 3), then original player order for display.
 
 ## Out of scope details (explicit)
 
@@ -101,10 +106,10 @@ The following are **not** required for MVP even if they often appear in “real�
 
 - Tile rack, board, or premium-square UI
 - Bingo / 50-point bonus as a special rule (user can include it in the number they enter)
-- Passing, challenging, or exchanging tiles as first-class actions (a 0-point turn may be enough later; not specified)
+- Passing, challenging, or exchanging tiles as first-class actions (a 0-point turn can record a pass)
 - Clock / timer
-- Multiple simultaneous in-progress games as a designed feature (not forbidden, not required)
-- Player profiles that persist across games as a global identity system
+- Global player profiles / roster across games
+- Enforced turn rotation
 
 ## Success criteria for MVP
 
@@ -117,6 +122,6 @@ The family can:
 5. End the game and find it later in history.
 6. Optionally note the word for a turn.
 
-## Open product questions
+## Product decisions
 
-Recorded in `docs/decisions.md`. They should be resolved before or during the related implementation task, not silently assumed.
+MVP product rules (correction model, scores, ties, finish/reopen, resume, word field, Finnish UI) are **accepted** in `docs/decisions.md` (D8–D20). Hosting provider is deferred until family distribution.

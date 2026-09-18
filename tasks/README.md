@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. **Do not start application code until stack choices in `docs/decisions.md` (O1–O3) are decided**, except documentation work.
+Small implementation tasks for the scorekeeping app. Stack and MVP product defaults are **accepted** in `docs/decisions.md` (D8–D20). **T0.1 is done.** Do not scaffold (T0.2) until the user asks. Do not install dependencies except as part of T0.2.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -12,20 +12,21 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T0.1 Confirm open decisions needed to scaffold
 
-- **Goal:** Record choices for language/framework (O1), persistence (O2), offline definition (O3), and confirm proposed defaults P1–P4 / product opens O4–O12 as needed.
+- **Status:** done (docs only; 2026-09-18).
+- **Goal:** Record choices for language/framework, persistence, offline definition, and product defaults.
 - **Acceptance:**
-  - `docs/decisions.md` updated: relevant items `accepted` or explicitly deferred with a default.
+  - `docs/decisions.md` updated: D8–D20 accepted; hosting provider deferred (O12b).
   - No app code required.
 
 ### T0.2 Scaffold the project
 
-- **Goal:** Empty runnable app shell with the chosen stack, lint/test command, and layer folders matching `docs/architecture.md`.
+- **Goal:** Empty runnable app shell: TypeScript + React + Vite, Vitest, layer folders matching `docs/architecture.md`.
 - **Acceptance:**
-  - App starts locally (hello/placeholder screen is enough).
-  - Test runner runs (even if only a placeholder test).
+  - App starts locally (hello/placeholder screen is enough; Finnish UI later).
+  - Vitest runs (even if only a placeholder test).
   - Domain / application / persistence / UI folders (or equivalent) exist and are empty-or-minimal.
   - No feature logic yet.
-  - No extra dependencies beyond what the stack needs to run and test.
+  - No extra dependencies beyond Vite, React, TypeScript, and the test runner.
 
 ### T0.3 Domain types and invariants (tests first)
 
@@ -47,6 +48,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
   - Turn is added for a player on the game.
   - Unknown player is rejected.
   - Missing/empty word is allowed.
+  - Non-integer scores are rejected; 0 and negatives are allowed.
   - Tests cover success and rejection.
 
 ### T1.2 Derived totals and standings
@@ -55,24 +57,26 @@ Suggested order is the numbering below. A task may be split further if it grows.
 - **Acceptance:**
   - Totals equal the sum of that player’s turn scores.
   - Players with no turns total 0.
-  - Ranking uses the agreed tie rule (O7).
+  - Ranking uses shared ranks on a tie (D15: 1, 1, 3), display order total then player order.
   - Tests cover several turns, zeros, and a tie.
 
 ### T1.3 Undo / edit turns
 
-- **Goal:** Implement the correction model decided in O4 (and P3 if accepted).
+- **Goal:** Undo/remove last turn; edit score, word, and player on any turn (D11).
 - **Acceptance:**
   - After undo/edit, standings match the remaining/changed turns.
+  - Cannot delete a non-last turn.
   - Invalid edits are rejected (e.g. unknown turn).
-  - Tests cover at least: undo last; one edit that changes a total.
+  - Tests cover at least: undo last; one edit that changes a total; edit player.
 
-### T1.4 Finish a game
+### T1.4 Finish, reopen, and reject mutations while finished
 
-- **Goal:** Mark a game finished; block further scoring (unless O8 says otherwise).
+- **Goal:** Finish a game; block scoring until reopen (D16).
 - **Acceptance:**
   - `status` is `finished` and `finishedAt` is set.
-  - Recording a turn on a finished game is rejected (if finish is irreversible).
-  - Tests cover finish and the mutation rule.
+  - Recording a turn on a finished game is rejected until reopen.
+  - Reopen returns `in_progress` and allows scoring again.
+  - Tests cover finish, blocked mutation, and reopen.
 
 ---
 
@@ -80,15 +84,15 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T2.1 Local game store
 
-- **Goal:** Save and load a full game document.
+- **Goal:** Save and load a full game document via `GameStore` on `localStorage`.
 - **Acceptance:**
   - Round-trip preserves id, players, turns, status, timestamps, optional words.
   - Works with no network.
-  - Tests (unit or integration) cover save/load.
+  - Tests (unit or integration) cover save/load. Use a fake `localStorage` if needed.
 
 ### T2.2 Resume in-progress game
 
-- **Goal:** Unfinished games survive restart (O9; recommended yes).
+- **Goal:** Unfinished games survive restart (D17). Multiple in-progress games allowed.
 - **Acceptance:**
   - After reload, the same in-progress game and turns are present.
   - Covered by test or a documented manual check if the environment cannot simulate reload easily.
@@ -103,15 +107,15 @@ Thin functions/services used by the UI. Keep them free of widget/DOM types.
 
 - **Acceptance:** Creating persists a game; listing returns saved games (in progress and finished). Tests with a fake or real store.
 
-### T3.2 Record / correct / finish use cases
+### T3.2 Record / correct / finish / reopen / delete use cases
 
-- **Acceptance:** Each operation loads, updates domain, saves. Errors from domain surface clearly. Tests with a store.
+- **Acceptance:** Each operation loads, updates domain, saves. Errors from domain surface clearly. Delete requires an explicit confirm at the UI layer; the use case deletes. Tests with a store.
 
 ---
 
-## 4. UI (mobile-first)
+## 4. UI (mobile-first, Finnish copy)
 
-Build screens against the use cases. Visual polish is secondary to usable flow.
+Build screens against the use cases. Visual polish is secondary to usable flow. Visible strings in Finnish.
 
 ### T4.1 New game screen
 
@@ -119,19 +123,19 @@ Build screens against the use cases. Visual polish is secondary to usable flow.
 
 ### T4.2 Active game: standings + add turn
 
-- **Acceptance:** User picks a player, enters a score, optionally a word, submits. Standings update immediately. Usable on a phone-width layout.
+- **Acceptance:** User picks any player (freeform), enters an integer score, optionally a word, submits. Standings update immediately. Usable on a phone-width layout.
 
 ### T4.3 Active game: undo/edit
 
-- **Acceptance:** User can correct a turn per O4 without leaving a broken total.
+- **Acceptance:** User can undo the last turn and edit score/word/player on any turn without leaving a broken total.
 
-### T4.4 Finish game
+### T4.4 Finish / reopen
 
-- **Acceptance:** User can finish; game no longer accepts new scores (per O8).
+- **Acceptance:** User can finish; scoring is blocked until they reopen.
 
 ### T4.5 History list + past game detail
 
-- **Acceptance:** Finished (and, if applicable, in-progress) games appear in a list. Opening one shows players, totals, and turn history including optional words.
+- **Acceptance:** In-progress and finished games appear in a list. Opening one shows players, totals, and turn history including optional words. Delete is available with confirmation.
 
 ---
 
@@ -139,10 +143,10 @@ Build screens against the use cases. Visual polish is secondary to usable flow.
 
 ### T5.1 Offline core check
 
-- **Goal:** Meet the chosen definition of offline (O3).
+- **Goal:** Data works offline after load (D10). Optionally add a Vite PWA plugin so a previously visited app opens offline.
 - **Acceptance:**
-  - Scoring and history work with network disabled after the app is available per O3.
-  - Document how to verify (and implement shell caching only if O3 requires it).
+  - Scoring and history work with network disabled after the app is loaded.
+  - Document how to verify. Add shell caching only if implementing the PWA stretch.
 
 ### T5.2 MVP review
 
@@ -161,12 +165,12 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 
 ## Implementation order (summary)
 
-1. Decide stack and remaining product opens (T0.1)
-2. Scaffold (T0.2)
-3. Domain + tests: game, turns, standings, undo/edit, finish (T0.3–T1.4)
+1. Confirm decisions (T0.1) — done
+2. Scaffold Vite + React + Vitest (T0.2) when the user asks
+3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4)
 4. Persistence + resume (T2)
 5. Use cases (T3)
-6. UI flows (T4)
-7. Offline verification (T5)
+6. Finnish UI flows (T4)
+7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
