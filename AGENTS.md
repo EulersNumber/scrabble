@@ -17,6 +17,23 @@ Do not invent product features that are not in the spec.
 
 Do **one task at a time**, then stop for human review.
 
+### Branch hygiene (do this before any code change)
+
+Continuing a chat does **not** mean continuing the old branch. Merged task branches must not receive the next task’s work.
+
+Before implementing (or when picking up the next task in an existing chat):
+
+1. `git fetch origin --prune`
+2. Check `git status` and `git branch -vv`. If the current branch is already merged, deleted on remote, or named for a previous task, leave it.
+3. Update local `main`: `git checkout main` then `git pull origin main` (fast-forward only).
+4. Create a **new** feature branch from that updated `main`, named for **this** task (e.g. `cursor/domain-finish-reopen` for T1.4).
+5. If there is already uncommitted work on the wrong branch, move it onto the new branch (stash → update main → new branch → stash pop) before editing further.
+6. Call `SetActiveBranch` for the new branch so the UI tracks the correct PR/diff base.
+
+Never commit or push follow-up task work onto a branch whose PR is merged or whose remote was deleted. Do not reuse `main` for feature commits.
+
+### Task loop
+
 1. Read the task and only the docs needed for it.
 2. State the approach briefly. Ask before a product or architecture decision that is not already in `docs/decisions.md`.
 3. Implement only that task. Prefer a simple, readable solution. Do not add dependencies or extra abstractions unless they are clearly needed.
@@ -25,7 +42,7 @@ Do **one task at a time**, then stop for human review.
 
 Do not start the next task, merge, open a PR, or push unless asked. Do not add agent/subagent/tooling complexity that was not requested.
 
-When asked to commit, make one focused commit for the task.
+When asked to commit, make one focused commit for the task on the current feature branch.
 
 ### Human review
 
@@ -77,3 +94,15 @@ Turn history is the source of truth. Cumulative scores and rankings are derived 
 ## Documentation
 
 When a product or architecture decision is made, update `docs/decisions.md` (and the spec/architecture if behavior changed). Keep docs as the source of truth; do not let the code silently diverge.
+
+### Docstrings (required for exported logic)
+
+Exported domain and application functions must have a short JSDoc comment that makes the code easy to read without tracing callers. Include:
+
+- **Purpose** — what the function is for (and relevant decision IDs when helpful).
+- **Behavior** — important rules, side effects, or invariants (e.g. soft rotation, read-only when finished).
+- **Params** — `@param` for non-obvious inputs (types already appear in signatures; note constraints).
+- **Returns** — `@returns` what the caller gets (especially when a new immutable value is returned).
+- **Throws** — `@throws` for domain/application errors the caller should expect.
+
+Prefer clarity over length. Skip noisy restatements of the type signature alone. Private helpers may use a one-line doc when the name is not enough.
