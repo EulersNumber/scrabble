@@ -1,4 +1,5 @@
 import { DomainError } from './errors'
+import { nextSeatAfter } from './suggestedPlayer'
 import type { Game, Turn } from './types'
 
 export type RecordTurnInput = {
@@ -33,15 +34,4 @@ export function recordTurn(game: Game, input: RecordTurnInput): Game {
     turns: [...game.turns, turn],
     currentPlayerId: nextSeatAfter(game, player.id),
   }
-}
-
-function nextSeatAfter(game: Game, playerId: string): string {
-  const index = game.players.findIndex((player) => player.id === playerId)
-  const nextPlayer = game.players[(index + 1) % game.players.length]
-
-  if (!nextPlayer) {
-    throw new DomainError('Unknown player')
-  }
-
-  return nextPlayer.id
 }
