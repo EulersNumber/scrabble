@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1 is done.** Do not scaffold (T0.2) until the user asks. Do not install dependencies except as part of T0.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1 and T0.2 are done.** Continue from T0.3.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -20,6 +20,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T0.2 Scaffold the project
 
+- **Status:** done (2026-09-18).
 - **Goal:** Empty runnable app shell: TypeScript + React + Vite, Tailwind CSS, Vitest, npm, layer folders matching `docs/architecture.md`.
 - **Acceptance:**
   - App starts locally (hello/placeholder screen is enough; Finnish UI later).
@@ -172,7 +173,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 ## Implementation order (summary)
 
 1. Confirm decisions (T0.1) — done
-2. Scaffold Vite + React + Vitest (T0.2) when the user asks
+2. Scaffold Vite + React + Vitest (T0.2) — done
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4)
 4. Persistence + resume (T2)
 5. Use cases (T3)
