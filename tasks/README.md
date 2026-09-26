@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T3.2 are done.** Continue from T4.0.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.0 are done.** Continue from T4.1.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -140,6 +140,7 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.0 Home: new game + continue
 
+- **Status:** done (2026-09-26).
 - **Goal:** First screen after open: start a new game or continue an unfinished one.
 - **Acceptance:**
   - User can start a **new game** (navigates to T4.1).
@@ -147,6 +148,7 @@ Home must support both **new game** and **continue** (resume an in-progress game
   - Multiple in-progress games are allowed; each is selectable.
   - Finished games may appear here or only under history (T4.5); either is fine if continue vs past-game detail stays clear.
   - Finnish copy for the primary actions is set in this task (or with T4.5 if home and history share one screen).
+- **Notes:** Finnish labels: “Uusi peli”, “Jatka”, “Kesken olevat pelit”. Home lists only in-progress games (newest first); finished games deferred to T4.5. New-game and active-game destinations are placeholders until T4.1 / T4.2. Navigation uses React screen state (no URL router yet, D24). Screens use theme tokens + UI primitives (D27). GitHub Pages deploy workflow added (D28) — enable Pages source once, then merge to `main` for `https://eulersnumber.github.io/scrabble/`.
 
 ### T4.1 New game screen
 
@@ -208,7 +210,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4), including home continue (T4.0)
+6. Finnish UI flows (T4): T4.0 home done; continue from T4.1
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.

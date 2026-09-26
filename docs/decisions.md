@@ -137,9 +137,9 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ### D20. Distribution shape (was O12, P1)
 
-- **Status:** accepted (shape); hosting provider still open
-- **Decision:** Family distribution is a **static HTTPS URL** plus optional Add to Home Screen. Local Vite dev server is enough until then. Not TestFlight, Play Store, or sideloaded native builds for MVP.
-- **Still open:** Which host (GitHub Pages or otherwise) — does not block scaffold.
+- **Status:** accepted
+- **Decision:** Family distribution is a **static HTTPS URL** plus optional Add to Home Screen. Local Vite dev server remains fine for day-to-day coding. Not TestFlight, Play Store, or sideloaded native builds for MVP.
+- **Host:** GitHub Pages (see D28; closes O12b).
 
 ---
 
@@ -169,11 +169,25 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ---
 
-## Open (does not block scaffold)
+### D27. UI theme tokens and primitives
 
-### O12b. Hosting provider
+- **Status:** accepted
+- **Decision:** Visual design lives in the UI layer only:
+  - **Tokens** in `src/index.css` (`@theme`: board green, ink, surfaces, fonts, radii).
+  - **Primitives** in `src/ui/primitives/` (`AppShell`, `Button`, `ListRowButton`, `ScreenHeader`).
+  - Screens compose primitives; they do not hard-code one-off color schemes.
+- **Layout:** Mobile-first scorepad column; wider on tablet (`md` / `lg` max-widths) so iPad use is comfortable without a full desktop dashboard.
+- **Why:** Color/spacing edits stay in one place; domain and use cases stay design-agnostic.
+- **Out:** Component library packages, design-tool sync, dark mode for MVP.
 
-When the family should use a public URL, pick a static host. Until then, develop locally.
+### D28. Hosting: GitHub Pages (was O12b)
+
+- **Status:** accepted
+- **Decision:** Deploy the Vite production build to **GitHub Pages** from `main` via GitHub Actions (`.github/workflows/deploy-pages.yml`). Site path is `/scrabble/` → `https://eulersnumber.github.io/scrabble/`. Custom domain is optional later (priority 2; domain registration may cost money).
+- **Why:** Free for a public repo; no extra hosting account; fits static SPA (client screen state, no server).
+- **Enable once:** Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**, then merge to `main` (or run the workflow manually).
+
+## Open
 
 ### Possible scope expansion (not in MVP)
 
@@ -210,3 +224,5 @@ When the family should use a public URL, pick a static host. Until then, develop
 | D21–D24 | 2026-09-18 | npm, Tailwind, unique names, routing deferred |
 | D13 (clarify), D18 (clarify), D25 | 2026-09-26 | Starter pick + history name suggestions at create; word entry stays optional / no autocomplete in MVP |
 | D26 | 2026-09-26 | List/history sort and filter belong in UI; store/use-case list order undefined |
+| D27 | 2026-09-26 | UI theme tokens + primitives; tablet-friendly shell |
+| D28 | 2026-09-26 | GitHub Pages hosting (closes O12b) |

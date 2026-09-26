@@ -1,5 +1,33 @@
 @import 'tailwindcss';
 
-body {
-  margin: 0;
+/*
+  Design tokens (D27). Change colors/fonts here — UI primitives and screens
+  read these via Tailwind theme utilities (bg-board, text-ink, font-display…).
+*/
+
+@theme {
+  --color-board: #1f6b3a;
+  --color-board-dark: #16532c;
+  --color-board-soft: #e7f1eb;
+  --color-ink: #142018;
+  --color-ink-muted: #4d5f54;
+  --color-surface: #eef3ef;
+  --color-panel: #fbfcfb;
+  --color-line: #c2d1c7;
+  --color-on-board: #f7faf7;
+
+  --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
+  --font-display: 'Source Serif 4', ui-serif, Georgia, serif;
+
+  --radius-control: 0.75rem;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    min-height: 100svh;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+  }
 }
