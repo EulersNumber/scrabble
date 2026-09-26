@@ -37,7 +37,7 @@ export const strings = {
   lastTurnBadge: 'Viimeisin',
   noWordLabel: '—',
   undoLast: 'Kumoa viimeisin',
-  undoConfirmPrompt: 'Kumota viimeisin vuoro?',
+  undoConfirmPrompt: 'Kumoa viimeisin vuoro?',
   confirmUndo: 'Kumoa',
   cancel: 'Peruuta',
   editPlayerLabel: 'Pelaaja',
