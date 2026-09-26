@@ -21,7 +21,7 @@ Initial architecture for a small, testable, offline scorekeeping app. Stack and 
 - **Persistence:** JSON game documents in `localStorage`, behind a `GameStore` interface
 - **Tests:** Vitest for domain and use cases (pure TypeScript)
 - **UI language:** Finnish copy; English code and docs
-- **Routing:** Not in scaffold; add when multi-screen UI starts
+- **Routing:** T4 uses in-app React screen state (home / new game / active game). No URL router dependency yet.
 
 Do not add React Native, Expo, a database library, or an i18n framework in MVP.
 
@@ -187,5 +187,5 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 
 - Static hosting provider for family phones (`docs/decisions.md` O12b)
 - PWA service worker / Add to Home Screen polish (task T5)
-- Client-side router until multi-screen UI (T4)
+- URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble turn/end rules beyond soft rotation (elimination, auto-end on all-pass, exchanges)
