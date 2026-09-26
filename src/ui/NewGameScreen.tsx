@@ -121,7 +121,7 @@ export function NewGameScreen({
       onCreated(game.id)
     } catch (error) {
       if (error instanceof DomainError) {
-        setSubmitError(error.message)
+        setSubmitError(strings.newGameCreateFailed)
         return
       }
       throw error

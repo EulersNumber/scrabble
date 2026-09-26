@@ -28,4 +28,5 @@ export const strings = {
   newGameTooManyPlayers: 'Pelaajia voi olla enintään neljä.',
   newGameDuplicateNames: 'Pelaajien nimien on oltava erilaisia.',
   newGamePickStarter: 'Valitse kuka aloittaa.',
+  newGameCreateFailed: 'Pelin luonti epäonnistui. Tarkista nimet ja yritä uudelleen.',
 } as const
