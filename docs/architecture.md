@@ -66,6 +66,7 @@ Later (not now), isolated modules:
 
 - Orchestrates one user action: validate input at the use-case level, update the `Game`, persist, return data for the UI.
 - Examples: `createGame`, `recordTurn`, `editTurn` / `undoTurn`, `finishGame`, `reopenGame`, `deleteGame`, `listGames`, `getGame`.
+- `listGames` returns all saved games; **order is undefined** — UI sorts/filters for home vs history (D26).
 
 ### Domain
 

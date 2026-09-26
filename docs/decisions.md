@@ -192,6 +192,13 @@ When the family should use a public URL, pick a static host. Until then, develop
 - **Why:** Matches table ritual (lowest letter starts) without encoding tile draws in domain; reuse of family names speeds setup once history exists.
 - **Out:** Word autocomplete, dictionary, accounts, or a persisted player directory.
 
+### D26. Game list presentation order is a UI concern
+
+- **Status:** accepted
+- **Decision:** `listGames` (and `GameStore.list`) return saved games with **undefined order**. Home, continue, and history screens choose sorting and filtering (e.g. newest first, in-progress vs finished).
+- **Why:** Presentation varies by screen; the local game set is tiny. Keeping order out of domain and out of the list use case avoids baking a single ranking into the core. If a shared default or server paging is needed later, add it at the application/API boundary without touching scoring rules.
+- **Rejected for MVP:** Sorting inside `listGames` or the store as the long-term “scalability” strategy.
+
 ## Decision log
 
 | ID | Date | Decision |
@@ -202,3 +209,4 @@ When the family should use a public URL, pick a static host. Until then, develop
 | D13 | 2026-09-18 | Soft rotation accepted; full Scrabble turn/end rules deferred |
 | D21–D24 | 2026-09-18 | npm, Tailwind, unique names, routing deferred |
 | D13 (clarify), D18 (clarify), D25 | 2026-09-26 | Starter pick + history name suggestions at create; word entry stays optional / no autocomplete in MVP |
+| D26 | 2026-09-26 | List/history sort and filter belong in UI; store/use-case list order undefined |
