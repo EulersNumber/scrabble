@@ -10,7 +10,7 @@ The app accompanies a **physical** game of Scrabble. Players still use a real bo
 - Immediately show cumulative scores and current rankings.
 - Allow correcting mistakes (undo / edit a turn).
 - Finish a game and keep it in history.
-- Work for the core experience **offline**.
+- Work for the core experience **offline** after the app has loaded (see `docs/offline.md`; PWA cold-start and multi-device sync are post-MVP).
 
 ## Non-goals (not MVP)
 
@@ -90,7 +90,7 @@ These may be considered later. The architecture should leave a seam for **word v
 - **Scorepad, not engine.** Trust the humans at the table for legality and tile math.
 - **Immediate feedback.** After a turn is saved, standings update at once.
 - **Forgiving.** Mistakes are expected; correction is part of the main flow.
-- **Offline-first.** Local data is enough for MVP.
+- **Offline-first.** Local data is enough for MVP (`docs/offline.md`).
 - **Mobile-first.** Primary layout and interaction target is a phone in the hand or on the table.
 - **Finnish UI.** Visible copy is Finnish; code and documentation stay English.
 
