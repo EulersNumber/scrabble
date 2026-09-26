@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T3.1 are done.** Continue from T3.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T3.2 are done.** Continue from T4.0.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -126,7 +126,9 @@ Thin functions/services used by the UI. Keep them free of widget/DOM types.
 
 ### T3.2 Record / correct / finish / reopen / delete use cases
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** Each operation loads, updates domain, saves. Errors from domain surface clearly. Delete requires an explicit confirm at the UI layer; the use case deletes. Tests with a store.
+- **Notes:** Also adds `getGame` for single-game load. Missing game id throws `ApplicationError`; domain rule failures remain `DomainError`.
 
 ---
 
