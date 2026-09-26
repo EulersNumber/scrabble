@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T5.2 are done** (MVP checklist closed — see `docs/mvp-review.md`). Continue from **T6.0** (backlog triage).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T5.2 are done** (MVP checklist closed). Continue from **T6.0** (backlog triage).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -207,10 +207,10 @@ Home must support both **new game** and **continue** (resume an in-progress game
 - **Status:** done (2026-09-26).
 - **Goal:** Walk `docs/product-spec.md` MVP list 1–7 and tick each item; capture UX ideas for backlog.
 - **Acceptance:**
-  - Checklist walked against a full sitting (create → scores/pass/off-rotation → undo → edit older turn → finish → history → reopen → delete → resume). See `docs/mvp-review.md`.
-  - All seven MVP items **PASS**; no true MVP gaps (no product-feature code in this task).
+  - Product-spec MVP **1–7** walked against a full sitting (create → scores/pass/off-rotation → undo → edit older turn → finish → history → reopen → delete → resume); all **PASS**.
+  - No true MVP gaps (docs-only task; no product-feature code).
   - Improvement ideas filed as backlog **P10–P14** (and notes on existing **P2/P3/P7**); no “while we’re here” feature work.
-- **Notes:** Next numbered work is **T6.0** (triage backlog into an implementation plan). Do not start P* coding in the T5.2 PR.
+- **Notes:** Point-in-time review report was not kept as a living doc once insights were in the backlog. Next numbered work is **T6.0** (triage backlog into an implementation plan).
 
 ---
 
@@ -388,7 +388,7 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 5. Use cases (T3) — done
 6. Finnish UI flows (T4): T4.0–T4.5 done
 7. Offline verification (T5.1) — done; PWA deferred to **P8**
-8. MVP review (T5.2) — done; checklist in `docs/mvp-review.md`; UX notes → **P10–P14**
+8. MVP review (T5.2) — done; UX notes → **P10–P14**
 9. **Next:** T6.0 backlog triage → prioritized implementation tasks for P*
 
 Domain before UI so the learning project practices testable logic first.

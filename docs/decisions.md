@@ -254,4 +254,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D10 (clarify) | 2026-09-26 | T5.1: offline-after-load documented; PWA stretch → P8; cross-device → P9 |
 | P8 (backlog) | 2026-09-26 | PWA / installable offline shell deferred from T5.1 |
 | P9 (backlog) | 2026-09-26 | Cross-device shared history + durable identity for cabin family stats |
-| T5.2 / P10–P14 | 2026-09-26 | MVP checklist closed (`docs/mvp-review.md`); UX backlog P10–P14; next T6.0 triage |
+| T5.2 / P10–P14 | 2026-09-26 | MVP checklist closed; UX backlog P10–P14; next T6.0 triage |
