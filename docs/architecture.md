@@ -161,7 +161,7 @@ Not stored as authority:
 
 Enough screens to support MVP; names can change:
 
-1. **Home / history** — list of games; start new game.
+1. **Home / history** — list of games; **new game** and **continue** (resume in-progress) as primary actions (D17).
 2. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
 3. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish.
 4. **Game detail (past)** — read-only until reopened; turn list and final standings.
