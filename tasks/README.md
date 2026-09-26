@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.1 are done.** Continue from T4.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.2 are done.** Continue from T4.3.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -162,7 +162,9 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.2 Active game: standings + add turn
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** UI highlights suggested current player; user may pick another. Integer score, optional word (0 = pass). Standings update immediately. Usable on a phone-width layout. Tailwind for layout.
+- **Notes:** Score helpers in `src/ui/activeGame.ts`. Player pick + standings use primitives (`PlayerPickList`, `StandingsList`). Pass shortcut submits score 0. Undo/edit and finish remain T4.3 / T4.4.
 
 ### T4.3 Active game: undo/edit
 
@@ -197,11 +199,78 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ---
 
-## Out of backlog (do not pull in)
+## Post-MVP ideas (not scheduled)
 
-- Word validation, auto-scoring, accounts, sync, sharing, stats, payments, rulesets.
+Capture product wishes here without pulling them into T1–T5. Promote to numbered tasks only after a decision update when we choose to build them.
 
-When those are wanted, add new tasks and a decision; do not expand T1–T5 silently.
+### P1. End-of-game celebration + light recap (+ turn timer foundation)
+
+- **Status:** idea (backlog only; not MVP).
+- **Goal:** When a game is finished, show a short, light celebration moment, then a small recap screen (or overlay) with a few highlights.
+- **Recap candidates:**
+  - Winner and a simple podium / final standings
+  - Highest single-turn score
+  - Overall game length (`createdAt` → `finishedAt`)
+  - Pace highlights driven by a **real per-turn timer** (not inferred from log timestamps)
+- **Turn timer (product choice — accepted for post-MVP):**
+  - Record **how long each turn took** as first-class data on the turn (start/stop or duration when the turn is saved).
+  - Enables later stats: average time per turn, average points per turn, and **cross-game per-person** aggregates (how long someone usually takes, etc.).
+  - Cross-game person stats imply a later naming/identity approach beyond today’s per-game display names (still no roster in MVP — D12); decide that when promoting stats work.
+- **Notes:** Clock/timer and detailed stats stay out of MVP product scope until this is promoted. Celebration animation should stay modest. Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
+
+### P2. Falling Scrabble-tile background animation
+
+- **Status:** idea (backlog only; not MVP).
+- **Goal:** Ambient rectangular letter tiles (like physical Scrabble tiles) fall slowly top → bottom with a slow spin (letter face sometimes visible, sometimes the back).
+- **Screen treatment (product choice — accepted for post-MVP):**
+  - **Home:** tiles are a **key visual** — prominent and engaging.
+  - **Other screens** (new game, active game, history, etc.): same animation may still run, but **dimmed / pushed back** so focus stays on scores, words, and controls.
+- **Approach sketch (when promoted):**
+  - Store tile geometry (and letter face styling) in the codebase
+  - Drive motion with a mathematical fall/spin definition (no heavy game-engine dependency unless we later decide otherwise)
+  - Must not block taps or compete with primary content
+- **Still open when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
+- **Notes:** Pure polish / engagement. Do not pull into T4–T5.
+
+### P3. Turn-focused active-game UI (per-turn screen)
+
+- **Status:** idea (backlog only; not MVP). Bigger UX direction than T4.2’s combined standings + form layout.
+- **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
+- **Sketch:**
+  - Compact **standings banner** at the top (who’s leading / current totals)
+  - Primary content is **this turn’s player**: large actions to record score or skip/pass, optional word
+  - **Hint of who’s next** (soft rotation) without forcing that seat
+  - Dimmed falling tiles (P2) behind the content on this screen
+- **Why backlog, not now:** Needs undo/edit (T4.3) and finish (T4.4) designed into the same flow; reworking mid-T4 would churn unfinished screens. Finish the MVP scorepad path first, then promote this as a visual/UX pass (can replace or reshape the T4.2 layout).
+- **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Promote with a short decision + acceptance criteria before coding.
+
+### P4. Statistics and leaderboards
+
+- **Status:** idea (backlog only; not MVP). Wanted “at some point.”
+- **Goal:** Family-facing **statistics** and **leaderboards** across saved games (and eventually across people), not only a single finished-game recap.
+- **Candidates (when promoting, pick a thin first slice):**
+  - Per-person aggregates: games played, wins, average score, average points per turn, average turn duration (needs **P1** timer + a durable person identity beyond D12 per-game names)
+  - Leaderboards: e.g. most wins, highest single-game total, highest single turn, fastest average turn
+  - Game-level history charts / simple lists are enough for v1; no cloud sync required if data stays local
+- **Notes:** Explicitly out of MVP today (product non-goals). Depends on enough finished games in history (T4.5) and likely P1 timer data for pace stats. Promote with a decision on player identity / display-name matching before coding.
+
+### P5. End-of-game rack adjustment (official-style tile runoff)
+
+- **Status:** idea (backlog only; not MVP). Revisit later.
+- **Goal:** Support the common Scrabble end rule: when a player **plays out** (uses their last tiles), remaining tiles on other players’ racks are **deducted** from those players’ scores and typically **added** to the player who went out (sum of face values of unplayed tiles).
+- **Sketch for a scorepad (not a board engine):**
+  - At finish (or a dedicated “lopetus” step), optionally enter each other player’s **remaining rack tile values** (or letter list if we later know tile values)
+  - Domain records those adjustments as explicit scoring events (or a finish adjustment) so standings still derive from history (D3) — not a silent rewrite of totals
+- **Open when promoting:** exact house vs tournament rule wording; whether empty-bag / consecutive-pass endings also apply; Finnish tile values table; UI for entering leftover tiles without building a full rack editor.
+- **Notes:** MVP finish stays **manual** with user-entered turn scores only (no automatic tile math). This is ruleset/scoring seam territory — leave the boundary clean until promoted.
+
+---
+
+## Out of backlog (do not pull into MVP silently)
+
+- Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
+
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment.
 
 ---
 
@@ -212,7 +281,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0–T4.1 done; continue from T4.2
+6. Finnish UI flows (T4): T4.0–T4.2 done; continue from T4.3
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.

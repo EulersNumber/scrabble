@@ -8,6 +8,10 @@ export {
   listInProgressGamesNewestFirst,
 } from './gameList'
 export {
+  normalizeOptionalWord,
+  parseScoreInput,
+} from './activeGame'
+export {
   orderNamesWithStarterFirst,
   suggestPlayerNames,
   validateNewGameNames,
@@ -18,8 +22,10 @@ export {
   ChoiceChip,
   FormError,
   ListRowButton,
+  PlayerPickList,
   RadioGroup,
   ScreenHeader,
+  StandingsList,
   TextField,
 } from './primitives'
 export { strings } from './strings'
