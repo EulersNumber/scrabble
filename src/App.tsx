@@ -18,7 +18,13 @@ function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
 
   if (screen.name === 'new-game') {
-    return <NewGameScreen onBack={() => setScreen({ name: 'home' })} />
+    return (
+      <NewGameScreen
+        store={store}
+        onBack={() => setScreen({ name: 'home' })}
+        onCreated={(gameId) => setScreen({ name: 'active-game', gameId })}
+      />
+    )
   }
 
   if (screen.name === 'active-game') {

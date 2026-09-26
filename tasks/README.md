@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.0 are done.** Continue from T4.1.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.1 are done.** Continue from T4.2.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -152,11 +152,13 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.1 New game screen
 
+- **Status:** done (2026-09-26).
 - **Acceptance:**
   - User can enter 2–4 names and start a game. Invalid counts are blocked in the UI.
   - After names are set, the user **picks who starts** (physical letter-draw at the table). That player becomes seat 1 / first suggested current; remaining players keep relative seating order after them (D13 / D25).
   - Name fields may **suggest** known names from saved history: prefer a mix of **most recently seen** and **most games played** (unique display names from past games only — no global player roster, D12). Suggestions are optional; empty history means no suggestions.
   - Autocomplete / dictionary for turn **words** is out of scope here (and out of MVP).
+- **Notes:** Setup helpers in `src/ui/newGameSetup.ts` (validate, rotate starter, suggest). After create, navigates to the active-game placeholder (T4.2).
 
 ### T4.2 Active game: standings + add turn
 
@@ -210,7 +212,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0 home done; continue from T4.1
+6. Finnish UI flows (T4): T4.0–T4.1 done; continue from T4.2
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
