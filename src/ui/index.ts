@@ -8,9 +8,15 @@ export {
   listInProgressGamesNewestFirst,
 } from './gameList'
 export {
+  orderNamesWithStarterFirst,
+  suggestPlayerNames,
+  validateNewGameNames,
+} from './newGameSetup'
+export {
   AppShell,
   Button,
   ListRowButton,
   ScreenHeader,
+  TextField,
 } from './primitives'
 export { strings } from './strings'
