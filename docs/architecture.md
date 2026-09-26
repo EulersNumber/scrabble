@@ -1,6 +1,6 @@
 # Architecture
 
-Initial architecture for a small, testable, offline scorekeeping app. Stack and MVP product defaults are recorded in `docs/decisions.md` (D8–D24).
+Initial architecture for a small, testable, offline scorekeeping app. Stack and MVP product defaults are recorded in `docs/decisions.md` (D8–D29). Offline verification: `docs/offline.md`.
 
 ## Design goals
 
@@ -17,7 +17,7 @@ Initial architecture for a small, testable, offline scorekeeping app. Stack and 
 - **Language / UI:** TypeScript, React, Vite
 - **Package manager:** npm
 - **Styling:** Tailwind CSS
-- **Delivery:** Mobile-first web app; PWA shell caching is a later task (T5), not part of first scaffold
+- **Delivery:** Mobile-first web app; offline-after-load is MVP (D10, `docs/offline.md`). PWA shell caching is post-MVP (**P8**), not part of scaffold or T5.1
 - **Persistence:** JSON game documents in `localStorage`, behind a `GameStore` interface
 - **Tests:** Vitest for domain and use cases (pure TypeScript)
 - **UI language:** Finnish copy; English code and docs
@@ -182,7 +182,7 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 
 ## What this architecture deliberately does not include
 
-- Backend, API, or multi-device sync
+- Backend, API, or multi-device sync (desired later — backlog **P9**)
 - Auth
 - Event sourcing as a productized store (an in-memory ordered turn list is enough)
 - Plugin architecture for rulesets
@@ -191,6 +191,6 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 ## Deferred (does not block scaffold)
 
 - Custom domain for GitHub Pages (optional; D28)
-- PWA service worker / Add to Home Screen polish (task T5)
+- PWA service worker / Add to Home Screen polish (backlog **P8**)
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble turn/end rules beyond soft rotation (elimination, auto-end on all-pass, exchanges)

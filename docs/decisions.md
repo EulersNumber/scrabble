@@ -73,7 +73,8 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 ### D10. Offline bar for MVP (was O3)
 
 - **Status:** accepted
-- **Decision:** After the app has loaded, scoring and history work with the network off. An installable / offline app shell (PWA service worker) is **T5**, not a scaffold requirement. First-ever visit with no network, and App Store binaries, are out of MVP.
+- **Decision:** After the app has loaded, scoring and history work with the network off (local `GameStore` / `localStorage`; no network API). First-ever visit with no network, and App Store binaries, are out of MVP.
+- **T5.1 (2026-09-26):** MVP offline core is **verified and documented** in `docs/offline.md`. An installable / offline app shell (PWA service worker, cold start offline, Add to Home Screen polish) is **deferred to post-MVP backlog P8** — not required to close T5.1. Cross-device shared history / family stats over time is backlog **P9** (separate from offline-after-load).
 
 ### D11. Correction model (was O4, P3)
 
@@ -209,9 +210,11 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoted (D12 has no roster in MVP).
 - **Falling tile ambient UI** — backlog **P2** (strong on home, dimmed elsewhere).
 - **Turn-focused active-game layout** — backlog **P3** (standings banner + per-turn primary actions). Presentation-only vs soft rotation (D13); promote after MVP T4 screens work.
-- **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer).
+- **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
 - **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
 - **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
+- **PWA / installable offline shell** — backlog **P8** (deferred from T5.1; cold start offline + Add to Home Screen).
+- **Cross-device shared history** — backlog **P9** (cabin visitors on different phones; same people/stats over time). Priority vs **P8** still open when promoting.
 
 ---
 
@@ -248,3 +251,6 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | P6 (backlog) | 2026-09-26 | Skip-twice elimination + warning confirm captured as post-MVP idea |
 | D29 | 2026-09-26 | Home hub + continue/history lists; list-only delete; reuse finished active-game view |
 | P7 (backlog) | 2026-09-26 | Dedicated past-game summary captured as post-MVP idea |
+| D10 (clarify) | 2026-09-26 | T5.1: offline-after-load documented; PWA stretch → P8; cross-device → P9 |
+| P8 (backlog) | 2026-09-26 | PWA / installable offline shell deferred from T5.1 |
+| P9 (backlog) | 2026-09-26 | Cross-device shared history + durable identity for cabin family stats |

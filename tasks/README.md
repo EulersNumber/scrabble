@@ -194,15 +194,19 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T5.1 Offline core check
 
-- **Goal:** Data works offline after load (D10). Optionally add a Vite PWA plugin so a previously visited app opens offline.
+- **Status:** done (2026-09-26).
+- **Goal:** Confirm data works offline after load (D10); document verification. PWA shell caching was optional stretch — deferred.
 - **Acceptance:**
-  - Scoring and history work with network disabled after the app is loaded.
-  - Document how to verify. Add shell caching only if implementing the PWA stretch.
+  - Scoring and history work with network disabled after the app is loaded (local `GameStore`; see persistence tests + `docs/offline.md`).
+  - How to verify is documented in `docs/offline.md`.
+  - PWA / cold-start offline shell **not** added in T5.1 — captured as backlog **P8**. Cross-device shared history / cabin family stats over time captured as **P9**.
+- **Notes:** MVP remains one scorepad device per sitting. T5.2 (MVP checklist walk) is a separate follow-up chat.
 
 ### T5.2 MVP review
 
 - **Goal:** Walk `docs/product-spec.md` MVP list 1–7 and tick each item.
 - **Acceptance:** Gaps filed as follow-up tasks; no extra features added “while we’re here.”
+- **Notes:** Leave for a separate chat after T5.1.
 
 ---
 
@@ -258,8 +262,8 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Candidates (when promoting, pick a thin first slice):**
   - Per-person aggregates: games played, wins, average score, average points per turn, average turn duration (needs **P1** timer + a durable person identity beyond D12 per-game names)
   - Leaderboards: e.g. most wins, highest single-game total, highest single turn, fastest average turn
-  - Game-level history charts / simple lists are enough for v1; no cloud sync required if data stays local
-- **Notes:** Explicitly out of MVP today (product non-goals). Depends on enough finished games in history (T4.5) and likely P1 timer data for pace stats. Promote with a decision on player identity / display-name matching before coding.
+  - Game-level history charts / simple lists are enough for v1; no cloud sync required if data stays **on one device**
+- **Notes:** Explicitly out of MVP today (product non-goals). Depends on enough finished games in history (T4.5) and likely P1 timer data for pace stats. **Cabin-wide stats for the same people across visitors’ phones** also needs **P9** (cross-device shared history + identity). Promote with a decision on player identity / display-name matching before coding.
 
 ### P5. End-of-game rack adjustment (official-style tile runoff)
 
@@ -290,13 +294,33 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
   - Clarify exact rule wording when promoting (house vs tournament: which passes count, interaction with undo/edit, whether two remaining players / last player standing ends the game automatically).
 - **Notes:** Today you can enter `0` for the same player many times with no elimination — that is intentional for MVP. Do not implement until promoted with a decision update.
 
+### P8. PWA / installable offline shell
+
+- **Status:** idea (backlog only; not MVP). Deferred from T5.1 (2026-09-26).
+- **Goal:** After a previous online visit, the app shell opens offline (service worker / Vite PWA plugin), with optional Add to Home Screen polish (D20).
+- **Why not in T5.1:** Weekend play can load once via hotspot; MVP offline bar is “after load, network off” (D10 / `docs/offline.md`). Cold-start offline and install UX are polish.
+- **Open when promoting:** plugin choice; icons / Finnish short name; GitHub Pages `base` path; whether this outranks **P9** for the next post-MVP slice.
+- **Notes:** First-ever visit with no network stays out of scope. Do not implement until promoted.
+
+### P9. Cross-device shared history (cabin family over time)
+
+- **Status:** idea (backlog only; not MVP). Product wish 2026-09-26.
+- **Goal:** Different people / devices at the cabin can see **the same** game history and, longer term, **statistics for the same people over time** — not only whatever happens to be in one iPad’s `localStorage`.
+- **Why backlog:** MVP is intentionally one local scorepad (D5 / D9). Cloud sync, accounts, and sharing are product non-goals today.
+- **Sketch when promoting (pick a thin first slice):**
+  - Durable **person identity** beyond per-game display names (D12) — required for “same people” stats (**P4**)
+  - Sync or shared store so games created on one phone appear on another (export/backup may be a smaller stepping stone)
+  - Auth / invite model only as heavy as the cabin use case needs
+- **Open when promoting:** sync vs export-first; identity model; whether this outranks **P8** (PWA).
+- **Notes:** Parents opening the URL on their own phones today each get an independent empty local store. Do not implement until promoted with a decision update.
+
 ---
 
 ## Out of backlog (do not pull into MVP silently)
 
 - Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
 
-Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail.
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history.
 
 ---
 
@@ -308,6 +332,6 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
 6. Finnish UI flows (T4): T4.0–T4.5 done
-7. Offline verification / optional PWA (T5)
+7. Offline verification (T5.1) — done; PWA deferred to **P8**. Next: T5.2 MVP review (separate chat)
 
 Domain before UI so the learning project practices testable logic first.
