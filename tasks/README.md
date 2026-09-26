@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T4.5 are done.** Continue from T5.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T5.2 are done** (MVP checklist closed — see `docs/mvp-review.md`). Continue from **T6.0** (backlog triage).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -204,9 +204,27 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T5.2 MVP review
 
-- **Goal:** Walk `docs/product-spec.md` MVP list 1–7 and tick each item.
-- **Acceptance:** Gaps filed as follow-up tasks; no extra features added “while we’re here.”
-- **Notes:** Leave for a separate chat after T5.1.
+- **Status:** done (2026-09-26).
+- **Goal:** Walk `docs/product-spec.md` MVP list 1–7 and tick each item; capture UX ideas for backlog.
+- **Acceptance:**
+  - Checklist walked against a full sitting (create → scores/pass/off-rotation → undo → edit older turn → finish → history → reopen → delete → resume). See `docs/mvp-review.md`.
+  - All seven MVP items **PASS**; no true MVP gaps (no product-feature code in this task).
+  - Improvement ideas filed as backlog **P10–P14** (and notes on existing **P2/P3/P7**); no “while we’re here” feature work.
+- **Notes:** Next numbered work is **T6.0** (triage backlog into an implementation plan). Do not start P* coding in the T5.2 PR.
+
+---
+
+## 6. Post-MVP planning (after MVP close)
+
+### T6.0 Backlog triage and implementation plan
+
+- **Status:** todo (next after T5.2).
+- **Goal:** Review the full post-MVP backlog (**P1–P14**), prioritize with the human, and break the chosen slice into small numbered implementation tasks for separate chats.
+- **Acceptance:**
+  - Ordered shortlist (what to build next vs later / park).
+  - Chosen items split into focused tasks with rough acceptance notes (no need to implement yet).
+  - `tasks/README.md` updated so tomorrow’s work can pick one task at a time.
+- **Notes:** Docs/planning only unless a tiny clarification fix is required. Prefer not to invent new product scope beyond what is already captured in P*.
 
 ---
 
@@ -242,6 +260,7 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
   - Must not block taps or compete with primary content
 - **Still open when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
 - **Notes:** Pure polish / engagement. Do not pull into T4–T5.
+- **T5.2 note:** Home today is correct but sparse (title + three buttons on a flat surface). P2 (and/or **P10**) would give the hub a stronger brand/atmosphere signal.
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
@@ -252,8 +271,10 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
   - Primary content is **this turn’s player**: large actions to record score or skip/pass, optional word
   - **Hint of who’s next** (soft rotation) without forcing that seat
   - Dimmed falling tiles (P2) behind the content on this screen
+  - **History / undo / finish** as secondary navigation or separate sheets/screens so the first viewport is “this turn,” not the whole sitting
 - **Why backlog, not now:** Needs undo/edit (T4.3) and finish (T4.4) designed into the same flow; reworking mid-T4 would churn unfinished screens. Finish the MVP scorepad path first, then promote this as a visual/UX pass (can replace or reshape the T4.2 layout).
 - **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Promote with a short decision + acceptance criteria before coding.
+- **T5.2 note:** Confirmed pain — active game is a long single scroll (standings + full player radio list + score/word + pass + undo + full history + finish). Secondary buttons (**Vuoro ohi**, **Kumoa**, **Lopeta**) look similar; finish is easy to miss at the bottom. Strong candidate to promote early in T6.0.
 
 ### P4. Statistics and leaderboards
 
@@ -281,6 +302,7 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Goal:** A screen purpose-built for viewing a finished sitting (summary / recap), instead of reusing the active-game finished state.
 - **Why backlog:** T4.5 reuses the finished/read-only active-game view (standings, turns, reopen). Enough for MVP; a summarized “previous game” layout can wait until family play shows the gap.
 - **Notes:** May overlap celebration/recap ideas in **P1**. Do not implement until promoted.
+- **T5.2 note:** Finished view is functional but reads as “blocked active game” (reopen CTA + same history list). History list rows also omit winner / final totals — only names, date, turn count (**P12**).
 
 ### P6. Skip-twice → player eliminated (with warning)
 
@@ -314,13 +336,46 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Open when promoting:** sync vs export-first; identity model; whether this outranks **P8** (PWA).
 - **Notes:** Parents opening the URL on their own phones today each get an independent empty local store. Do not implement until promoted with a decision update.
 
+### P10. Visual atmosphere and brand presence (home-first)
+
+- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Goal:** Give the scorepad a clearer visual identity beyond flat green buttons on a flat surface — especially on **home**, which currently passes the “functional hub” bar but not a strong brand/atmosphere bar.
+- **Candidates:** richer background (gradient / subtle table texture — not purple/AI-generic clichés); stronger typography hierarchy; maybe a simple static tile motif if **P2** motion is deferred; keep D27 tokens/primitives.
+- **Notes:** Complements **P2** (motion) without requiring it. Do not expand into marketing-site chrome. Promote with a short visual direction note.
+
+### P11. Edit-turn discoverability and affordance
+
+- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Goal:** Make “fix a turn from two–three turns ago” obvious without teaching. Today tap-to-edit works but history rows look read-only (no Muokkaa / pencil / hint).
+- **Candidates:** edit affordance on rows; short hint under **Vuorot**; dedicated edit sheet/screen; keep undo for last-only mistakes.
+- **Notes:** Behavior already meets MVP (D11). This is UX clarity only. May ship with **P3** or alone as a small polish task.
+
+### P12. Richer game-list rows (winner / final totals)
+
+- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Goal:** On **Päättyneet pelit** (and maybe continue), show enough to recognize a sitting at a glance — e.g. winner or ordered totals — not only names + date + turn count.
+- **Notes:** Presentation-only; derive from existing standings helpers. Pairs well with **P7**. Delete control should stay clearly tied to its row (already per-row; consider less “ghost link under card” chrome when polishing).
+
+### P13. Action hierarchy and destructive/secondary styling
+
+- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on **Tallenna vuoro** first and finish/delete feel appropriately secondary or cautious.
+- **Candidates:** new Button variants or ConfirmPanel emphasis in primitives (D27); keep screens free of one-off chrome.
+- **Notes:** Small design-system pass; can land before or with **P3**.
+
+### P14. Lightweight save / state feedback
+
+- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Goal:** After recording or editing a turn, give a brief confirmation (toast, inline flash, or standings highlight) so table users trust the save without re-reading the whole history list.
+- **Notes:** Keep subtle — family scorepad, not a noisy snackbar farm. Optional nicety once core layout (**P3**) settles.
+
 ---
 
 ## Out of backlog (do not pull into MVP silently)
 
 - Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
 
-Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history.
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere, **P11** edit affordance, **P12** richer list rows, **P13** action hierarchy, **P14** save feedback.
 
 ---
 
@@ -332,6 +387,8 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
 6. Finnish UI flows (T4): T4.0–T4.5 done
-7. Offline verification (T5.1) — done; PWA deferred to **P8**. Next: T5.2 MVP review (separate chat)
+7. Offline verification (T5.1) — done; PWA deferred to **P8**
+8. MVP review (T5.2) — done; checklist in `docs/mvp-review.md`; UX notes → **P10–P14**
+9. **Next:** T6.0 backlog triage → prioritized implementation tasks for P*
 
 Domain before UI so the learning project practices testable logic first.

@@ -128,6 +128,8 @@ The family can:
 5. End the game and find it later in history.
 6. Optionally note the word for a turn.
 
+**T5.2 (2026-09-26):** Walked and marked met in `docs/mvp-review.md`. Post-MVP polish and features live in `tasks/README.md` (**P1–P14**); next planning step is **T6.0**.
+
 ## Product decisions
 
-MVP product rules are **accepted** in `docs/decisions.md` (D8–D28), including soft rotation (D13). Family distribution uses GitHub Pages (D28).
+MVP product rules are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation (D13). Family distribution uses GitHub Pages (D28).
