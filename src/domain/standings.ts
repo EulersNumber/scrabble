@@ -7,7 +7,16 @@ export type Standing = {
   rank: number
 }
 
-/** Totals and ranks derived only from the turn list (D3, D15). */
+/**
+ * Totals and ranks derived only from the turn list (D3, D15).
+ *
+ * Sums each player's turn scores (players with no turns total 0). Rank uses
+ * shared ranks on a tie (1, 1, 3). Display order is total descending, then
+ * original seating order. Does not mutate or persist anything.
+ *
+ * @param game - Game whose turns are the source of truth
+ * @returns Standings entries in display order
+ */
 export function getStandings(game: Game): Standing[] {
   const totals = new Map<string, number>()
 

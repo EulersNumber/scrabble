@@ -1,0 +1,16 @@
+---
+description: Always start each task on a fresh branch from updated main
+alwaysApply: true
+---
+
+# Git branch hygiene
+
+Before any implementation in a chat (including “next task” in the same conversation):
+
+1. `git fetch origin --prune` and inspect `git branch -vv`.
+2. If the current branch belongs to a previous / already-merged task, do **not** keep coding on it.
+3. Fast-forward local `main` from `origin/main`, then create a **new** feature branch named for the current task.
+4. Move any uncommitted work onto that new branch before continuing.
+5. Call `SetActiveBranch` with the new branch name.
+
+Never put the next task’s commits on a merged or deleted feature branch. See `AGENTS.md` → Branch hygiene.

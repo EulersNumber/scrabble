@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T1.3 are done.** Continue from T1.4.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T1.4 are done.** Continue from T2.1.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -82,6 +82,7 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T1.4 Finish, reopen, and reject mutations while finished
 
+- **Status:** done (2026-09-18).
 - **Goal:** Finish a game; block scoring until reopen (D16).
 - **Acceptance:**
   - `status` is `finished` and `finishedAt` is set.
@@ -178,7 +179,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 
 1. Confirm decisions (T0.1) — done
 2. Scaffold Vite + React + Vitest (T0.2) — done
-3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — T0.3–T1.3 done
+3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2)
 5. Use cases (T3)
 6. Finnish UI flows (T4)
