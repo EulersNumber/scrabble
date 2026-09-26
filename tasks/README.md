@@ -203,27 +203,46 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 Capture product wishes here without pulling them into T1–T5. Promote to numbered tasks only after a decision update when we choose to build them.
 
-### P1. End-of-game celebration + light recap
+### P1. End-of-game celebration + light recap (+ turn timer foundation)
 
 - **Status:** idea (backlog only; not MVP).
 - **Goal:** When a game is finished, show a short, light celebration moment, then a small recap screen (or overlay) with a few highlights.
-- **Candidates to show (pick a subset when implementing):**
+- **Recap candidates:**
   - Winner and a simple podium / final standings
   - Highest single-turn score
   - Overall game length (`createdAt` → `finishedAt`)
-  - Optional pace stats (e.g. fastest average gap between turns) — **needs a product choice:** derive from existing turn `createdAt` timestamps, or add an explicit timer (clock/timer is currently out of MVP product scope)
-- **Notes:** Overlaps “detailed player statistics” / non-MVP polish. Keep animation modest (family table, not a game engine). Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
+  - Pace highlights driven by a **real per-turn timer** (not inferred from log timestamps)
+- **Turn timer (product choice — accepted for post-MVP):**
+  - Record **how long each turn took** as first-class data on the turn (start/stop or duration when the turn is saved).
+  - Enables later stats: average time per turn, average points per turn, and **cross-game per-person** aggregates (how long someone usually takes, etc.).
+  - Cross-game person stats imply a later naming/identity approach beyond today’s per-game display names (still no roster in MVP — D12); decide that when promoting stats work.
+- **Notes:** Clock/timer and detailed stats stay out of MVP product scope until this is promoted. Celebration animation should stay modest. Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
 
 ### P2. Falling Scrabble-tile background animation
 
 - **Status:** idea (backlog only; not MVP).
-- **Goal:** A light ambient background: rectangular letter tiles (like physical Scrabble tiles) fall slowly from top to bottom, with a slow spin so the letter face is sometimes visible and sometimes the back.
+- **Goal:** Ambient rectangular letter tiles (like physical Scrabble tiles) fall slowly top → bottom with a slow spin (letter face sometimes visible, sometimes the back).
+- **Screen treatment (product choice — accepted for post-MVP):**
+  - **Home:** tiles are a **key visual** — prominent and engaging.
+  - **Other screens** (new game, active game, history, etc.): same animation may still run, but **dimmed / pushed back** so focus stays on scores, words, and controls.
 - **Approach sketch (when promoted):**
   - Store tile geometry (and letter face styling) in the codebase
   - Drive motion with a mathematical fall/spin definition (no heavy game-engine dependency unless we later decide otherwise)
-  - Keep it decorative: must not block taps or compete with standings/score entry
-- **Open choices when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; which screens show it (home only vs all); performance on older phones/iPads.
+  - Must not block taps or compete with primary content
+- **Still open when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
 - **Notes:** Pure polish / engagement. Do not pull into T4–T5.
+
+### P3. Turn-focused active-game UI (per-turn screen)
+
+- **Status:** idea (backlog only; not MVP). Bigger UX direction than T4.2’s combined standings + form layout.
+- **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
+- **Sketch:**
+  - Compact **standings banner** at the top (who’s leading / current totals)
+  - Primary content is **this turn’s player**: large actions to record score or skip/pass, optional word
+  - **Hint of who’s next** (soft rotation) without forcing that seat
+  - Dimmed falling tiles (P2) behind the content on this screen
+- **Why backlog, not now:** Needs undo/edit (T4.3) and finish (T4.4) designed into the same flow; reworking mid-T4 would churn unfinished screens. Finish the MVP scorepad path first, then promote this as a visual/UX pass (can replace or reshape the T4.2 layout).
+- **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Promote with a short decision + acceptance criteria before coding.
 
 ---
 
@@ -231,7 +250,7 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 
 - Word validation, auto-scoring, accounts, sync, sharing, stats, payments, rulesets.
 
-When those are wanted, add new tasks and a decision; do not expand T1–T5 silently.
+When those are wanted, add new tasks and a decision; do not expand T1–T5 silently. (Cross-game stats and turn timers are tracked above as **P1**, not as silent MVP scope.)
 
 ---
 

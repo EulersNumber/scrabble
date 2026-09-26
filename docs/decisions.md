@@ -196,6 +196,9 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Skip-twice → player drops out; remaining players continue.
 - Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
 - Tile exchange as a first-class turn type (vs recording 0).
+- **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoted (D12 has no roster in MVP).
+- **Falling tile ambient UI** — backlog **P2** (strong on home, dimmed elsewhere).
+- **Turn-focused active-game layout** — backlog **P3** (standings banner + per-turn primary actions). Presentation-only vs soft rotation (D13); promote after MVP T4 screens work.
 
 ---
 
