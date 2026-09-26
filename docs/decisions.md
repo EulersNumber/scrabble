@@ -199,6 +199,8 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoted (D12 has no roster in MVP).
 - **Falling tile ambient UI** — backlog **P2** (strong on home, dimmed elsewhere).
 - **Turn-focused active-game layout** — backlog **P3** (standings banner + per-turn primary actions). Presentation-only vs soft rotation (D13); promote after MVP T4 screens work.
+- **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer).
+- **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
 
 ---
 

@@ -244,13 +244,33 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Why backlog, not now:** Needs undo/edit (T4.3) and finish (T4.4) designed into the same flow; reworking mid-T4 would churn unfinished screens. Finish the MVP scorepad path first, then promote this as a visual/UX pass (can replace or reshape the T4.2 layout).
 - **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Promote with a short decision + acceptance criteria before coding.
 
+### P4. Statistics and leaderboards
+
+- **Status:** idea (backlog only; not MVP). Wanted “at some point.”
+- **Goal:** Family-facing **statistics** and **leaderboards** across saved games (and eventually across people), not only a single finished-game recap.
+- **Candidates (when promoting, pick a thin first slice):**
+  - Per-person aggregates: games played, wins, average score, average points per turn, average turn duration (needs **P1** timer + a durable person identity beyond D12 per-game names)
+  - Leaderboards: e.g. most wins, highest single-game total, highest single turn, fastest average turn
+  - Game-level history charts / simple lists are enough for v1; no cloud sync required if data stays local
+- **Notes:** Explicitly out of MVP today (product non-goals). Depends on enough finished games in history (T4.5) and likely P1 timer data for pace stats. Promote with a decision on player identity / display-name matching before coding.
+
+### P5. End-of-game rack adjustment (official-style tile runoff)
+
+- **Status:** idea (backlog only; not MVP). Revisit later.
+- **Goal:** Support the common Scrabble end rule: when a player **plays out** (uses their last tiles), remaining tiles on other players’ racks are **deducted** from those players’ scores and typically **added** to the player who went out (sum of face values of unplayed tiles).
+- **Sketch for a scorepad (not a board engine):**
+  - At finish (or a dedicated “lopetus” step), optionally enter each other player’s **remaining rack tile values** (or letter list if we later know tile values)
+  - Domain records those adjustments as explicit scoring events (or a finish adjustment) so standings still derive from history (D3) — not a silent rewrite of totals
+- **Open when promoting:** exact house vs tournament rule wording; whether empty-bag / consecutive-pass endings also apply; Finnish tile values table; UI for entering leftover tiles without building a full rack editor.
+- **Notes:** MVP finish stays **manual** with user-entered turn scores only (no automatic tile math). This is ruleset/scoring seam territory — leave the boundary clean until promoted.
+
 ---
 
-## Out of backlog (do not pull in)
+## Out of backlog (do not pull into MVP silently)
 
-- Word validation, auto-scoring, accounts, sync, sharing, stats, payments, rulesets.
+- Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
 
-When those are wanted, add new tasks and a decision; do not expand T1–T5 silently. (Cross-game stats and turn timers are tracked above as **P1**, not as silent MVP scope.)
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment.
 
 ---
 
