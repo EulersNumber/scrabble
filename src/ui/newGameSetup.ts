@@ -1,3 +1,11 @@
+/**
+ * Pure helpers for the new-game flow (T4.1 / D25).
+ *
+ * Kept next to that screen (not a global utils dump): validate names, rotate
+ * seating for starter pick, and derive optional history name suggestions.
+ * Split out only if another screen needs the same helpers or this file grows.
+ */
+
 import type { Game } from '../domain'
 
 const MIN_PLAYERS = 2

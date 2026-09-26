@@ -10,7 +10,15 @@ import {
   suggestPlayerNames,
   validateNewGameNames,
 } from './newGameSetup'
-import { AppShell, Button, ScreenHeader, TextField } from './primitives'
+import {
+  AppShell,
+  Button,
+  ChoiceChip,
+  FormError,
+  RadioGroup,
+  ScreenHeader,
+  TextField,
+} from './primitives'
 import { strings } from './strings'
 
 type NewGameScreenProps = {
@@ -25,6 +33,7 @@ type NewGameScreenProps = {
  * Seating is rotated so the chosen starter is first before calling
  * `createGame`. Optional name chips come from past games (recent + frequent);
  * empty history shows no suggestions. Word autocomplete is out of scope.
+ * Visual chrome comes from UI primitives (D27).
  */
 export function NewGameScreen({
   store,
@@ -185,13 +194,9 @@ export function NewGameScreen({
             <ul className="mt-2 flex flex-wrap gap-2">
               {suggestions.map((suggestion) => (
                 <li key={suggestion}>
-                  <button
-                    type="button"
-                    className="rounded-control border border-line bg-panel px-3 py-2 text-base text-ink active:bg-board-soft hover:bg-board-soft"
-                    onClick={() => applySuggestion(suggestion)}
-                  >
+                  <ChoiceChip onClick={() => applySuggestion(suggestion)}>
                     {suggestion}
-                  </button>
+                  </ChoiceChip>
                 </li>
               ))}
             </ul>
@@ -199,52 +204,24 @@ export function NewGameScreen({
         ) : null}
 
         {validation.ok ? (
-          <fieldset className="mt-2 rounded-control border border-line bg-panel px-4 py-4">
-            <legend className="px-1 text-base font-medium text-ink">
-              {strings.whoStarts}
-            </legend>
-            <p className="mb-3 text-sm text-ink-muted">
-              {strings.whoStartsHint}
-            </p>
-            <ul className="flex flex-col gap-2">
-              {filledNames.map((name, index) => {
-                const inputId = `starter-${index}`
-                return (
-                  <li key={name}>
-                    <label
-                      htmlFor={inputId}
-                      className="flex cursor-pointer items-center gap-3 rounded-control px-1 py-2"
-                    >
-                      <input
-                        id={inputId}
-                        type="radio"
-                        name="starter"
-                        checked={starterIndex === index}
-                        onChange={() => {
-                          setSubmitError(null)
-                          setStarterIndex(index)
-                        }}
-                        className="size-5 accent-board"
-                      />
-                      <span className="text-lg text-ink">{name}</span>
-                    </label>
-                  </li>
-                )
-              })}
-            </ul>
-          </fieldset>
+          <RadioGroup
+            name="starter"
+            legend={strings.whoStarts}
+            hint={strings.whoStartsHint}
+            value={starterIndex === null ? null : String(starterIndex)}
+            onChange={(next) => {
+              setSubmitError(null)
+              setStarterIndex(Number(next))
+            }}
+            options={filledNames.map((name, index) => ({
+              value: String(index),
+              label: name,
+            }))}
+          />
         ) : null}
 
-        {validationMessage ? (
-          <p className="text-sm text-red-800" role="alert">
-            {validationMessage}
-          </p>
-        ) : null}
-        {submitError ? (
-          <p className="text-sm text-red-800" role="alert">
-            {submitError}
-          </p>
-        ) : null}
+        {validationMessage ? <FormError>{validationMessage}</FormError> : null}
+        {submitError ? <FormError>{submitError}</FormError> : null}
 
         <Button type="submit" fullWidth>
           {strings.startGame}

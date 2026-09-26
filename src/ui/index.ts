@@ -15,7 +15,10 @@ export {
 export {
   AppShell,
   Button,
+  ChoiceChip,
+  FormError,
   ListRowButton,
+  RadioGroup,
   ScreenHeader,
   TextField,
 } from './primitives'

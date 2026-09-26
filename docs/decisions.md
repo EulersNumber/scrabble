@@ -174,10 +174,12 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Status:** accepted
 - **Decision:** Visual design lives in the UI layer only:
   - **Tokens** in `src/index.css` (`@theme`: board green, ink, surfaces, fonts, radii).
-  - **Primitives** in `src/ui/primitives/` (`AppShell`, `Button`, `ListRowButton`, `ScreenHeader`).
-  - Screens compose primitives; they do not hard-code one-off color schemes.
+  - **Primitives** in `src/ui/primitives/` (`AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `FormError`, `ListRowButton`, `ScreenHeader`, …).
+  - Screens **compose** primitives. They must not hard-code one-off control chrome (button/chip/input/radio/alert colors, borders, radii, focus rings) in screen files. Layout-only spacing/arrangement utilities on screens are allowed.
+  - When a screen needs a new control look, **add or extend a primitive first**, then use it. Do not inline “just this once” control styles in `*Screen.tsx`.
+  - Feature helpers that are pure functions for one flow may live beside that flow (e.g. `newGameSetup.ts`); split when large or reused. Not a global utils dump.
 - **Layout:** Mobile-first scorepad column; wider on tablet (`md` / `lg` max-widths) so iPad use is comfortable without a full desktop dashboard.
-- **Why:** Color/spacing edits stay in one place; domain and use cases stay design-agnostic.
+- **Why:** Color/spacing edits stay in one place; domain and use cases stay design-agnostic; avoids the same review comment on every UI PR.
 - **Out:** Component library packages, design-tool sync, dark mode for MVP.
 
 ### D28. Hosting: GitHub Pages (was O12b)
@@ -225,4 +227,5 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D13 (clarify), D18 (clarify), D25 | 2026-09-26 | Starter pick + history name suggestions at create; word entry stays optional / no autocomplete in MVP |
 | D26 | 2026-09-26 | List/history sort and filter belong in UI; store/use-case list order undefined |
 | D27 | 2026-09-26 | UI theme tokens + primitives; tablet-friendly shell |
+| D27 (clarify) | 2026-09-26 | Screens must not inline control chrome; new controls → primitives first |
 | D28 | 2026-09-26 | GitHub Pages hosting (closes O12b) |

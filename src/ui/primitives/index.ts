@@ -1,5 +1,8 @@
 export { AppShell } from './AppShell'
 export { Button } from './Button'
+export { ChoiceChip } from './ChoiceChip'
+export { FormError } from './FormError'
 export { ListRowButton } from './ListRowButton'
+export { RadioGroup } from './RadioGroup'
 export { ScreenHeader } from './ScreenHeader'
 export { TextField } from './TextField'

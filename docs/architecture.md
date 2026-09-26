@@ -59,7 +59,9 @@ Later (not now), isolated modules:
 ### UI
 
 - Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
-- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27). Screens compose those — do not scatter one-off color schemes.
+- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `FormError`, `ListRowButton`, `ScreenHeader`, etc.
+- **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
+- Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
 - Does not own scoring rules or persistence details.
 - Should remain replaceable without rewriting domain logic. Domain must not import React.

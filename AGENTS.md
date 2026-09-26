@@ -72,6 +72,22 @@ Separate, where practical:
 
 Turn history is the source of truth. Cumulative scores and rankings are derived from turns, not stored as a second source of truth.
 
+### UI composition (D27) — required on every UI task
+
+Screens must stay free of one-off control styling. Visual chrome belongs in shared pieces:
+
+- **Tokens** in `src/index.css` (`@theme`: colors, fonts, radii).
+- **Primitives** in `src/ui/primitives/` (`Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `FormError`, `AppShell`, etc.).
+
+Rules for agents:
+
+1. **Compose primitives in screens.** Do not hard-code reusable control look (button/chip/input/radio/alert colors, borders, radii, focus rings) via ad-hoc `className` strings inside `*Screen.tsx` files.
+2. **Need a new control look?** Add or extend a primitive first, then use it from the screen. Do not “just this once” inline the styles in the screen.
+3. **Layout-only utilities are OK on screens** (`flex`, `gap`, `mt-*`, grid arrangement) so the screen can place primitives.
+4. **Feature helpers** (pure sort/filter/suggest/validate for one flow) may live next to that flow as exported functions (e.g. `gameList.ts`, `newGameSetup.ts`) — not React components and not a global `utils` dump. Split a helper file when it grows large or is reused by multiple screens.
+
+See also `docs/architecture.md` (UI section) and `docs/decisions.md` (D27).
+
 ## Technical choices (locked for MVP)
 
 - TypeScript + React + Vite (mobile-first web). Not Expo / React Native.
