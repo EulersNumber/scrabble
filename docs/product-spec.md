@@ -43,6 +43,8 @@ These may be considered later. The architecture should leave a seam for **word v
 - The game has between 2 and 4 players (inclusive).
 - Each player has a display name for that game.
 - Names must be unique within the game (trimmed, case-insensitive); blank names are not allowed.
+- After names are entered, the user picks **who starts** (physical letter draw). That player becomes first in seating order and the first suggested turn.
+- The UI may suggest names from past games (recent and/or frequent); there is no separate global player roster in MVP.
 
 ### 2. Enter a player’s score for each turn
 

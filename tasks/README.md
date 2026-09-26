@@ -131,7 +131,11 @@ Build screens against the use cases. Visual polish is secondary to usable flow. 
 
 ### T4.1 New game screen
 
-- **Acceptance:** User can enter 2–4 names and start a game. Invalid counts are blocked in the UI.
+- **Acceptance:**
+  - User can enter 2–4 names and start a game. Invalid counts are blocked in the UI.
+  - After names are set, the user **picks who starts** (physical letter-draw at the table). That player becomes seat 1 / first suggested current; remaining players keep relative seating order after them (D13 / D25).
+  - Name fields may **suggest** known names from saved history: prefer a mix of **most recently seen** and **most games played** (unique display names from past games only — no global player roster, D12). Suggestions are optional; empty history means no suggestions.
+  - Autocomplete / dictionary for turn **words** is out of scope here (and out of MVP).
 
 ### T4.2 Active game: standings + add turn
 
