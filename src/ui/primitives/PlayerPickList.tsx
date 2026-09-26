@@ -4,12 +4,14 @@ type PlayerOption = {
 }
 
 type PlayerPickListProps = {
+  /** Radio group name; must be unique when multiple pickers are on one screen. */
+  name: string
   legend: string
   hint?: string
   players: readonly PlayerOption[]
   value: string
-  suggestedId: string
-  suggestedBadge: string
+  suggestedId?: string
+  suggestedBadge?: string
   onChange: (playerId: string) => void
   disabled?: boolean
 }
@@ -17,10 +19,12 @@ type PlayerPickListProps = {
 /**
  * Soft-rotation player picker: exclusive choice with suggested highlight (D13, D27).
  *
- * The suggested seat is visually marked, but any seated player remains
- * selectable so late logging still works. Used on the active-game screen.
+ * The suggested seat is visually marked when `suggestedId` matches, but any
+ * seated player remains selectable so late logging still works. Used for add
+ * turn and edit turn on the active-game screen.
  */
 export function PlayerPickList({
+  name,
   legend,
   hint,
   players,
@@ -39,9 +43,12 @@ export function PlayerPickList({
       {hint ? <p className="mb-3 text-sm text-ink-muted">{hint}</p> : null}
       <ul className="flex flex-col gap-2">
         {players.map((player) => {
-          const inputId = `player-pick-${player.id}`
+          const inputId = `${name}-${player.id}`
           const selected = value === player.id
-          const suggested = player.id === suggestedId
+          const suggested =
+            suggestedId !== undefined &&
+            suggestedBadge !== undefined &&
+            player.id === suggestedId
 
           return (
             <li key={player.id}>
@@ -60,7 +67,7 @@ export function PlayerPickList({
                 <input
                   id={inputId}
                   type="radio"
-                  name="active-game-player"
+                  name={name}
                   value={player.id}
                   checked={selected}
                   disabled={disabled}

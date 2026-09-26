@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.2 are done.** Continue from T4.3.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.3 are done.** Continue from T4.4.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -168,7 +168,9 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.3 Active game: undo/edit
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** User can undo the last turn and edit score/word/player on any turn without leaving a broken total.
+- **Notes:** Turn history below the score form (newest first). Undo last uses a short confirm (`ConfirmPanel`). Tap a turn to edit player/score/word inline (`TurnHistoryList`). Helpers in `activeGame.ts` (`turnsNewestFirst`). Finish remains T4.4.
 
 ### T4.4 Finish / reopen
 
@@ -281,7 +283,7 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0–T4.2 done; continue from T4.3
+6. Finnish UI flows (T4): T4.0–T4.3 done; continue from T4.4
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
