@@ -12,6 +12,13 @@ export const strings = {
   continueSection: 'Kesken olevat pelit',
   continueGame: 'Jatka',
   noInProgressGames: 'Ei kesken olevia pelejä. Aloita uusi peli.',
+  historySection: 'Päättyneet pelit',
+  openFinishedGame: 'Avaa',
+  noFinishedGames: 'Ei päättyneitä pelejä.',
+  deleteGame: 'Poista peli',
+  deleteConfirmPrompt: 'Poistetaanko peli?',
+  confirmDelete: 'Poista',
+  deleteFailed: 'Pelin poisto epäonnistui. Yritä uudelleen.',
   turnsCount: (count: number) =>
     count === 1 ? '1 vuoro' : `${count} vuoroa`,
   back: 'Takaisin',

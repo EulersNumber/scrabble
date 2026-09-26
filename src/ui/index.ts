@@ -1,10 +1,12 @@
 export { ActiveGameScreen } from './ActiveGameScreen'
 export { HomeScreen } from './HomeScreen'
 export { NewGameScreen } from './NewGameScreen'
+export { SavedGamesListScreen } from './SavedGamesListScreen'
 export type { Screen } from './navigation'
 export {
   formatGameCreatedAt,
   formatPlayerNames,
+  listFinishedGamesNewestFirst,
   listInProgressGamesNewestFirst,
 } from './gameList'
 export {

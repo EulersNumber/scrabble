@@ -1,12 +1,11 @@
 import type { Game } from '../domain'
 
 /**
- * Filters to in-progress games and sorts newest first for the home continue
- * list (T4.0, D17, D26).
+ * Filters to in-progress games and sorts newest first for the continue list
+ * (T4.0 / T4.5, D17, D26).
  *
- * Finished games are omitted here so “Jatka” stays distinct from history
- * (T4.5). Sort uses `createdAt` descending; equal timestamps keep a stable
- * relative order from the input array.
+ * Finished games are omitted so continue stays distinct from history.
+ * Sort uses `createdAt` descending; equal timestamps break ties by id.
  *
  * @param games - All saved games from `listGames` (order undefined)
  * @returns In-progress games, newest first
@@ -21,6 +20,33 @@ export function listInProgressGamesNewestFirst(
       const byCreated = b.createdAt.localeCompare(a.createdAt)
       if (byCreated !== 0) {
         return byCreated
+      }
+      return b.id.localeCompare(a.id)
+    })
+}
+
+/**
+ * Filters to finished games and sorts newest finished first for history
+ * (T4.5, D16, D26).
+ *
+ * Sort uses `finishedAt` descending (missing timestamps sort last); equal
+ * times break ties by id.
+ *
+ * @param games - All saved games from `listGames` (order undefined)
+ * @returns Finished games, newest `finishedAt` first
+ */
+export function listFinishedGamesNewestFirst(
+  games: readonly Game[],
+): Game[] {
+  return games
+    .filter((game) => game.status === 'finished')
+    .slice()
+    .sort((a, b) => {
+      const aFinished = a.finishedAt ?? ''
+      const bFinished = b.finishedAt ?? ''
+      const byFinished = bFinished.localeCompare(aFinished)
+      if (byFinished !== 0) {
+        return byFinished
       }
       return b.id.localeCompare(a.id)
     })

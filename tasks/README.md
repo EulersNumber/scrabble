@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.4 are done.** Continue from T4.5.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T4.5 are done.** Continue from T5.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -148,7 +148,7 @@ Home must support both **new game** and **continue** (resume an in-progress game
   - Multiple in-progress games are allowed; each is selectable.
   - Finished games may appear here or only under history (T4.5); either is fine if continue vs past-game detail stays clear.
   - Finnish copy for the primary actions is set in this task (or with T4.5 if home and history share one screen).
-- **Notes:** Finnish labels: “Uusi peli”, “Jatka”, “Kesken olevat pelit”. Home lists only in-progress games (newest first); finished games deferred to T4.5. New-game and active-game destinations are placeholders until T4.1 / T4.2. Navigation uses React screen state (no URL router yet, D24). Screens use theme tokens + UI primitives (D27). GitHub Pages deploy workflow added (D28) — enable Pages source once, then merge to `main` for `https://eulersnumber.github.io/scrabble/`.
+- **Notes:** Finnish labels: “Uusi peli”, “Jatka”, “Kesken olevat pelit”. T4.5 turned home into a hub (D29) with separate continue/history lists. Navigation uses React screen state (no URL router yet, D24). Screens use theme tokens + UI primitives (D27). GitHub Pages deploy workflow added (D28).
 
 ### T4.1 New game screen
 
@@ -176,15 +176,17 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 - **Status:** done (2026-09-26).
 - **Acceptance:** User can finish an in-progress game from the active-game screen; scoring is blocked until they reopen.
-- **Notes:** “Lopeta peli” at the bottom of the active-game screen with confirm (`ConfirmPanel`). Finished state hides scoring/undo/edit, shows read-only notice + “Avaa peli uudelleen” (D16). Header subtitle includes “Päättynyt”. History list for finished games remains T4.5.
+- **Notes:** “Lopeta peli” at the bottom of the active-game screen with confirm (`ConfirmPanel`). Finished state hides scoring/undo/edit, shows read-only notice + “Avaa peli uudelleen” (D16). Header subtitle includes “Päättynyt”. History list for finished games is T4.5.
 
 ### T4.5 History list + past game detail
 
+- **Status:** done (2026-09-26).
 - **Acceptance:**
-  - In-progress and finished games appear in a list (may share the home screen from T4.0).
-  - Opening an **in-progress** game continues scoring (active game). Opening a **finished** game shows detail: players, totals, turn history including optional words (read-only until reopen).
-  - **Delete** is available with confirmation for **both** in-progress and finished games (home / history list, and optionally from the active or detail screen). Use case already exists; UI confirm is required (T3.2).
-- **Notes (product input 2026-09-26):** Home currently lists in-progress games with continue only — no delete. Users need a way to discard abandoned or test games without finishing them first.
+  - Home is a hub: primary **Uusi peli**, secondary **Kesken olevat pelit** and **Päättyneet pelit** (D29).
+  - Opening an **in-progress** game continues scoring (active game). Opening a **finished** game reuses the active-game finished/read-only view (reopen still available).
+  - **Delete** with confirmation on the **continue and history lists only** (not inside the open game). Covers both in-progress and finished games (T3.2 use case).
+  - Finished list sorts by `finishedAt` newest first (D26).
+- **Notes:** Finnish: “Päättyneet pelit”, “Ei päättyneitä pelejä.”, “Poista peli”, “Poistetaanko peli?”. Dedicated past-game summary UI is backlog **P7** if the reused finished view feels thin later.
 
 ---
 
@@ -269,6 +271,13 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Open when promoting:** exact house vs tournament rule wording; whether empty-bag / consecutive-pass endings also apply; Finnish tile values table; UI for entering leftover tiles without building a full rack editor.
 - **Notes:** MVP finish stays **manual** with user-entered turn scores only (no automatic tile math). This is ruleset/scoring seam territory — leave the boundary clean until promoted.
 
+### P7. Dedicated past-game detail / summary
+
+- **Status:** idea (backlog only; not MVP). Product note 2026-09-26.
+- **Goal:** A screen purpose-built for viewing a finished sitting (summary / recap), instead of reusing the active-game finished state.
+- **Why backlog:** T4.5 reuses the finished/read-only active-game view (standings, turns, reopen). Enough for MVP; a summarized “previous game” layout can wait until family play shows the gap.
+- **Notes:** May overlap celebration/recap ideas in **P1**. Do not implement until promoted.
+
 ### P6. Skip-twice → player eliminated (with warning)
 
 - **Status:** idea (backlog only; not MVP). Product wish 2026-09-26.
@@ -287,7 +296,7 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 
 - Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
 
-Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination.
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail.
 
 ---
 
@@ -298,7 +307,7 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0–T4.4 done; continue from T4.5
+6. Finnish UI flows (T4): T4.0–T4.5 done
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.

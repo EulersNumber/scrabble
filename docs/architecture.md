@@ -166,10 +166,11 @@ Not stored as authority:
 
 Enough screens to support MVP; names can change:
 
-1. **Home / history** — list of games; **new game** and **continue** (resume in-progress) as primary actions (D17).
-2. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-3. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish.
-4. **Game detail (past)** — read-only until reopened; turn list and final standings.
+1. **Home** — hub: primary **new game**; secondary **continue** and **history** entry points (D17, D29).
+2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm (list only).
+3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm (list only).
+4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
+5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen. Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP).
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 
