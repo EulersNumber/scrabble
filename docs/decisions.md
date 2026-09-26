@@ -94,7 +94,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 - **Status:** accepted
 - **Decision:** Soft rotation.
-  - Players have a **seating order** (order they were added = seat order for MVP).
+  - Players have a **seating order** (`Game.players` list order). At create time the user picks who **starts** (after the physical letter draw); that player is placed first in the list and is the initial suggested current. Other players follow in seating order after the starter (see D25).
   - The domain tracks a **suggested current player** (whose turn it is at the table).
   - After a turn is recorded for player P, the suggested player becomes the **next seat after P** (wrap around).
   - The UI highlights the suggested player, but the user **may still record a turn for a different player** (late logging / catch-up).
@@ -128,7 +128,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 ### D18. Optional word (was O10)
 
 - **Status:** accepted
-- **Decision:** At most one optional Unicode string per turn (Finnish letters allowed). Empty/omitted means not recorded. Do not model extra crossword words. No dictionary in MVP.
+- **Decision:** At most one optional Unicode string per turn (Finnish letters allowed). Empty/omitted means not recorded. Do not model extra crossword words. No dictionary in MVP. Players may enter **points only**; typing a word is never required. Word autocomplete / lexicon lookup is **out of MVP** (future seam only).
 
 ### D19. Finnish UI, English code (was O11)
 
@@ -183,6 +183,15 @@ When the family should use a public URL, pick a static host. Until then, develop
 
 ---
 
+### D25. New-game starter pick and name suggestions
+
+- **Status:** accepted
+- **Decision:**
+  - On the new-game screen (T4.1), after 2–4 names are entered, the user **selects the starting player** (reflecting the physical letter draw). Seating order is rotated so that player is first; suggested current starts as that player (D13).
+  - Name entry may **suggest** display names derived from saved game history: a combination of **most recently seen** and **most frequently appearing** names. This is UI convenience only — still no global player roster (D12); suggestions are plain strings from past `Game.players`.
+- **Why:** Matches table ritual (lowest letter starts) without encoding tile draws in domain; reuse of family names speeds setup once history exists.
+- **Out:** Word autocomplete, dictionary, accounts, or a persisted player directory.
+
 ## Decision log
 
 | ID | Date | Decision |
@@ -192,3 +201,4 @@ When the family should use a public URL, pick a static host. Until then, develop
 | O12b | 2026-09-18 | Hosting provider deferred until distribution |
 | D13 | 2026-09-18 | Soft rotation accepted; full Scrabble turn/end rules deferred |
 | D21–D24 | 2026-09-18 | npm, Tailwind, unique names, routing deferred |
+| D13 (clarify), D18 (clarify), D25 | 2026-09-26 | Starter pick + history name suggestions at create; word entry stays optional / no autocomplete in MVP |
