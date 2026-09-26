@@ -194,3 +194,4 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 - PWA service worker / Add to Home Screen polish (backlog **P8**)
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble turn/end rules beyond soft rotation (elimination, auto-end on all-pass, exchanges)
+- Post-MVP UX polish captured in backlog **P1–P14**; triage in **T6.0** after MVP close (T5.2)
