@@ -162,7 +162,9 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.2 Active game: standings + add turn
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** UI highlights suggested current player; user may pick another. Integer score, optional word (0 = pass). Standings update immediately. Usable on a phone-width layout. Tailwind for layout.
+- **Notes:** Score helpers in `src/ui/activeGame.ts`. Player pick + standings use primitives (`PlayerPickList`, `StandingsList`). Pass shortcut submits score 0. Undo/edit and finish remain T4.3 / T4.4.
 
 ### T4.3 Active game: undo/edit
 
@@ -194,6 +196,23 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 - **Goal:** Walk `docs/product-spec.md` MVP list 1–7 and tick each item.
 - **Acceptance:** Gaps filed as follow-up tasks; no extra features added “while we’re here.”
+
+---
+
+## Post-MVP ideas (not scheduled)
+
+Capture product wishes here without pulling them into T1–T5. Promote to numbered tasks only after a decision update when we choose to build them.
+
+### P1. End-of-game celebration + light recap
+
+- **Status:** idea (backlog only; not MVP).
+- **Goal:** When a game is finished, show a short, light celebration moment, then a small recap screen (or overlay) with a few highlights.
+- **Candidates to show (pick a subset when implementing):**
+  - Winner and a simple podium / final standings
+  - Highest single-turn score
+  - Overall game length (`createdAt` → `finishedAt`)
+  - Optional pace stats (e.g. fastest average gap between turns) — **needs a product choice:** derive from existing turn `createdAt` timestamps, or add an explicit timer (clock/timer is currently out of MVP product scope)
+- **Notes:** Overlaps “detailed player statistics” / non-MVP polish. Keep animation modest (family table, not a game engine). Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
 
 ---
 
