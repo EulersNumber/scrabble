@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.1 are done.** Continue from T4.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.2 are done.** Continue from T4.3.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -214,6 +214,17 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
   - Optional pace stats (e.g. fastest average gap between turns) — **needs a product choice:** derive from existing turn `createdAt` timestamps, or add an explicit timer (clock/timer is currently out of MVP product scope)
 - **Notes:** Overlaps “detailed player statistics” / non-MVP polish. Keep animation modest (family table, not a game engine). Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
 
+### P2. Falling Scrabble-tile background animation
+
+- **Status:** idea (backlog only; not MVP).
+- **Goal:** A light ambient background: rectangular letter tiles (like physical Scrabble tiles) fall slowly from top to bottom, with a slow spin so the letter face is sometimes visible and sometimes the back.
+- **Approach sketch (when promoted):**
+  - Store tile geometry (and letter face styling) in the codebase
+  - Drive motion with a mathematical fall/spin definition (no heavy game-engine dependency unless we later decide otherwise)
+  - Keep it decorative: must not block taps or compete with standings/score entry
+- **Open choices when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; which screens show it (home only vs all); performance on older phones/iPads.
+- **Notes:** Pure polish / engagement. Do not pull into T4–T5.
+
 ---
 
 ## Out of backlog (do not pull in)
@@ -231,7 +242,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0–T4.1 done; continue from T4.2
+6. Finnish UI flows (T4): T4.0–T4.2 done; continue from T4.3
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
