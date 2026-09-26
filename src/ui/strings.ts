@@ -36,8 +36,7 @@ export const strings = {
     'Peli on päättynyt. Pisteitä ei voi kirjata ennen kuin avaat pelin uudelleen.',
   gameFinishedSubtitle: 'Päättynyt',
   finishGame: 'Lopeta peli',
-  finishConfirmPrompt:
-    'Lopetetaanko peli? Pisteitä ei voi kirjata ennen kuin avaat pelin uudelleen.',
+  finishConfirmPrompt: 'Lopetetaanko peli?',
   confirmFinish: 'Lopeta',
   reopenGame: 'Avaa peli uudelleen',
   finishFailed: 'Pelin lopetus epäonnistui. Yritä uudelleen.',
