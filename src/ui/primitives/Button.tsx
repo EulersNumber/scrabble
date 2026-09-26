@@ -1,10 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+type ButtonSize = 'md' | 'hero'
 
 type ButtonProps = {
   children: ReactNode
   variant?: ButtonVariant
+  /** Visual scale; `hero` is for a dominant primary CTA (e.g. home new game). */
+  size?: ButtonSize
   fullWidth?: boolean
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>
 
@@ -17,6 +20,11 @@ const variantClass: Record<ButtonVariant, string> = {
     'bg-transparent text-ink-muted underline-offset-2 hover:underline active:text-ink',
 }
 
+const sizeClass: Record<ButtonSize, string> = {
+  md: 'px-4 py-4 text-lg',
+  hero: 'min-h-28 px-5 py-8 text-2xl md:min-h-32 md:py-10 md:text-3xl',
+}
+
 /**
  * Shared tap target styled from design tokens (D27).
  *
@@ -25,6 +33,7 @@ const variantClass: Record<ButtonVariant, string> = {
 export function Button({
   children,
   variant = 'primary',
+  size = 'md',
   fullWidth = false,
   type = 'button',
   ...rest
@@ -33,10 +42,12 @@ export function Button({
     <button
       type={type}
       className={[
-        'rounded-control px-4 py-4 text-left text-lg font-medium transition-colors',
+        'rounded-control text-left font-medium transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-50',
         fullWidth ? 'w-full' : '',
-        variant === 'ghost' ? 'self-start px-0 py-1 text-base' : '',
+        variant === 'ghost'
+          ? 'self-start px-0 py-1 text-base'
+          : sizeClass[size],
         variantClass[variant],
       ]
         .filter(Boolean)

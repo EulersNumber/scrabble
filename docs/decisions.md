@@ -193,7 +193,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 - **Status:** accepted
 - **Decision:**
-  - **Home** focuses on starting a game: primary control is **Uusi peli** (board-green primary button). Secondary controls open **Kesken olevat pelit** (continue list) and **Päättyneet pelit** (history list).
+  - **Home** focuses on starting a game: primary control is **Uusi peli** (board-green primary button, large — spans the top row of a 2×2-style hub). Secondary controls open **Kesken olevat pelit** (continue list) and **Päättyneet pelit** (history list), side by side on the second row.
   - Continue list: in-progress only, newest `createdAt` first. History list: finished only, newest `finishedAt` first.
   - Opening an in-progress game goes to the active-game screen. Opening a finished game **reuses** that screen in its finished/read-only mode (reopen remains available). A dedicated past-game summary screen is post-MVP (**P7**).
   - **Delete** (with confirm) is available on the **continue and history lists only**, for both in-progress and finished games. Not on the open active-game screen in MVP.

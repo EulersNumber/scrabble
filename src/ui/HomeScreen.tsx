@@ -13,10 +13,11 @@ type HomeScreenProps = {
 
 /**
  * Home hub: primary new-game action plus secondary continue and history
- * entry points (T4.0 / T4.5, D17).
+ * entry points (T4.0 / T4.5, D17, D29).
  *
- * Lists live on their own screens so home stays focused on starting a sitting.
- * Layout/chrome uses shared UI primitives (D27).
+ * Layout is a 2×2-style grid: new game spans the top row; continue and
+ * history share the second row so starting a sitting stays visually dominant.
+ * Lists live on their own screens. Layout/chrome uses shared UI primitives (D27).
  */
 export function HomeScreen({
   onNewGame,
@@ -31,10 +32,12 @@ export function HomeScreen({
         subtitle={strings.homeSubtitle}
       />
 
-      <div className="mt-2 flex flex-col gap-3 md:mt-4">
-        <Button fullWidth onClick={onNewGame}>
-          {strings.newGame}
-        </Button>
+      <div className="mt-2 grid grid-cols-2 gap-3 md:mt-4 md:gap-4">
+        <div className="col-span-2">
+          <Button fullWidth size="hero" onClick={onNewGame}>
+            {strings.newGame}
+          </Button>
+        </div>
         <Button variant="secondary" fullWidth onClick={onContinueList}>
           {strings.continueSection}
         </Button>
