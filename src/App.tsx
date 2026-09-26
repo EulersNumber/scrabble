@@ -4,13 +4,17 @@ import {
   ActiveGameScreen,
   HomeScreen,
   NewGameScreen,
+  SavedGamesListScreen,
+  listFinishedGamesNewestFirst,
+  listInProgressGamesNewestFirst,
+  strings,
   type Screen,
 } from './ui'
 
 const store = createLocalStorageGameStore()
 
 /**
- * Root shell: wires localStorage store to home / new-game / active-game screens.
+ * Root shell: wires localStorage store to home, setup, lists, and active game.
  *
  * Screen switching is plain React state (D24) — no router dependency for MVP.
  */
@@ -22,26 +26,73 @@ function App() {
       <NewGameScreen
         store={store}
         onBack={() => setScreen({ name: 'home' })}
-        onCreated={(gameId) => setScreen({ name: 'active-game', gameId })}
+        onCreated={(gameId) =>
+          setScreen({ name: 'active-game', gameId, backTo: 'home' })
+        }
+      />
+    )
+  }
+
+  if (screen.name === 'continue') {
+    return (
+      <SavedGamesListScreen
+        store={store}
+        title={strings.continueSection}
+        emptyMessage={strings.noInProgressGames}
+        openLabel={strings.continueGame}
+        selectGames={listInProgressGamesNewestFirst}
+        dateIsoForGame={(game) => game.createdAt}
+        onBack={() => setScreen({ name: 'home' })}
+        onOpen={(gameId) =>
+          setScreen({ name: 'active-game', gameId, backTo: 'continue' })
+        }
+      />
+    )
+  }
+
+  if (screen.name === 'history') {
+    return (
+      <SavedGamesListScreen
+        store={store}
+        title={strings.historySection}
+        emptyMessage={strings.noFinishedGames}
+        openLabel={strings.openFinishedGame}
+        selectGames={listFinishedGamesNewestFirst}
+        dateIsoForGame={(game) => game.finishedAt ?? game.createdAt}
+        onBack={() => setScreen({ name: 'home' })}
+        onOpen={(gameId) =>
+          setScreen({ name: 'active-game', gameId, backTo: 'history' })
+        }
       />
     )
   }
 
   if (screen.name === 'active-game') {
+    const backTo = screen.backTo
     return (
       <ActiveGameScreen
         store={store}
         gameId={screen.gameId}
-        onBack={() => setScreen({ name: 'home' })}
+        onBack={() => {
+          if (backTo === 'continue') {
+            setScreen({ name: 'continue' })
+            return
+          }
+          if (backTo === 'history') {
+            setScreen({ name: 'history' })
+            return
+          }
+          setScreen({ name: 'home' })
+        }}
       />
     )
   }
 
   return (
     <HomeScreen
-      store={store}
       onNewGame={() => setScreen({ name: 'new-game' })}
-      onContinue={(gameId) => setScreen({ name: 'active-game', gameId })}
+      onContinueList={() => setScreen({ name: 'continue' })}
+      onHistory={() => setScreen({ name: 'history' })}
     />
   )
 }

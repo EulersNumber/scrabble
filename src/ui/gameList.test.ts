@@ -3,6 +3,7 @@ import type { Game } from '../domain'
 import {
   formatGameCreatedAt,
   formatPlayerNames,
+  listFinishedGamesNewestFirst,
   listInProgressGamesNewestFirst,
 } from './gameList'
 
@@ -52,6 +53,41 @@ describe('listInProgressGamesNewestFirst', () => {
       finishedAt: '2026-01-03T12:00:00.000Z',
     })
     expect(listInProgressGamesNewestFirst([finished])).toEqual([])
+  })
+})
+
+describe('listFinishedGamesNewestFirst', () => {
+  it('keeps only finished games and sorts by finishedAt newest first', () => {
+    const olderFinished = game({
+      id: 'older-done',
+      status: 'finished',
+      createdAt: '2026-01-01T10:00:00.000Z',
+      finishedAt: '2026-01-01T12:00:00.000Z',
+    })
+    const newerFinished = game({
+      id: 'newer-done',
+      status: 'finished',
+      createdAt: '2026-01-02T08:00:00.000Z',
+      finishedAt: '2026-01-03T12:00:00.000Z',
+    })
+    const inProgress = game({
+      id: 'open',
+      status: 'in_progress',
+      createdAt: '2026-01-04T10:00:00.000Z',
+    })
+
+    expect(
+      listFinishedGamesNewestFirst([olderFinished, inProgress, newerFinished]),
+    ).toEqual([newerFinished, olderFinished])
+  })
+
+  it('returns an empty list when nothing is finished', () => {
+    const open = game({
+      id: 'open',
+      status: 'in_progress',
+      createdAt: '2026-01-04T10:00:00.000Z',
+    })
+    expect(listFinishedGamesNewestFirst([open])).toEqual([])
   })
 })
 

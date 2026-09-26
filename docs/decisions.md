@@ -118,12 +118,12 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 ### D16. Finished games (was O8)
 
 - **Status:** accepted
-- **Decision:** Finish is **reversible** (reopen to fix a missed turn). Finished games are read-only until reopened. Deleting a game from history is allowed, with confirmation.
+- **Decision:** Finish is **reversible** (reopen to fix a missed turn). Finished games are read-only until reopened. Deleting a game is allowed, with confirmation (list UI placement in D29).
 
 ### D17. Resume in-progress games (was O9)
 
 - **Status:** accepted
-- **Decision:** Unfinished games persist across reload/restart. Home lists in-progress and finished games. More than one in-progress game is allowed.
+- **Decision:** Unfinished games persist across reload/restart. More than one in-progress game is allowed. Home is a **hub**: primary action is new game; secondary entry points open the continue list (in-progress) and history list (finished). See D29.
 
 ### D18. Optional word (was O10)
 
@@ -189,6 +189,16 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Why:** Free for a public repo; no extra hosting account; fits static SPA (client screen state, no server).
 - **Enable once:** Repo **Settings → Pages → Build and deployment → Source: GitHub Actions**, then merge to `main` (or run the workflow manually).
 
+### D29. Home hub, history list, and list-only delete (T4.5)
+
+- **Status:** accepted
+- **Decision:**
+  - **Home** focuses on starting a game: primary control is **Uusi peli** (board-green primary button). Secondary controls open **Kesken olevat pelit** (continue list) and **Päättyneet pelit** (history list).
+  - Continue list: in-progress only, newest `createdAt` first. History list: finished only, newest `finishedAt` first.
+  - Opening an in-progress game goes to the active-game screen. Opening a finished game **reuses** that screen in its finished/read-only mode (reopen remains available). A dedicated past-game summary screen is post-MVP (**P7**).
+  - **Delete** (with confirm) is available on the **continue and history lists only**, for both in-progress and finished games. Not on the open active-game screen in MVP.
+- **Why:** Matches how the family plays (usually start → finish in one sitting); keeps home uncluttered; list delete covers abandoned/test games without opening them; avoids another destructive control on the busy score screen.
+
 ## Open
 
 ### Possible scope expansion (not in MVP)
@@ -201,6 +211,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Turn-focused active-game layout** — backlog **P3** (standings banner + per-turn primary actions). Presentation-only vs soft rotation (D13); promote after MVP T4 screens work.
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer).
 - **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
+- **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
 
 ---
 
@@ -235,3 +246,5 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D27 (clarify) | 2026-09-26 | Screens must not inline control chrome; new controls → primitives first |
 | D28 | 2026-09-26 | GitHub Pages hosting (closes O12b) |
 | P6 (backlog) | 2026-09-26 | Skip-twice elimination + warning confirm captured as post-MVP idea |
+| D29 | 2026-09-26 | Home hub + continue/history lists; list-only delete; reuse finished active-game view |
+| P7 (backlog) | 2026-09-26 | Dedicated past-game summary captured as post-MVP idea |
