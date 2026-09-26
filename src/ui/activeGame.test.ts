@@ -1,9 +1,21 @@
 import { describe, expect, it } from 'vitest'
+import type { Turn } from '../domain'
 import {
   normalizeOptionalWord,
   parseScoreInput,
+  playerNameById,
   SCORE_ABS_MAX,
+  turnsNewestFirst,
 } from './activeGame'
+
+function turn(partial: Pick<Turn, 'id' | 'sequence'> & Partial<Turn>): Turn {
+  return {
+    playerId: 'p1',
+    score: 0,
+    createdAt: '2026-09-26T00:00:00.000Z',
+    ...partial,
+  }
+}
 
 describe('parseScoreInput', () => {
   it('accepts integers including zero and negatives', () => {
@@ -38,5 +50,33 @@ describe('normalizeOptionalWord', () => {
     expect(normalizeOptionalWord('')).toBeUndefined()
     expect(normalizeOptionalWord('   ')).toBeUndefined()
     expect(normalizeOptionalWord('  kissa  ')).toBe('kissa')
+  })
+})
+
+describe('turnsNewestFirst', () => {
+  it('returns newest turn first without mutating the original list', () => {
+    const turns = [
+      turn({ id: 't1', sequence: 0, score: 10 }),
+      turn({ id: 't2', sequence: 1, score: 7 }),
+      turn({ id: 't3', sequence: 2, score: 4 }),
+    ]
+    const newestFirst = turnsNewestFirst(turns)
+    expect(newestFirst.map((entry) => entry.id)).toEqual(['t3', 't2', 't1'])
+    expect(turns.map((entry) => entry.id)).toEqual(['t1', 't2', 't3'])
+  })
+
+  it('handles empty history', () => {
+    expect(turnsNewestFirst([])).toEqual([])
+  })
+})
+
+describe('playerNameById', () => {
+  it('returns the matching player name or the id as fallback', () => {
+    const players = [
+      { id: 'a', name: 'Aino' },
+      { id: 'b', name: 'Matti' },
+    ]
+    expect(playerNameById(players, 'b')).toBe('Matti')
+    expect(playerNameById(players, 'missing')).toBe('missing')
   })
 })

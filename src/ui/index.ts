@@ -10,6 +10,8 @@ export {
 export {
   normalizeOptionalWord,
   parseScoreInput,
+  playerNameById,
+  turnsNewestFirst,
 } from './activeGame'
 export {
   orderNamesWithStarterFirst,
@@ -20,6 +22,7 @@ export {
   AppShell,
   Button,
   ChoiceChip,
+  ConfirmPanel,
   FormError,
   ListRowButton,
   PlayerPickList,
@@ -27,5 +30,6 @@ export {
   ScreenHeader,
   StandingsList,
   TextField,
+  TurnHistoryList,
 } from './primitives'
 export { strings } from './strings'

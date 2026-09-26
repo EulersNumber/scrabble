@@ -1,20 +1,24 @@
 import { useState, type FormEvent } from 'react'
-import { recordTurn } from '../application'
-import { DomainError, getStandings, type Game } from '../domain'
+import { editTurn, recordTurn, undoLastTurn } from '../application'
+import { DomainError, getStandings, type Game, type Turn } from '../domain'
 import type { GameStore } from '../persistence'
 import {
   normalizeOptionalWord,
   parseScoreInput,
+  playerNameById,
+  turnsNewestFirst,
 } from './activeGame'
 import { formatPlayerNames } from './gameList'
 import {
   AppShell,
   Button,
+  ConfirmPanel,
   FormError,
   PlayerPickList,
   ScreenHeader,
   StandingsList,
   TextField,
+  TurnHistoryList,
 } from './primitives'
 import { strings } from './strings'
 
@@ -25,11 +29,13 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Active-game screen: standings + add turn with soft rotation (T4.2, D13).
+ * Active-game screen: standings, add turn, and undo/edit (T4.2, T4.3, D11, D13).
  *
  * Highlights the suggested current player but allows logging any seat. Score
  * is an integer (0 = pass); word is optional. Standings recompute from turns
- * after each save. Undo/edit and finish belong to later tasks.
+ * after each save. Turn history sits below the form (newest first); undo last
+ * asks for a short confirm; tap a turn to edit score/word/player inline.
+ * Finish/reopen belong to T4.4.
  */
 export function ActiveGameScreen({
   store,
@@ -45,6 +51,16 @@ export function ActiveGameScreen({
   const [wordText, setWordText] = useState('')
   const [showValidation, setShowValidation] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const [confirmUndo, setConfirmUndo] = useState(false)
+  const [undoError, setUndoError] = useState<string | null>(null)
+
+  const [editingTurnId, setEditingTurnId] = useState<string | null>(null)
+  const [editPlayerId, setEditPlayerId] = useState('')
+  const [editScoreText, setEditScoreText] = useState('')
+  const [editWordText, setEditWordText] = useState('')
+  const [showEditValidation, setShowEditValidation] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
 
   if (game === null) {
     return (
@@ -76,12 +92,64 @@ export function ActiveGameScreen({
     return strings.scoreNotInteger
   })()
 
-  function resetForm(nextGame: Game) {
+  const editScoreParse = parseScoreInput(editScoreText)
+  const editScoreErrorMessage = (() => {
+    if (!showEditValidation || editScoreParse.ok) {
+      return undefined
+    }
+    if (editScoreParse.reason === 'empty') {
+      return strings.scoreRequired
+    }
+    if (editScoreParse.reason === 'out_of_range') {
+      return strings.scoreOutOfRange
+    }
+    return strings.scoreNotInteger
+  })()
+
+  const historyTurns = turnsNewestFirst(game.turns)
+  const lastTurnId = game.turns[game.turns.length - 1]?.id ?? null
+
+  function resetAddForm(nextGame: Game) {
     setPlayerId(nextGame.currentPlayerId)
     setScoreText('')
     setWordText('')
     setShowValidation(false)
     setSubmitError(null)
+  }
+
+  function clearEditState() {
+    setEditingTurnId(null)
+    setEditPlayerId('')
+    setEditScoreText('')
+    setEditWordText('')
+    setShowEditValidation(false)
+    setEditError(null)
+  }
+
+  function openEdit(turn: Turn) {
+    setConfirmUndo(false)
+    setUndoError(null)
+    setEditingTurnId(turn.id)
+    setEditPlayerId(turn.playerId)
+    setEditScoreText(String(turn.score))
+    setEditWordText(turn.word ?? '')
+    setShowEditValidation(false)
+    setEditError(null)
+  }
+
+  function handleSelectTurn(turnId: string) {
+    if (game === null || finished) {
+      return
+    }
+    if (editingTurnId === turnId) {
+      clearEditState()
+      return
+    }
+    const turn = game.turns.find((entry) => entry.id === turnId)
+    if (turn === undefined) {
+      return
+    }
+    openEdit(turn)
   }
 
   function submitScore(score: number) {
@@ -97,7 +165,9 @@ export function ActiveGameScreen({
         word: normalizeOptionalWord(wordText),
       })
       setGame(updated)
-      resetForm(updated)
+      resetAddForm(updated)
+      setConfirmUndo(false)
+      setUndoError(null)
     } catch (error) {
       if (error instanceof DomainError) {
         setSubmitError(strings.recordTurnFailed)
@@ -119,6 +189,60 @@ export function ActiveGameScreen({
   function handlePass() {
     setShowValidation(false)
     submitScore(0)
+  }
+
+  function handleUndoConfirm() {
+    setUndoError(null)
+    try {
+      const updated = undoLastTurn(store, gameId)
+      setGame(updated)
+      resetAddForm(updated)
+      setConfirmUndo(false)
+      if (editingTurnId !== null && lastTurnId === editingTurnId) {
+        clearEditState()
+      } else if (
+        editingTurnId !== null &&
+        !updated.turns.some((turn) => turn.id === editingTurnId)
+      ) {
+        clearEditState()
+      }
+    } catch (error) {
+      if (error instanceof DomainError) {
+        setUndoError(strings.undoFailed)
+        setConfirmUndo(false)
+        return
+      }
+      throw error
+    }
+  }
+
+  function handleSaveEdit(event: FormEvent) {
+    event.preventDefault()
+    if (editingTurnId === null || finished) {
+      return
+    }
+    setShowEditValidation(true)
+    if (!editScoreParse.ok) {
+      return
+    }
+
+    setEditError(null)
+    try {
+      const updated = editTurn(store, gameId, editingTurnId, {
+        playerId: editPlayerId,
+        score: editScoreParse.score,
+        word: normalizeOptionalWord(editWordText),
+      })
+      setGame(updated)
+      resetAddForm(updated)
+      clearEditState()
+    } catch (error) {
+      if (error instanceof DomainError) {
+        setEditError(strings.editFailed)
+        return
+      }
+      throw error
+    }
   }
 
   return (
@@ -145,6 +269,7 @@ export function ActiveGameScreen({
         ) : (
           <form className="flex flex-col gap-4" onSubmit={handleRecord}>
             <PlayerPickList
+              name="add-turn-player"
               legend={strings.whoseTurn}
               hint={strings.whoseTurnHint}
               players={game.players}
@@ -201,6 +326,108 @@ export function ActiveGameScreen({
             </div>
           </form>
         )}
+
+        {game.turns.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {!finished ? (
+              confirmUndo ? (
+                <ConfirmPanel
+                  prompt={strings.undoConfirmPrompt}
+                  confirmLabel={strings.confirmUndo}
+                  cancelLabel={strings.cancel}
+                  onConfirm={handleUndoConfirm}
+                  onCancel={() => setConfirmUndo(false)}
+                />
+              ) : (
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={() => {
+                    setUndoError(null)
+                    setConfirmUndo(true)
+                  }}
+                >
+                  {strings.undoLast}
+                </Button>
+              )
+            ) : null}
+
+            {undoError ? <FormError>{undoError}</FormError> : null}
+
+            <TurnHistoryList
+              heading={strings.turnsHeading}
+              turns={historyTurns.map((turn) => ({
+                id: turn.id,
+                playerName: playerNameById(game.players, turn.playerId),
+                score: turn.score,
+                word: turn.word,
+                isLast: turn.id === lastTurnId,
+              }))}
+              pointsLabel={strings.pointsLabel}
+              noWordLabel={strings.noWordLabel}
+              lastBadge={strings.lastTurnBadge}
+              selectedId={editingTurnId}
+              onSelect={handleSelectTurn}
+              disabled={finished}
+              editPanel={
+                editingTurnId !== null && !finished ? (
+                  <form
+                    className="flex flex-col gap-3"
+                    onSubmit={handleSaveEdit}
+                  >
+                    <PlayerPickList
+                      name="edit-turn-player"
+                      legend={strings.editPlayerLabel}
+                      players={game.players}
+                      value={editPlayerId}
+                      onChange={(id) => {
+                        setEditError(null)
+                        setEditPlayerId(id)
+                      }}
+                    />
+                    <TextField
+                      id="edit-turn-score"
+                      label={strings.scoreLabel}
+                      value={editScoreText}
+                      onChange={(value) => {
+                        setEditError(null)
+                        setEditScoreText(value)
+                      }}
+                      error={editScoreErrorMessage}
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                    <TextField
+                      id="edit-turn-word"
+                      label={strings.wordLabel}
+                      value={editWordText}
+                      onChange={(value) => {
+                        setEditError(null)
+                        setEditWordText(value)
+                      }}
+                      autoComplete="off"
+                      placeholder={strings.wordPlaceholder}
+                    />
+                    {editError ? <FormError>{editError}</FormError> : null}
+                    <div className="flex flex-col gap-2">
+                      <Button type="submit" variant="primary" fullWidth>
+                        {strings.saveEdit}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        fullWidth
+                        onClick={clearEditState}
+                      >
+                        {strings.cancel}
+                      </Button>
+                    </div>
+                  </form>
+                ) : undefined
+              }
+            />
+          </div>
+        ) : null}
       </div>
     </AppShell>
   )
