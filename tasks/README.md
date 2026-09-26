@@ -207,7 +207,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 2. Scaffold Vite + React + Vitest (T0.2) — done
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
-5. Use cases (T3) — T3.1 done; continue from T3.2
+5. Use cases (T3) — done
 6. Finnish UI flows (T4), including home continue (T4.0)
 7. Offline verification / optional PWA (T5)
 
