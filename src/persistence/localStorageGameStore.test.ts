@@ -127,4 +127,69 @@ describe('createLocalStorageGameStore', () => {
     expect(raw).toBeTruthy()
     expect(JSON.parse(raw!)[game.id].id).toBe(game.id)
   })
+
+  it('resumes an in-progress game and its turns after a fresh store (reload)', () => {
+    const storage = createMemoryStorage()
+    const beforeReload = createLocalStorageGameStore(storage)
+
+    let game = createGame(['Aino', 'Matti', 'Liisa'])
+    const [aino, matti] = game.players
+    game = recordTurn(game, {
+      playerId: aino!.id,
+      score: 22,
+      word: 'sana',
+    })
+    game = recordTurn(game, {
+      playerId: matti!.id,
+      score: 0,
+    })
+    beforeReload.save(game)
+
+    // New store instance + same storage ≈ browser reload / app restart (D17).
+    const afterReload = createLocalStorageGameStore(storage)
+    const resumed = afterReload.getById(game.id)
+
+    expect(resumed).toEqual(game)
+    expect(resumed?.status).toBe('in_progress')
+    expect(resumed?.turns).toHaveLength(2)
+    expect(resumed?.currentPlayerId).toBe(game.currentPlayerId)
+  })
+
+  it('keeps multiple in-progress games across reload alongside finished ones', () => {
+    const storage = createMemoryStorage()
+    const beforeReload = createLocalStorageGameStore(storage)
+
+    let first = createGame(['Aino', 'Matti'])
+    first = recordTurn(first, {
+      playerId: first.players[0]!.id,
+      score: 8,
+    })
+    let second = createGame(['Pekka', 'Sari', 'Jussi'])
+    second = recordTurn(second, {
+      playerId: second.players[1]!.id,
+      score: 15,
+      word: 'peli',
+    })
+    let finished = createGame(['Emma', 'Otto'])
+    finished = recordTurn(finished, {
+      playerId: finished.players[0]!.id,
+      score: 30,
+    })
+    finished = finishGame(finished)
+
+    beforeReload.save(first)
+    beforeReload.save(second)
+    beforeReload.save(finished)
+
+    const afterReload = createLocalStorageGameStore(storage)
+    const listed = afterReload.list()
+    const inProgress = listed.filter((game) => game.status === 'in_progress')
+    const done = listed.filter((game) => game.status === 'finished')
+
+    expect(inProgress).toHaveLength(2)
+    expect(done).toHaveLength(1)
+    expect(afterReload.getById(first.id)).toEqual(first)
+    expect(afterReload.getById(second.id)).toEqual(second)
+    expect(afterReload.getById(finished.id)?.status).toBe('finished')
+  })
 })

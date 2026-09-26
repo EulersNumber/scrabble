@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T1.4 and T2.1 are done.** Continue from T2.2.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T2.2 are done.** Continue from T3.1.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -105,10 +105,12 @@ Suggested order is the numbering below. A task may be split further if it grows.
 
 ### T2.2 Resume in-progress game
 
+- **Status:** done (2026-09-26).
 - **Goal:** Unfinished games survive restart (D17). Multiple in-progress games allowed.
 - **Acceptance:**
   - After reload, the same in-progress game and turns are present.
   - Covered by test or a documented manual check if the environment cannot simulate reload easily.
+- **Verified:** Unit tests create a fresh `GameStore` on the same memory storage (reload stand-in) and assert in-progress games, turns, and multi-game coexistence. UI continue entry point is T4.0 / T4.5.
 
 ---
 
@@ -129,6 +131,18 @@ Thin functions/services used by the UI. Keep them free of widget/DOM types.
 ## 4. UI (mobile-first, Finnish copy)
 
 Build screens against the use cases. Visual polish is secondary to usable flow. Visible strings in Finnish.
+
+Home must support both **new game** and **continue** (resume an in-progress game from local storage — D17 / T2.2). Exact Finnish labels are chosen when building the screens (candidates: “Uusi peli”, “Jatka”); no i18n framework (D19).
+
+### T4.0 Home: new game + continue
+
+- **Goal:** First screen after open: start a new game or continue an unfinished one.
+- **Acceptance:**
+  - User can start a **new game** (navigates to T4.1).
+  - In-progress games are listed and can be **continued** into the active game screen (T4.2), not only viewed as read-only history.
+  - Multiple in-progress games are allowed; each is selectable.
+  - Finished games may appear here or only under history (T4.5); either is fine if continue vs past-game detail stays clear.
+  - Finnish copy for the primary actions is set in this task (or with T4.5 if home and history share one screen).
 
 ### T4.1 New game screen
 
@@ -152,7 +166,10 @@ Build screens against the use cases. Visual polish is secondary to usable flow. 
 
 ### T4.5 History list + past game detail
 
-- **Acceptance:** In-progress and finished games appear in a list. Opening one shows players, totals, and turn history including optional words. Delete is available with confirmation.
+- **Acceptance:**
+  - In-progress and finished games appear in a list (may share the home screen from T4.0).
+  - Opening an **in-progress** game continues scoring (active game). Opening a **finished** game shows detail: players, totals, turn history including optional words (read-only until reopen).
+  - Delete is available with confirmation.
 
 ---
 
@@ -185,9 +202,9 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 1. Confirm decisions (T0.1) — done
 2. Scaffold Vite + React + Vitest (T0.2) — done
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
-4. Persistence + resume (T2) — T2.1 done
+4. Persistence + resume (T2) — done
 5. Use cases (T3)
-6. Finnish UI flows (T4)
+6. Finnish UI flows (T4), including home continue (T4.0)
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
