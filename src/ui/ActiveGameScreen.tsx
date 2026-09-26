@@ -1,5 +1,6 @@
 import type { GameStore } from '../persistence'
 import { formatPlayerNames } from './gameList'
+import { AppShell, Button, ScreenHeader } from './primitives'
 import { strings } from './strings'
 
 type ActiveGameScreenProps = {
@@ -23,33 +24,27 @@ export function ActiveGameScreen({
   const game = store.getById(gameId)
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-lg flex-col bg-stone-100 px-4 py-8 text-stone-900">
-      <button
-        type="button"
-        onClick={onBack}
-        className="self-start text-base font-medium text-stone-700 underline-offset-2 hover:underline"
-      >
+    <AppShell>
+      <Button variant="ghost" onClick={onBack}>
         {strings.back}
-      </button>
+      </Button>
 
       {game === null ? (
-        <>
-          <h1 className="mt-6 text-2xl font-semibold tracking-tight">
-            {strings.appTitle}
-          </h1>
-          <p className="mt-3 text-stone-600">{strings.gameNotFound}</p>
-        </>
+        <ScreenHeader
+          title={strings.appTitle}
+          subtitle={strings.gameNotFound}
+        />
       ) : (
         <>
-          <h1 className="mt-6 text-2xl font-semibold tracking-tight">
-            {formatPlayerNames(game)}
-          </h1>
-          <p className="mt-3 text-stone-600">{strings.activeGameComingSoon}</p>
-          <p className="mt-2 text-sm text-stone-500">
+          <ScreenHeader
+            title={formatPlayerNames(game)}
+            subtitle={strings.activeGameComingSoon}
+          />
+          <p className="mt-2 text-sm text-ink-muted">
             {strings.turnsCount(game.turns.length)}
           </p>
         </>
       )}
-    </main>
+    </AppShell>
   )
 }

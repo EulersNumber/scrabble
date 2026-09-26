@@ -130,4 +130,4 @@ The family can:
 
 ## Product decisions
 
-MVP product rules are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation (D13). Hosting provider (O12b) is deferred until family distribution.
+MVP product rules are **accepted** in `docs/decisions.md` (D8–D28), including soft rotation (D13). Family distribution uses GitHub Pages (D28).

@@ -59,6 +59,8 @@ Later (not now), isolated modules:
 ### UI
 
 - Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
+- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27). Screens compose those — do not scatter one-off color schemes.
+- Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
 - Does not own scoring rules or persistence details.
 - Should remain replaceable without rewriting domain logic. Domain must not import React.
 
@@ -185,7 +187,7 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 
 ## Deferred (does not block scaffold)
 
-- Static hosting provider for family phones (`docs/decisions.md` O12b)
+- Custom domain for GitHub Pages (optional; D28)
 - PWA service worker / Add to Home Screen polish (task T5)
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble turn/end rules beyond soft rotation (elimination, auto-end on all-pass, exchanges)

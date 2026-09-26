@@ -148,7 +148,7 @@ Home must support both **new game** and **continue** (resume an in-progress game
   - Multiple in-progress games are allowed; each is selectable.
   - Finished games may appear here or only under history (T4.5); either is fine if continue vs past-game detail stays clear.
   - Finnish copy for the primary actions is set in this task (or with T4.5 if home and history share one screen).
-- **Notes:** Finnish labels: “Uusi peli”, “Jatka”, “Kesken olevat pelit”. Home lists only in-progress games (newest first); finished games deferred to T4.5. New-game and active-game destinations are placeholders until T4.1 / T4.2. Navigation uses React screen state (no URL router yet, D24).
+- **Notes:** Finnish labels: “Uusi peli”, “Jatka”, “Kesken olevat pelit”. Home lists only in-progress games (newest first); finished games deferred to T4.5. New-game and active-game destinations are placeholders until T4.1 / T4.2. Navigation uses React screen state (no URL router yet, D24). Screens use theme tokens + UI primitives (D27). GitHub Pages deploy workflow added (D28) — enable Pages source once, then merge to `main` for `https://eulersnumber.github.io/scrabble/`.
 
 ### T4.1 New game screen
 
