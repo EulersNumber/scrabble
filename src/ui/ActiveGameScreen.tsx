@@ -1,5 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { editTurn, recordTurn, undoLastTurn } from '../application'
+import {
+  editTurn,
+  finishGame,
+  recordTurn,
+  reopenGame,
+  undoLastTurn,
+} from '../application'
 import { DomainError, getStandings, type Game, type Turn } from '../domain'
 import type { GameStore } from '../persistence'
 import {
@@ -29,13 +35,14 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Active-game screen: standings, add turn, and undo/edit (T4.2, T4.3, D11, D13).
+ * Active-game screen: standings, add turn, undo/edit, and finish/reopen
+ * (T4.2–T4.4, D11, D13, D16).
  *
  * Highlights the suggested current player but allows logging any seat. Score
  * is an integer (0 = pass); word is optional. Standings recompute from turns
  * after each save. Turn history sits below the form (newest first); undo last
  * asks for a short confirm; tap a turn to edit score/word/player inline.
- * Finish/reopen belong to T4.4.
+ * Finish confirms then blocks scoring until reopen.
  */
 export function ActiveGameScreen({
   store,
@@ -61,6 +68,10 @@ export function ActiveGameScreen({
   const [editWordText, setEditWordText] = useState('')
   const [showEditValidation, setShowEditValidation] = useState(false)
   const [editError, setEditError] = useState<string | null>(null)
+
+  const [confirmFinish, setConfirmFinish] = useState(false)
+  const [finishError, setFinishError] = useState<string | null>(null)
+  const [reopenError, setReopenError] = useState<string | null>(null)
 
   if (game === null) {
     return (
@@ -129,6 +140,8 @@ export function ActiveGameScreen({
   function openEdit(turn: Turn) {
     setConfirmUndo(false)
     setUndoError(null)
+    setConfirmFinish(false)
+    setFinishError(null)
     setEditingTurnId(turn.id)
     setEditPlayerId(turn.playerId)
     setEditScoreText(String(turn.score))
@@ -168,6 +181,8 @@ export function ActiveGameScreen({
       resetAddForm(updated)
       setConfirmUndo(false)
       setUndoError(null)
+      setConfirmFinish(false)
+      setFinishError(null)
     } catch (error) {
       if (error instanceof DomainError) {
         setSubmitError(strings.recordTurnFailed)
@@ -245,6 +260,48 @@ export function ActiveGameScreen({
     }
   }
 
+  function handleFinishConfirm() {
+    setFinishError(null)
+    try {
+      const updated = finishGame(store, gameId)
+      setGame(updated)
+      setConfirmFinish(false)
+      setConfirmUndo(false)
+      setUndoError(null)
+      clearEditState()
+      setSubmitError(null)
+      setReopenError(null)
+    } catch (error) {
+      if (error instanceof DomainError) {
+        setFinishError(strings.finishFailed)
+        setConfirmFinish(false)
+        return
+      }
+      throw error
+    }
+  }
+
+  function handleReopen() {
+    setReopenError(null)
+    try {
+      const updated = reopenGame(store, gameId)
+      setGame(updated)
+      resetAddForm(updated)
+      setFinishError(null)
+      setConfirmFinish(false)
+    } catch (error) {
+      if (error instanceof DomainError) {
+        setReopenError(strings.reopenFailed)
+        return
+      }
+      throw error
+    }
+  }
+
+  const headerSubtitle = finished
+    ? `${strings.gameFinishedSubtitle} · ${strings.turnsCount(game.turns.length)}`
+    : strings.turnsCount(game.turns.length)
+
   return (
     <AppShell>
       <Button variant="ghost" onClick={onBack}>
@@ -253,7 +310,7 @@ export function ActiveGameScreen({
 
       <ScreenHeader
         title={formatPlayerNames(game)}
-        subtitle={strings.turnsCount(game.turns.length)}
+        subtitle={headerSubtitle}
       />
 
       <div className="mt-6 flex flex-col gap-6">
@@ -265,7 +322,15 @@ export function ActiveGameScreen({
         />
 
         {finished ? (
-          <FormError>{strings.gameFinishedReadOnly}</FormError>
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-ink-muted">
+              {strings.gameFinishedReadOnly}
+            </p>
+            <Button variant="primary" fullWidth onClick={handleReopen}>
+              {strings.reopenGame}
+            </Button>
+            {reopenError ? <FormError>{reopenError}</FormError> : null}
+          </div>
         ) : (
           <form className="flex flex-col gap-4" onSubmit={handleRecord}>
             <PlayerPickList
@@ -344,6 +409,7 @@ export function ActiveGameScreen({
                   fullWidth
                   onClick={() => {
                     setUndoError(null)
+                    setConfirmFinish(false)
                     setConfirmUndo(true)
                   }}
                 >
@@ -426,6 +492,34 @@ export function ActiveGameScreen({
                 ) : undefined
               }
             />
+          </div>
+        ) : null}
+
+        {!finished ? (
+          <div className="flex flex-col gap-3">
+            {confirmFinish ? (
+              <ConfirmPanel
+                prompt={strings.finishConfirmPrompt}
+                confirmLabel={strings.confirmFinish}
+                cancelLabel={strings.cancel}
+                onConfirm={handleFinishConfirm}
+                onCancel={() => setConfirmFinish(false)}
+              />
+            ) : (
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={() => {
+                  setFinishError(null)
+                  setConfirmUndo(false)
+                  clearEditState()
+                  setConfirmFinish(true)
+                }}
+              >
+                {strings.finishGame}
+              </Button>
+            )}
+            {finishError ? <FormError>{finishError}</FormError> : null}
           </div>
         ) : null}
       </div>

@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.3 are done.** Continue from T4.4.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T4.4 are done.** Continue from T4.5.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -164,18 +164,19 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 - **Status:** done (2026-09-26).
 - **Acceptance:** UI highlights suggested current player; user may pick another. Integer score, optional word (0 = pass). Standings update immediately. Usable on a phone-width layout. Tailwind for layout.
-- **Notes:** Score helpers in `src/ui/activeGame.ts`. Player pick + standings use primitives (`PlayerPickList`, `StandingsList`). Pass shortcut submits score 0. Undo/edit and finish remain T4.3 / T4.4.
+- **Notes:** Score helpers in `src/ui/activeGame.ts`. Player pick + standings use primitives (`PlayerPickList`, `StandingsList`). Pass shortcut submits score 0. Undo/edit (T4.3) and finish/reopen (T4.4) follow.
 
 ### T4.3 Active game: undo/edit
 
 - **Status:** done (2026-09-26).
 - **Acceptance:** User can undo the last turn and edit score/word/player on any turn without leaving a broken total.
-- **Notes:** Turn history below the score form (newest first). Undo last uses a short confirm (`ConfirmPanel`). Tap a turn to edit player/score/word inline (`TurnHistoryList`). Helpers in `activeGame.ts` (`turnsNewestFirst`). Finish remains T4.4.
+- **Notes:** Turn history below the score form (newest first). Undo last uses a short confirm (`ConfirmPanel`). Tap a turn to edit player/score/word inline (`TurnHistoryList`). Helpers in `activeGame.ts` (`turnsNewestFirst`). Finish/reopen follow in T4.4.
 
 ### T4.4 Finish / reopen
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** User can finish an in-progress game from the active-game screen; scoring is blocked until they reopen.
-- **Notes (product input 2026-09-26):** Today there is no “end game” control in the UI — only domain/use cases exist. This task adds that path (e.g. “Lopeta peli”) so a sitting can be closed and moved to history. Reopen stays available so a missed turn can still be fixed (D16).
+- **Notes:** “Lopeta peli” at the bottom of the active-game screen with confirm (`ConfirmPanel`). Finished state hides scoring/undo/edit, shows read-only notice + “Avaa peli uudelleen” (D16). Header subtitle includes “Päättynyt”. History list for finished games remains T4.5.
 
 ### T4.5 History list + past game detail
 
@@ -297,7 +298,7 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4): T4.0–T4.3 done; continue from T4.4
+6. Finnish UI flows (T4): T4.0–T4.4 done; continue from T4.5
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
