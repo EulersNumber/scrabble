@@ -210,7 +210,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
 5. Use cases (T3) — done
-6. Finnish UI flows (T4), including home continue (T4.0)
+6. Finnish UI flows (T4): T4.0 home done; continue from T4.1
 7. Offline verification / optional PWA (T5)
 
 Domain before UI so the learning project practices testable logic first.
