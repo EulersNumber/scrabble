@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D24), including soft rotation. **T0.1–T2.2 are done.** Continue from T3.1.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D26), including soft rotation. **T0.1–T3.1 are done.** Continue from T3.2.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks.
 
@@ -120,7 +120,9 @@ Thin functions/services used by the UI. Keep them free of widget/DOM types.
 
 ### T3.1 Create-game and list-games use cases
 
+- **Status:** done (2026-09-26).
 - **Acceptance:** Creating persists a game; listing returns saved games (in progress and finished). Tests with a fake or real store.
+- **Notes:** `listGames` does not sort (D26); home/history UI owns presentation order.
 
 ### T3.2 Record / correct / finish / reopen / delete use cases
 
@@ -203,7 +205,7 @@ When those are wanted, add new tasks and a decision; do not expand T1–T5 silen
 2. Scaffold Vite + React + Vitest (T0.2) — done
 3. Domain + tests: game, turns, standings, undo/edit, finish/reopen (T0.3–T1.4) — done
 4. Persistence + resume (T2) — done
-5. Use cases (T3)
+5. Use cases (T3) — T3.1 done; continue from T3.2
 6. Finnish UI flows (T4), including home continue (T4.0)
 7. Offline verification / optional PWA (T5)
 
