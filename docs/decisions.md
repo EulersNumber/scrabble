@@ -193,7 +193,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ### Possible scope expansion (not in MVP)
 
-- Skip-twice → player drops out; remaining players continue.
+- **Skip-twice → player eliminated** — direction captured in backlog **P6** (warn before the eliminating pass; remaining players continue). Exact tournament vs house wording still open when promoted.
 - Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoted (D12 has no roster in MVP).
@@ -234,3 +234,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D27 | 2026-09-26 | UI theme tokens + primitives; tablet-friendly shell |
 | D27 (clarify) | 2026-09-26 | Screens must not inline control chrome; new controls → primitives first |
 | D28 | 2026-09-26 | GitHub Pages hosting (closes O12b) |
+| P6 (backlog) | 2026-09-26 | Skip-twice elimination + warning confirm captured as post-MVP idea |

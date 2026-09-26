@@ -174,14 +174,16 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T4.4 Finish / reopen
 
-- **Acceptance:** User can finish; scoring is blocked until they reopen.
+- **Acceptance:** User can finish an in-progress game from the active-game screen; scoring is blocked until they reopen.
+- **Notes (product input 2026-09-26):** Today there is no “end game” control in the UI — only domain/use cases exist. This task adds that path (e.g. “Lopeta peli”) so a sitting can be closed and moved to history. Reopen stays available so a missed turn can still be fixed (D16).
 
 ### T4.5 History list + past game detail
 
 - **Acceptance:**
   - In-progress and finished games appear in a list (may share the home screen from T4.0).
   - Opening an **in-progress** game continues scoring (active game). Opening a **finished** game shows detail: players, totals, turn history including optional words (read-only until reopen).
-  - Delete is available with confirmation.
+  - **Delete** is available with confirmation for **both** in-progress and finished games (home / history list, and optionally from the active or detail screen). Use case already exists; UI confirm is required (T3.2).
+- **Notes (product input 2026-09-26):** Home currently lists in-progress games with continue only — no delete. Users need a way to discard abandoned or test games without finishing them first.
 
 ---
 
@@ -266,13 +268,25 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 - **Open when promoting:** exact house vs tournament rule wording; whether empty-bag / consecutive-pass endings also apply; Finnish tile values table; UI for entering leftover tiles without building a full rack editor.
 - **Notes:** MVP finish stays **manual** with user-entered turn scores only (no automatic tile math). This is ruleset/scoring seam territory — leave the boundary clean until promoted.
 
+### P6. Skip-twice → player eliminated (with warning)
+
+- **Status:** idea (backlog only; not MVP). Product wish 2026-09-26.
+- **Goal:** Support the common tournament-style rule: if a player **passes (score 0) twice in a row while others still score**, they are **eliminated** from further play; remaining players continue.
+- **Why not MVP:** Explicitly out of MVP (D13 / product non-goals). Soft rotation + manual finish stay the scorepad default until this is promoted.
+- **Sketch when promoted:**
+  - Domain tracks consecutive passes **per player** (or equivalent) against the elimination rule; recording another pass that would eliminate triggers the rule.
+  - **UI warning before the eliminating pass is saved:** confirm something like “Oletko varma? Toinen ohitus eliminoi pelaajan pelistä.” Cancel leaves the game unchanged; confirm records the pass and marks the player eliminated.
+  - Eliminated players no longer take suggested turns; standings still show their totals from history.
+  - Clarify exact rule wording when promoting (house vs tournament: which passes count, interaction with undo/edit, whether two remaining players / last player standing ends the game automatically).
+- **Notes:** Today you can enter `0` for the same player many times with no elimination — that is intentional for MVP. Do not implement until promoted with a decision update.
+
 ---
 
 ## Out of backlog (do not pull into MVP silently)
 
 - Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
 
-Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment.
+Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination.
 
 ---
 
