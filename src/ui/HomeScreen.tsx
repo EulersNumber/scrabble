@@ -12,12 +12,11 @@ type HomeScreenProps = {
 }
 
 /**
- * Home hub: primary new-game action plus secondary continue and history
- * entry points (T4.0 / T4.5, D17, D29).
+ * Home hub: branded first viewport with falling-tile atmosphere (T7.1 / P10 / P2).
  *
- * Layout is a 2×2-style grid: new game spans the top row; continue and
- * history share the second row so starting a sitting stays visually dominant.
- * Lists live on their own screens. Layout/chrome uses shared UI primitives (D27).
+ * Product name stays hero-level; primary action is new game; continue and
+ * history share the second row (D29). Visual chrome comes from tokens +
+ * primitives (D27) — screens only arrange layout.
  */
 export function HomeScreen({
   onNewGame,
@@ -25,23 +24,33 @@ export function HomeScreen({
   onHistory,
 }: HomeScreenProps) {
   return (
-    <AppShell>
+    <AppShell atmosphere="hero">
       <ScreenHeader
         size="hero"
+        tone="onBoard"
         title={strings.appTitle}
         subtitle={strings.homeSubtitle}
       />
 
-      <div className="mt-2 grid grid-cols-2 gap-3 md:mt-4 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
         <div className="col-span-2">
-          <Button fullWidth size="hero" onClick={onNewGame}>
+          <Button
+            fullWidth
+            size="hero"
+            variant="inverse"
+            onClick={onNewGame}
+          >
             {strings.newGame}
           </Button>
         </div>
-        <Button variant="secondary" fullWidth onClick={onContinueList}>
+        <Button
+          variant="inverseSecondary"
+          fullWidth
+          onClick={onContinueList}
+        >
           {strings.continueSection}
         </Button>
-        <Button variant="secondary" fullWidth onClick={onHistory}>
+        <Button variant="inverseSecondary" fullWidth onClick={onHistory}>
           {strings.historySection}
         </Button>
       </div>

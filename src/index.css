@@ -8,18 +8,29 @@
 @theme {
   --color-board: #1f6b3a;
   --color-board-dark: #16532c;
+  --color-board-deeper: #0f3d20;
   --color-board-soft: #e7f1eb;
   --color-ink: #142018;
   --color-ink-muted: #4d5f54;
   --color-surface: #eef3ef;
+  --color-surface-deep: #e2ebe5;
   --color-panel: #fbfcfb;
   --color-line: #c2d1c7;
   --color-on-board: #f7faf7;
+  --color-on-board-muted: #c5dbcce6;
+
+  /* Classic Scrabble-tile ivory (product motif — not page chrome). */
+  --color-tile-face: #f3e6c4;
+  --color-tile-face-edge: #e0cfa0;
+  --color-tile-back: #d7c49a;
+  --color-tile-letter: #1a1814;
+  --color-tile-shadow: #0a241280;
 
   --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
   --font-display: 'Source Serif 4', ui-serif, Georgia, serif;
 
   --radius-control: 0.75rem;
+  --radius-tile: 0.4rem;
 }
 
 @layer base {
@@ -29,5 +40,154 @@
     font-family: var(--font-sans);
     color: var(--color-ink);
     background-color: var(--color-surface);
+  }
+}
+
+/* Ambient shell + falling tiles (T7.1 / P2 / P10) — chrome lives here. */
+
+@layer components {
+  .app-shell-atmosphere-hero {
+    color: var(--color-on-board);
+    background-color: var(--color-board);
+    background-image:
+      radial-gradient(
+        ellipse 120% 80% at 50% -10%,
+        color-mix(in srgb, var(--color-board) 55%, white) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 90% 60% at 100% 100%,
+        var(--color-board-deeper) 0%,
+        transparent 50%
+      ),
+      linear-gradient(
+        165deg,
+        var(--color-board) 0%,
+        var(--color-board-dark) 48%,
+        var(--color-board-deeper) 100%
+      );
+  }
+
+  .app-shell-atmosphere-dimmed {
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    background-image:
+      radial-gradient(
+        ellipse 100% 70% at 50% 0%,
+        var(--color-board-soft) 0%,
+        transparent 55%
+      ),
+      linear-gradient(
+        180deg,
+        var(--color-surface) 0%,
+        var(--color-surface-deep) 100%
+      );
+  }
+
+  .falling-tiles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    perspective: 900px;
+  }
+
+  .falling-tiles-hero {
+    opacity: 0.92;
+  }
+
+  .falling-tiles-dimmed {
+    opacity: 0.22;
+  }
+
+  .falling-tile {
+    position: absolute;
+    left: calc(var(--tile-x) * 1%);
+    top: -14%;
+    width: calc(var(--tile-size) * 1rem);
+    height: calc(var(--tile-size) * 1rem);
+    transform: rotate(var(--tile-tilt));
+    animation: tile-fall var(--tile-fall-dur) linear var(--tile-delay) infinite;
+    will-change: transform;
+  }
+
+  .falling-tile-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: tile-spin var(--tile-spin-dur) linear var(--tile-delay) infinite;
+    will-change: transform;
+  }
+
+  .falling-tile-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-tile);
+    backface-visibility: hidden;
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 80%, black),
+      0 6px 14px var(--color-tile-shadow);
+  }
+
+  .falling-tile-face-front {
+    background: linear-gradient(
+      160deg,
+      var(--color-tile-face) 0%,
+      var(--color-tile-face-edge) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--color-tile-face-edge) 70%, #8a7344);
+  }
+
+  .falling-tile-face-back {
+    background: linear-gradient(
+      145deg,
+      var(--color-tile-back) 0%,
+      color-mix(in srgb, var(--color-tile-back) 70%, #8a7344) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--color-tile-back) 60%, #6e5a32);
+    transform: rotateY(180deg);
+  }
+
+  .falling-tile-letter {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: calc(var(--tile-size) * 0.58rem);
+    line-height: 1;
+    color: var(--color-tile-letter);
+    text-transform: uppercase;
+  }
+
+  @keyframes tile-fall {
+    from {
+      transform: translate3d(0, -12vh, 0) rotate(var(--tile-tilt));
+    }
+    to {
+      transform: translate3d(0, 118vh, 0) rotate(var(--tile-tilt));
+    }
+  }
+
+  @keyframes tile-spin {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .falling-tile {
+      top: var(--tile-static-top);
+      animation: none;
+      transform: rotate(var(--tile-tilt));
+    }
+
+    .falling-tile-inner {
+      animation: none;
+      transform: rotateY(var(--tile-static-spin));
+    }
   }
 }
