@@ -66,6 +66,17 @@ describe('buildFallingTileSpecs', () => {
     }
   })
 
+  it('uses negative phase delays so tiles are mid-fall as soon as a screen mounts', () => {
+    for (const intensity of ['hero', 'dimmed'] as const) {
+      const tiles = buildFallingTileSpecs(intensity)
+      expect(tiles.every((tile) => tile.delaySec < 0)).toBe(true)
+      // Spread across the fall cycle so several tiles are in-view at once.
+      const delays = tiles.map((tile) => tile.delaySec)
+      expect(Math.min(...delays)).toBeLessThan(-10)
+      expect(Math.max(...delays)).toBeLessThan(0)
+    }
+  })
+
   it('includes both letter-forward and back-facing static spins', () => {
     const spins = new Set(
       buildFallingTileSpecs('hero').map((tile) => tile.staticSpinDeg),
