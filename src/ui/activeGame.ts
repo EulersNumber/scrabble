@@ -1,12 +1,13 @@
 /**
- * Pure helpers for the active-game score entry and correction flow (T4.2, T4.3).
+ * Pure helpers for the active-game score entry, correction, and game menu
+ * (T4.2, T4.3, T7.3).
  *
- * Keeps score parsing, word normalize, and turn-list presentation helpers out
- * of the React screen so they stay unit-testable. Domain still owns final
- * integer validation (D14) and undo/edit rules (D11).
+ * Keeps score parsing, word normalize, turn-list presentation, and which menu
+ * actions apply out of the React screen so they stay unit-testable. Domain
+ * still owns final integer validation (D14) and undo/edit rules (D11).
  */
 
-import type { Player, Turn } from '../domain'
+import type { GameStatus, Player, Turn } from '../domain'
 
 /** UI sanity cap for typed scores (D14); domain has no max. */
 export const SCORE_ABS_MAX = 9999
@@ -84,4 +85,24 @@ export function playerNameById(
   playerId: string,
 ): string {
   return players.find((player) => player.id === playerId)?.name ?? playerId
+}
+
+/** Secondary actions in the open-game menu (T7.3 / D34). Settings arrive in T9.1. */
+export type GameMenuAction = 'turns' | 'finish' | 'reopen' | 'delete'
+
+/**
+ * Chooses game-menu entries from status (T7.3 / D34 / D16 / D30).
+ *
+ * In progress: turn history, finish, delete. Finished: turn history, reopen,
+ * delete. Undo stays on the turn screen and is not a menu entry. No settings
+ * item until T9.1.
+ *
+ * @param status - Current game lifecycle
+ * @returns Menu actions in display order
+ */
+export function gameMenuActions(status: GameStatus): GameMenuAction[] {
+  if (status === 'finished') {
+    return ['turns', 'reopen', 'delete']
+  }
+  return ['turns', 'finish', 'delete']
 }

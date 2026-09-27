@@ -1,5 +1,8 @@
 export { AppShell } from './AppShell'
 export { Button } from './Button'
+export { MenuSheet } from './MenuSheet'
+export type { MenuSheetItem } from './MenuSheet'
+export { TopBar } from './TopBar'
 export { FallingTilesBackdrop } from './FallingTilesBackdrop'
 export { ChoiceChip } from './ChoiceChip'
 export { ConfirmPanel } from './ConfirmPanel'

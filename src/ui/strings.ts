@@ -22,6 +22,12 @@ export const strings = {
   turnsCount: (count: number) =>
     count === 1 ? '1 vuoro' : `${count} vuoroa`,
   back: 'Takaisin',
+  menuLabel: 'Valikko',
+  closeMenu: 'Sulje',
+  gameMenuTitle: 'Valikko',
+  noTurnsYet: 'Ei vuoroja vielä.',
+  turnsFinishedHint:
+    'Päättyneen pelin vuoroja ei voi muokata ennen avaamista.',
   gameNotFound: 'Peliä ei löytynyt.',
   standingsHeading: 'Tilanne',
   rankLabel: (rank: number) => `${rank}.`,
@@ -40,7 +46,7 @@ export const strings = {
   scoreOutOfRange: 'Pisteet ovat liian suuret. Tarkista kirjoitusvirhe.',
   recordTurnFailed: 'Vuoron tallennus epäonnistui. Yritä uudelleen.',
   gameFinishedReadOnly:
-    'Peli on päättynyt. Pisteitä ei voi kirjata ennen kuin avaat pelin uudelleen.',
+    'Peli on päättynyt. Pisteitä ei voi kirjata ennen kuin avaat pelin uudelleen valikosta.',
   gameFinishedSubtitle: 'Päättynyt',
   finishGame: 'Lopeta peli',
   finishConfirmPrompt: 'Lopetetaanko peli?',

@@ -269,7 +269,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.3 Top bar + game menu + turn history screen (D34)
 
-- **Status:** todo. (A first T7.3 “trimmed dashboard” attempt was reverted by the D33 replan.)
+- **Status:** done (2026-09-27).
 - **Goal:** Free the active-game screen for scoring. Secondary functions move behind a top-bar menu, and history gets its own screen.
 - **Acceptance:**
   - `TopBar` primitive: back, compact title (player names), menu icon button (accessible label).
@@ -278,7 +278,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - New `TurnHistoryScreen` (navigation entry `turn-history`): newest first, tap a row to edit player / score / word (existing edit flow), back returns to the game.
   - History, finish, and delete removed from the main game scroll. Undo stays on the game screen for now.
   - Existing add-turn form can still pick any player until **T7.5** (D36). History edit of player/score/word stays (D11).
-- **Notes:** Small structural chunk. The score form can stay as it is until T7.4 / T7.5.
+- **Notes:** `TopBar` + `MenuSheet` primitives; `gameMenuActions` picks finish vs reopen. Finish and delete confirm inside the sheet. Finished history is read-only until reopen. Score form unchanged until T7.4 / T7.5. Next: **T7.4**.
 
 ### T7.4 Calculator score keypad (P15 / D31)
 
@@ -625,8 +625,8 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 10. Brand home + falling tiles (T7.1) — done
 11. Delete from open game detail (T7.2) — done
 12. Turn-screen replan (D33–D37) — docs (first T7.3 attempt reverted)
-13. **Next agent:** **T7.3** top bar + game menu + turn history screen
-14. T7.4 keypad → T7.5 strict rotation + turn layout → T7.6 podium banner
+13. Top bar + game menu + turn history screen (T7.3) — done
+14. **Next agent:** **T7.4** calculator keypad → T7.5 strict rotation + turn layout → T7.6 podium banner
 15. T9.1 settings → T9.2 sounds
 16. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
 
