@@ -46,6 +46,10 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
         >
           <div className="falling-tile-tilt">
             <div className="falling-tile-inner">
+              {/* Interior slabs fill the cube so tiny face seams never show background. */}
+              <div className="falling-tile-fill falling-tile-fill-a" />
+              <div className="falling-tile-fill falling-tile-fill-b" />
+              <div className="falling-tile-fill falling-tile-fill-c" />
               <div className="falling-tile-face falling-tile-face-front">
                 <span className="falling-tile-well" />
                 <span className="falling-tile-letter">{tile.letter}</span>

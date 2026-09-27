@@ -153,6 +153,26 @@
     will-change: transform;
   }
 
+  /* Opaque interior — hides any sub-pixel gaps between outer faces. */
+  .falling-tile-fill {
+    position: absolute;
+    inset: 3%;
+    background: color-mix(in srgb, var(--color-tile-back) 88%, #8a7344);
+    border-radius: 0;
+  }
+
+  .falling-tile-fill-a {
+    transform: translateZ(calc(var(--tile-thickness) * -0.28));
+  }
+
+  .falling-tile-fill-b {
+    transform: translateZ(0);
+  }
+
+  .falling-tile-fill-c {
+    transform: translateZ(calc(var(--tile-thickness) * 0.28));
+  }
+
   .falling-tile-face,
   .falling-tile-side {
     position: absolute;
