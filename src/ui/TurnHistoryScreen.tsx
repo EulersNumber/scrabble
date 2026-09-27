@@ -4,16 +4,26 @@ import { DomainError, type Game, type Turn } from '../domain'
 import type { GameStore } from '../persistence'
 import {
   normalizeOptionalWord,
-  parseScoreInput,
   playerNameById,
   turnsNewestFirst,
 } from './activeGame'
+import {
+  appendScoreDigit,
+  backspaceScore,
+  clearScoreKeypad,
+  emptyScoreKeypad,
+  scoreKeypadFromInteger,
+  toggleScoreSign,
+  type ScoreKeypadState,
+} from './scoreKeypad'
 import { formatPlayerNames } from './gameList'
 import {
   AppShell,
   Button,
   FormError,
   PlayerPickList,
+  ScoreDisplay,
+  ScoreKeypad,
   TextField,
   TopBar,
   TurnHistoryList,
@@ -30,8 +40,9 @@ type TurnHistoryScreenProps = {
  * Turn history for one game (T7.3 / D34 / D11).
  *
  * Newest first. While the game is in progress, tapping a row edits player,
- * score, and optional word. A finished game is read-only until it is reopened
- * from the game menu. Back returns to the open game.
+ * score (same keypad as the turn form, D31), and optional word. A finished
+ * game is read-only until it is reopened from the game menu. Back returns to
+ * the open game.
  */
 export function TurnHistoryScreen({
   store,
@@ -41,7 +52,7 @@ export function TurnHistoryScreen({
   const [game, setGame] = useState<Game | null>(() => store.getById(gameId))
   const [editingTurnId, setEditingTurnId] = useState<string | null>(null)
   const [editPlayerId, setEditPlayerId] = useState('')
-  const [editScoreText, setEditScoreText] = useState('')
+  const [editScore, setEditScore] = useState<ScoreKeypadState>(emptyScoreKeypad)
   const [editWordText, setEditWordText] = useState('')
   const [showEditValidation, setShowEditValidation] = useState(false)
   const [editError, setEditError] = useState<string | null>(null)
@@ -63,33 +74,32 @@ export function TurnHistoryScreen({
   const historyTurns = turnsNewestFirst(game.turns)
   const lastTurnId = game.turns[game.turns.length - 1]?.id ?? null
 
-  const editScoreParse = parseScoreInput(editScoreText)
-  const editScoreErrorMessage = (() => {
-    if (!showEditValidation || editScoreParse.ok) {
-      return undefined
-    }
-    if (editScoreParse.reason === 'empty') {
-      return strings.scoreRequired
-    }
-    if (editScoreParse.reason === 'out_of_range') {
-      return strings.scoreOutOfRange
-    }
-    return strings.scoreNotInteger
-  })()
+  const editScoreErrorMessage =
+    showEditValidation && editScore.value === null
+      ? strings.scoreRequired
+      : undefined
 
   function clearEditState() {
     setEditingTurnId(null)
     setEditPlayerId('')
-    setEditScoreText('')
+    setEditScore(emptyScoreKeypad())
     setEditWordText('')
     setShowEditValidation(false)
     setEditError(null)
   }
 
+  function updateEditScore(
+    reduce: (current: ScoreKeypadState) => ScoreKeypadState,
+  ) {
+    setEditError(null)
+    setShowEditValidation(false)
+    setEditScore(reduce)
+  }
+
   function openEdit(turn: Turn) {
     setEditingTurnId(turn.id)
     setEditPlayerId(turn.playerId)
-    setEditScoreText(String(turn.score))
+    setEditScore(scoreKeypadFromInteger(turn.score))
     setEditWordText(turn.word ?? '')
     setShowEditValidation(false)
     setEditError(null)
@@ -115,8 +125,8 @@ export function TurnHistoryScreen({
     if (editingTurnId === null || finished) {
       return
     }
-    setShowEditValidation(true)
-    if (!editScoreParse.ok) {
+    if (editScore.value === null) {
+      setShowEditValidation(true)
       return
     }
 
@@ -124,7 +134,7 @@ export function TurnHistoryScreen({
     try {
       const updated = editTurn(store, gameId, editingTurnId, {
         playerId: editPlayerId,
-        score: editScoreParse.score,
+        score: editScore.value,
         word: normalizeOptionalWord(editWordText),
       })
       setGame(updated)
@@ -183,17 +193,25 @@ export function TurnHistoryScreen({
                       setEditPlayerId(id)
                     }}
                   />
-                  <TextField
+                  <ScoreDisplay
                     id="edit-turn-score"
                     label={strings.scoreLabel}
-                    value={editScoreText}
-                    onChange={(value) => {
-                      setEditError(null)
-                      setEditScoreText(value)
-                    }}
+                    display={editScore.display}
+                    emptyLabel={strings.scoreEmpty}
                     error={editScoreErrorMessage}
-                    inputMode="numeric"
-                    autoComplete="off"
+                  />
+                  <ScoreKeypad
+                    id="edit-turn-score-keypad"
+                    label={strings.keypadLabel}
+                    onDigit={(digit) =>
+                      updateEditScore((current) => appendScoreDigit(current, digit))
+                    }
+                    onBackspace={() => updateEditScore(backspaceScore)}
+                    onClear={() => updateEditScore(() => clearScoreKeypad())}
+                    onToggleSign={() => updateEditScore(toggleScoreSign)}
+                    toggleSignLabel={strings.keypadToggleSign}
+                    backspaceLabel={strings.keypadBackspace}
+                    clearHint={strings.keypadClearHint}
                   />
                   <TextField
                     id="edit-turn-word"
