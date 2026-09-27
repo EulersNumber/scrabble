@@ -40,7 +40,8 @@ type SavedGamesListScreenProps = {
 /**
  * Shared list screen for continue and history (T4.5).
  *
- * Shows selectable game rows plus list-only delete with confirm (D16).
+ * Shows selectable game rows plus delete with confirm (D29).
+ * Open-game delete lives on ActiveGameScreen (D30 / T7.2).
  * Visual chrome comes from primitives (D27); callers pass Finnish titles and
  * the filter/sort helper for in-progress vs finished.
  */

@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.1 are done** (MVP closed; post-MVP triage locked; brand/tiles landed). Continue from **T7.2**.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.2 are done** (MVP closed; post-MVP triage locked; brand/tiles landed; open-game delete landed). Continue from **T7.3**.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -239,7 +239,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 | 1 | **P10 + P2** brand atmosphere + falling tiles (grouped) | **P1** celebration / turn timer |
 | 2 | **P16** delete from open game detail | **P4** stats / leaderboards |
 | 3 | **P3 + P15 + P13** turn-focused UI + calculator keypad + action hierarchy | **P5** rack runoff |
-| 4 | **P11, P12, P14** polish | **P6** skip-twice elimination |
+| 4 | **P11, P12, P14, P18** polish | **P6** skip-twice elimination |
 | 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
 | — | — | **P8** PWA shell; **P9** cross-device sync |
 
@@ -253,18 +253,18 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Falling tiles: mathematical fall/spin (no game-engine dependency); do not block taps; respect `prefers-reduced-motion` (static or no motion).
   - Other screens: tiles absent or clearly dimmed/pushed back.
   - No scorepad behavior changes.
-- **Notes:** CSS/DOM tiles (no canvas). Square bevelled faces with Finnish point values; slow-ish fall, faster variable spin; near/far size. Light sage `AppShell` family. App display-font pass deferred. Next: **T7.2**.
+- **Notes:** CSS/DOM tiles (no canvas). Square bevelled faces with Finnish point values; slow-ish fall, faster variable spin; near/far size. Light sage `AppShell` family. App display-font pass deferred → **P18** / **T7.9**. Next: **T7.2**.
 
 ### T7.2 Delete from open game detail (P16 / D30)
 
-- **Status:** todo.
+- **Status:** done (2026-09-27).
 - **Goal:** Allow deleting the currently open game (in progress or finished) from the active-game / detail view, with the same confirm pattern as list delete.
 - **Acceptance:**
   - Destructive control is secondary (not competing with “Tallenna vuoro”); confirm required.
   - After delete, navigate back to home (or continue/history list); game gone from store.
   - List delete remains.
   - Works for both `in_progress` and `finished`.
-- **Notes:** Small independent chunk. Use cases already support delete (T3.2); this is UI + D30. Good to land before or right after the turn-UI rewrite so abandoned sittings are easy to clear while staring at the game.
+- **Notes:** UI + D30 on `ActiveGameScreen`; use case already existed (T3.2). Ghost “Poista peli” + `ConfirmPanel` at the bottom for both statuses; success calls `onBack`. Next: **T7.3**.
 
 ### T7.3 Turn-focused active-game shell (P3)
 
@@ -315,6 +315,16 @@ Build in this order. Do not start the next numbered task until the previous is r
 - **Status:** todo.
 - **Goal:** Brief confirmation after record/edit so table users trust the save.
 - **Acceptance:** Subtle (toast, inline flash, or standings highlight) — not a noisy snackbar farm.
+
+### T7.9 Display / brand font pass (P18)
+
+- **Status:** todo (polish; after or alongside T7.5–T7.8).
+- **Goal:** Tweak app typography so the brand/display font reads clearly with the sage + falling-tiles look from T7.1 — without a marketing-site redesign.
+- **Acceptance:**
+  - Review `--font-display` / `--font-sans` (and weights/sizes on `ScreenHeader` / home hero) against the shipped brand direction.
+  - Change tokens and primitives only (D27); no one-off font classes in screens.
+  - Keep Finnish UI readable at phone width; respect existing motion/reduced-motion behavior.
+- **Notes:** Deferred from T7.1 (“App display-font pass”). Small visual-only chunk; ask before introducing a new webfont family if one is not already loaded.
 
 ### T8.1 Dictionary seam + advisory headword check (P17 phase A)
 
@@ -480,7 +490,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P16. Delete from open game detail
 
-- **Status:** promoted → **T7.2** (D30).
+- **Status:** done via **T7.2** (D30).
 - **Goal:** Delete the currently open game (in progress or finished) from the active-game / detail screen, with confirm — not only from continue/history lists.
 - **Why:** List delete already works (D29 / T4.5), but during a sitting people look at the open game and expect “Poista” there too.
 - **Notes:** Use case already exists; UI + navigation after delete.
@@ -499,6 +509,13 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
   - Commercial MOT / Kielikone APIs exist but need network + licensing — poor fit for offline cabin use.
 - **Notes:** Architecture already has an empty dictionary seam — implement against that. Attribution required for Kotus CC BY. Do not pretend full Kielitoimiston article text is embedded.
 
+### P18. Display / brand font pass
+
+- **Status:** promoted → **T7.9**. Deferred from T7.1 (2026-09-27).
+- **Goal:** Tune the app’s display/sans type (weights, sizes, or family via D27 tokens) so titles and home brand read well with the sage shell and falling tiles — a focused font tweak, not a redesign.
+- **Why:** T7.1 shipped atmosphere and tiles first; display-font polish was explicitly deferred.
+- **Notes:** Prefer token/`ScreenHeader` changes. Ask before adding a new webfont.
+
 ---
 
 ## Out of backlog (do not pull into MVP silently)
@@ -506,7 +523,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 - Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
 - Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.6, **P12** richer list rows → T7.7, **P13** action hierarchy → T7.5, **P14** save feedback → T7.8, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.6, **P12** richer list rows → T7.7, **P13** action hierarchy → T7.5, **P14** save feedback → T7.8, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.9.
 
 ---
 
@@ -522,7 +539,8 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 8. MVP review (T5.2) — done; UX notes → **P10–P14**
 9. Backlog triage (T6.0) — done; shortlist + **T7/T8** chunks; **P15–P17** added
 10. Brand home + falling tiles (T7.1) — done
-11. **Next agent:** **T7.2** delete from open game detail
-12. Then T7.3 → T7.8 (scoring UX + polish), then T8.1+ (dictionary) when ready
+11. Delete from open game detail (T7.2) — done
+12. **Next agent:** **T7.3** turn-focused active-game shell
+13. Then T7.4 → T7.9 (scoring UX + polish + font pass), then T8.1+ (dictionary) when ready
 
 Domain before UI so the learning project practices testable logic first.
