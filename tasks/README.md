@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.2 are done** (MVP closed; post-MVP triage locked; brand/tiles landed; open-game delete landed). Continue from **T7.3**.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D35), including soft rotation. **T0.1–T7.2 are done** (MVP closed; post-MVP triage locked; brand/tiles landed; open-game delete landed). The turn screen was **replanned on 2026-09-27** (D33–D35): continue from **T7.3** (top bar + menu), then T7.4–T7.6, then settings/sound **T9.x**.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -238,8 +238,9 @@ Build in this order. Do not start the next numbered task until the previous is r
 | --- | --- | --- |
 | 1 | **P10 + P2** brand atmosphere + falling tiles (grouped) | **P1** celebration / turn timer |
 | 2 | **P16** delete from open game detail | **P4** stats / leaderboards |
-| 3 | **P3 + P15 + P13** turn-focused UI + calculator keypad + action hierarchy | **P5** rack runoff |
-| 4 | **P11, P12, P14, P18** polish | **P6** skip-twice elimination |
+| 3 | **D33/D34** single-player keypad turn screen: menu (T7.3) → keypad (T7.4) → layout (T7.5) → podium (T7.6) | **P5** rack runoff |
+| 4 | **P19 + P20** settings + sounds with mute (T9.1–T9.2) | **P6** skip-twice elimination |
+| 4b | **P11, P12, P14, P18** polish (T7.7–T7.10) | — |
 | 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
 | — | — | **P8** PWA shell; **P9** cross-device sync |
 
@@ -253,7 +254,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Falling tiles: mathematical fall/spin (no game-engine dependency); do not block taps; respect `prefers-reduced-motion` (static or no motion).
   - Other screens: tiles absent or clearly dimmed/pushed back.
   - No scorepad behavior changes.
-- **Notes:** CSS/DOM tiles (no canvas). Square bevelled faces with Finnish point values; slow-ish fall, faster variable spin; near/far size. Light sage `AppShell` family. App display-font pass deferred → **P18** / **T7.9**. Next: **T7.2**.
+- **Notes:** CSS/DOM tiles (no canvas). Square bevelled faces with Finnish point values; slow-ish fall, faster variable spin; near/far size. Light sage `AppShell` family. App display-font pass deferred → **P18** / **T7.10**. Next: **T7.2**.
 
 ### T7.2 Delete from open game detail (P16 / D30)
 
@@ -266,65 +267,110 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Works for both `in_progress` and `finished`.
 - **Notes:** UI + D30 on `ActiveGameScreen`; use case already existed (T3.2). Ghost “Poista peli” + `ConfirmPanel` at the bottom for both statuses; success calls `onBack`. Next: **T7.3**.
 
-### T7.3 Turn-focused active-game shell (P3)
+### T7.3 Top bar + game menu + turn history screen (D34)
 
-- **Status:** todo.
-- **Goal:** Reshape active game so the first viewport is “this turn,” not a long dashboard scroll.
+- **Status:** todo. (A first T7.3 “trimmed dashboard” attempt was reverted by the D33 replan.)
+- **Goal:** Free the active-game screen for scoring. Secondary functions move behind a top-bar menu, and history gets its own screen.
 - **Acceptance:**
-  - Compact standings banner at top.
-  - Primary content: current/suggested player, large score/pass actions, optional word secondary.
-  - Hint of who’s next (soft rotation) without forcing that seat.
-  - History / undo / finish as secondary navigation or sheets — not dominating the first viewport.
-  - Domain soft-rotation rules unchanged (D13).
-- **Notes:** Presentation only. Wire existing record/undo/edit/finish use cases. Numeric keypad is **T7.4** (can be same PR if small; prefer separate if either grows). Dimmed tiles from T7.1 may sit behind content.
+  - `TopBar` primitive: back, compact title (player names), menu icon button (accessible label).
+  - `MenuSheet` primitive: bottom sheet with list items; backdrop / close dismisses.
+  - Game menu items: **Vuorot**, **Lopeta peli** (confirm) or **Avaa peli uudelleen** when finished, **Poista peli** (confirm, D30). No settings item yet (T9.1).
+  - New `TurnHistoryScreen` (navigation entry `turn-history`): newest first, tap a row to edit player / score / word (existing edit flow), back returns to the game.
+  - History, finish, and delete removed from the main game scroll. Undo stays on the game screen for now.
+  - Behavior unchanged (D11, D13, D16, D30).
+- **Notes:** Small structural chunk. The score form can stay as it is until T7.4 / T7.5.
 
-### T7.4 Calculator-style score keypad (P15 / D31)
+### T7.4 Calculator score keypad (P15 / D31)
 
 - **Status:** todo.
-- **Goal:** Enter turn points with a large on-screen digit pad (no system keyboard for the score), plus a large primary OK / save control sized for fat-finger table use.
+- **Goal:** A large on-screen keypad replaces system-keyboard score entry.
 - **Acceptance:**
-  - Digit pad primitive (D27): big hit targets; clear/backspace; builds an integer score.
-  - Large primary confirm (e.g. OK / Tallenna) — hard to miss-tap.
-  - Pass remains a clear secondary path (score 0).
-  - Optional word still uses a text field when the user wants it; points entry must not require the system keyboard.
-  - Works in add-turn and edit-turn flows (or edit gets the pad in a follow-up if scope blows up — note in PR).
-  - Unit tests for pad value building / parse helpers where non-trivial.
-- **Notes:** Depends on T7.3 layout (or lands together). Do not invent auto-scoring.
+  - Pure helper `scoreKeypad.ts`: append digit, backspace, clear, sign toggle (±), sanity cap (`SCORE_ABS_MAX`), no leading zeros; returns display text + parsed integer or empty. Unit tests.
+  - `ScoreDisplay` + `ScoreKeypad` primitives: 3×4 grid of big targets (1–9, ±, 0, ⌫), clear via long-press or a C key.
+  - Wired into the existing add-turn form in place of the numeric text field. The edit flow in the history screen uses the pad too (or note a follow-up in the PR if scope grows).
+  - Points entry never opens the system keyboard.
+- **Notes:** Independent of the final layout. T7.5 places it.
 
-### T7.5 Action hierarchy pass (P13)
+### T7.5 Single-player turn screen layout (P3 / P13 / D33)
 
 - **Status:** todo.
-- **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on save first.
-- **Acceptance:** New or extended Button / ConfirmPanel variants in primitives; screens compose them (no one-off chrome in `*Screen.tsx`).
-- **Notes:** Often natural to fold into T7.3/T7.4; keep as its own checkbox so it is not forgotten. Skip a separate PR if already satisfied in those tasks.
+- **Goal:** The in-progress game screen becomes “this player’s points, next.”
+- **Acceptance:**
+  - Layout per D33: top bar, standings slot (the current standings list may be a placeholder until T7.6), **large current player name**, score display + keypad using most of the height, optional word field (secondary), bottom action bar.
+  - `BottomActionBar` primitive: **Kumoa** (short confirm), **Ohi** (records 0), large primary **Seuraava pelaaja** (save + advance). Primary is disabled with no score entered.
+  - Tapping the player name opens a small picker to log another seat (soft rotation, D13). After save, the screen shows the new suggested player with an empty pad.
+  - Clear action hierarchy (P13): primary visually dominant; undo / pass secondary. New variants live in primitives (D27).
+  - Finished state: no keypad or bottom bar. Read-only notice + **Avaa peli uudelleen**. History via menu.
+  - Fits a phone viewport (~375×667) without scrolling in the in-progress state. Tablet layout stays centered.
+- **Notes:** Presentation only; no domain changes. Old P13 (action hierarchy) is folded in here.
 
-### T7.6 Edit-turn affordance (P11)
+### T7.6 Podium standings banner (D33)
 
 - **Status:** todo.
-- **Goal:** Make “edit a turn from two–three turns ago” obvious without teaching.
-- **Acceptance:** Visible edit affordance or hint on history rows / under Vuorot; behavior still D11.
+- **Goal:** Compact olympic-podium standings at the top of the game screen.
+- **Acceptance:**
+  - Pure helper `podium.ts`: standings → podium slots for 2–4 players. Shared ranks share a step (D15). A 4th place goes beside the podium. Unit tests (2/3/4 players, ties incl. all tied).
+  - `PodiumStandings` primitive: 1st centre/tallest, 2nd left, 3rd right; name + total; current player highlighted; compact height.
+  - Used on in-progress and finished states (finished = final result).
+- **Notes:** Can land before T7.5 if preferred. It only replaces the standings slot.
 
-### T7.7 Richer game-list rows (P12)
+### T7.7 Edit-turn affordance (P11)
+
+- **Status:** todo.
+- **Goal:** Editing an older turn is obvious in the turn history screen.
+- **Acceptance:** Visible edit affordance / hint on history rows; behavior still D11.
+
+### T7.8 Richer game-list rows (P12)
 
 - **Status:** todo.
 - **Goal:** Continue/history rows show enough to recognize a sitting (e.g. leader or ordered totals), not only names + date + turn count.
 - **Acceptance:** Derived from existing standings helpers; delete control stays clearly tied to its row.
 
-### T7.8 Lightweight save feedback (P14)
+### T7.9 Lightweight save feedback (P14)
 
 - **Status:** todo.
-- **Goal:** Brief confirmation after record/edit so table users trust the save.
-- **Acceptance:** Subtle (toast, inline flash, or standings highlight) — not a noisy snackbar farm.
+- **Goal:** Brief confirmation after save/pass/edit so table users trust the save.
+- **Acceptance:** Subtle (podium total pulse, inline flash). Pairs with the sound cue in T9.2 but must work muted.
 
-### T7.9 Display / brand font pass (P18)
+### T7.10 Display / brand font pass (P18)
 
-- **Status:** todo (polish; after or alongside T7.5–T7.8).
-- **Goal:** Tweak app typography so the brand/display font reads clearly with the sage + falling-tiles look from T7.1 — without a marketing-site redesign.
+- **Status:** todo (polish).
+- **Goal:** Tweak app typography so the brand/display font reads clearly with the sage + falling-tiles look from T7.1, without a marketing-site redesign.
 - **Acceptance:**
   - Review `--font-display` / `--font-sans` (and weights/sizes on `ScreenHeader` / home hero) against the shipped brand direction.
   - Change tokens and primitives only (D27); no one-off font classes in screens.
   - Keep Finnish UI readable at phone width; respect existing motion/reduced-motion behavior.
-- **Notes:** Deferred from T7.1 (“App display-font pass”). Small visual-only chunk; ask before introducing a new webfont family if one is not already loaded.
+- **Notes:** Deferred from T7.1. Ask before introducing a new webfont family.
+
+---
+
+## 9. Settings and sound (build after T7.3–T7.6, before T8)
+
+### T9.1 Settings store + settings screen (P19 / D35)
+
+- **Status:** todo.
+- **Goal:** App-wide settings with a first toggle: sounds on/off.
+- **Acceptance:**
+  - `SettingsStore` interface + `localStorage` implementation (own key, defaults for missing/corrupt data). Persistence tests with fake storage.
+  - Application `getSettings` / `updateSettings` with tests.
+  - `SettingsScreen` (navigation entry `settings`), Finnish copy (“Asetukset”, “Äänet”). Reachable from the game menu (**Asetukset**) and a home top-bar icon.
+  - Settings are never stored inside `Game`.
+- **Notes:** No sounds yet; the toggle is persisted and read.
+
+### T9.2 Sound cues (P20 / D35)
+
+- **Status:** todo (after T9.1).
+- **Goal:** Short, pleasant sound cues for key actions, respecting mute.
+- **Acceptance:**
+  - `src/ui/sound/`: Web Audio synthesized cues, with no audio files or dependency. Lazily create the `AudioContext` on first user gesture (iOS/Safari rule).
+  - Cues on turn saved, pass, undo, game finished (confirm the event list first; keypad clicks optional/off).
+  - Silent when sounds are off. Never throws if audio is unavailable.
+  - Pure parts (cue definitions / gating) unit-tested where non-trivial.
+- **Notes:** Domain and use cases stay silent. Screens trigger cues after successful actions.
+
+---
+
+## 8. Finnish word check (after T7 core + T9)
 
 ### T8.1 Dictionary seam + advisory headword check (P17 phase A)
 
@@ -379,7 +425,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
-- **Status:** promoted → **T7.3** (keypad **T7.4**, hierarchy **T7.5**).
+- **Status:** replanned by **D33/D34** → **T7.3–T7.6** (menu, keypad, single-player layout, podium).
 - **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
 - **Sketch:**
   - Compact **standings banner** at the top (who’s leading / current totals)
@@ -457,7 +503,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P11. Edit-turn discoverability and affordance
 
-- **Status:** promoted → **T7.6**.
+- **Status:** promoted → **T7.9**.
 - **Goal:** Make “fix a turn from two–three turns ago” obvious without teaching. Today tap-to-edit works but history rows look read-only (no Muokkaa / pencil / hint).
 - **Candidates:** edit affordance on rows; short hint under **Vuorot**; dedicated edit sheet/screen; keep undo for last-only mistakes.
 - **Notes:** Behavior already meets MVP (D11). This is UX clarity only.
@@ -470,7 +516,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P13. Action hierarchy and destructive/secondary styling
 
-- **Status:** promoted → **T7.5** (may fold into T7.3/T7.4).
+- **Status:** folded into **T7.5** (single-player turn screen).
 - **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on **Tallenna vuoro** first and finish/delete feel appropriately secondary or cautious.
 - **Candidates:** new Button variants or ConfirmPanel emphasis in primitives (D27); keep screens free of one-off chrome.
 - **Notes:** Small design-system pass; lands with turn-focused UI.
@@ -511,19 +557,31 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P18. Display / brand font pass
 
-- **Status:** promoted → **T7.9**. Deferred from T7.1 (2026-09-27).
+- **Status:** promoted → **T7.10**. Deferred from T7.1 (2026-09-27).
 - **Goal:** Tune the app’s display/sans type (weights, sizes, or family via D27 tokens) so titles and home brand read well with the sage shell and falling tiles — a focused font tweak, not a redesign.
 - **Why:** T7.1 shipped atmosphere and tiles first; display-font polish was explicitly deferred.
 - **Notes:** Prefer token/`ScreenHeader` changes. Ask before adding a new webfont.
 
 ---
 
+### P19. App settings
+
+- **Status:** promoted → **T9.1** (D35).
+- **Goal:** One app-wide place for preferences (first: sounds on/off), reachable from the game menu and home.
+- **Notes:** Separate `SettingsStore`; never inside `Game`. Add more settings only when a task needs them.
+
+### P20. Sound cues + mute
+
+- **Status:** promoted → **T9.2** (D35).
+- **Goal:** Short, pleasant cues (save, pass, undo, finish) that make the table scorepad feel alive; mutable in settings.
+- **Notes:** Web Audio synthesized, offline, no dependency. Default on/off and exact events awaiting confirmation.
+
 ## Out of backlog (do not pull into MVP silently)
 
 - Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
 - Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.6, **P12** richer list rows → T7.7, **P13** action hierarchy → T7.5, **P14** save feedback → T7.8, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.9.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.6 (D33), **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** settings → T9.1, **P20** sounds → T9.2.
 
 ---
 
@@ -540,7 +598,10 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 9. Backlog triage (T6.0) — done; shortlist + **T7/T8** chunks; **P15–P17** added
 10. Brand home + falling tiles (T7.1) — done
 11. Delete from open game detail (T7.2) — done
-12. **Next agent:** **T7.3** turn-focused active-game shell
-13. Then T7.4 → T7.9 (scoring UX + polish + font pass), then T8.1+ (dictionary) when ready
+12. Turn-screen replan (D33–D35) — done (docs; first T7.3 attempt reverted)
+13. **Next agent:** **T7.3** top bar + game menu + turn history screen
+14. T7.4 keypad → T7.5 single-player turn layout → T7.6 podium banner
+15. T9.1 settings → T9.2 sounds
+16. Polish T7.7–T7.10, then T8.1+ (dictionary) when ready
 
 Domain before UI so the learning project practices testable logic first.

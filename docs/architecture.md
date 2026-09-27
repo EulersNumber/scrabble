@@ -64,6 +64,11 @@ Later (not now), isolated modules:
 - **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
+- **Turn screen direction (D33–D35, T7.3+):**
+  - Screens: `ActiveGameScreen` becomes the single-player **turn screen** (in progress) / **result view** (finished). A new `TurnHistoryScreen` handles history + edit, and a new `SettingsScreen` arrives in T9.1. `navigation.ts` gains `turn-history` and `settings` entries (still no URL router, D24).
+  - New primitives: `TopBar` (back + title + icon actions), `MenuSheet` (bottom sheet list), `PodiumStandings`, `ScoreDisplay`, `ScoreKeypad`, `BottomActionBar`.
+  - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty) and `podium.ts` (standings → podium slots with shared-rank steps, 2–4 players).
+  - Sounds: `src/ui/sound/` wraps Web Audio cues and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
 - Does not own scoring rules or persistence details.
 - Should remain replaceable without rewriting domain logic. Domain must not import React.
 
@@ -85,6 +90,7 @@ Later (not now), isolated modules:
 - Saves and loads games locally so a refresh, app restart, or offline session does not lose an in-progress or finished game.
 - Mechanism: `localStorage` + JSON, wrapped so the rest of the app depends on a store interface, not on `localStorage` directly.
 - Store the **game document** (players + ordered turns + status). Do not persist derived standings as an independent source of truth. Derived values may be cached in memory for the UI.
+- **App settings (D35, T9.1):** a separate `SettingsStore` persists one small settings document (e.g. `{ soundsEnabled }`) under its own `localStorage` key. It has its own version/defaults handling and is never part of `Game`. Application exposes `getSettings` / `updateSettings`; UI reads settings once at app start and passes them down (a small React context is fine).
 
 ### Future Scrabble-specific logic (boundary only)
 
@@ -171,7 +177,9 @@ Enough screens to support MVP; names can change:
 2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
 3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP layout direction: turn-focused shell + calculator keypad (D31 / T7.3–T7.4).
+5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP target (D33/D34): top bar with menu → podium banner → large current player → score display + calculator keypad → optional word → bottom bar (Kumoa · Ohi · Seuraava pelaaja). History / finish / delete / settings in the menu.
+6. **Turn history** (T7.3) — separate screen from the game menu; newest first; tap to edit (D11).
+7. **Settings** (T9.1) — app-wide; sounds on/off first (D35).
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 

@@ -130,6 +130,10 @@ The family can:
 
 **T5.2 (2026-09-26):** Walked against a full sitting and marked met. Post-MVP polish and features live in `tasks/README.md` (**P1–P14**); next planning step is **T6.0**.
 
+## Post-MVP direction (accepted)
+
+Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**: podium-style standings, a large calculator keypad for points, an optional word, and bottom actions for undo / pass / next player. History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is also accepted. See `docs/decisions.md` D33–D35 and `tasks/README.md` T7.3+ / T9.x.
+
 ## Product decisions
 
 MVP product rules are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation (D13). Family distribution uses GitHub Pages (D28).

@@ -204,7 +204,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 ### D30. Delete from open game detail (T6.0 / T7.2)
 
 - **Status:** accepted (post-MVP).
-- **Decision:** The open active-game / detail view may offer **delete with confirm** for the current game (in progress or finished), in addition to list delete (D29). After delete, leave the detail view (typically return home). Styling stays secondary/destructive so it does not compete with scoring.
+- **Decision:** The open active-game / detail view may offer **delete with confirm** for the current game (in progress or finished), in addition to list delete (D29). After delete, leave the detail view (typically return home). Styling stays secondary/destructive so it does not compete with scoring. Placement moves into the top-bar game menu with **D34** (T7.3).
 - **Why:** During a sitting, users look at the open game and expect to remove abandoned or test games there; list-only delete was easy to miss.
 
 ### D31. Calculator-style score entry (T6.0 / T7.4)
@@ -223,6 +223,38 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
   - Implement behind the existing empty dictionary seam in architecture.
 - **Why:** Matches the user’s Kielitoimiston intent via the lawful open headword list; cabin play needs offline; morphology is a larger follow-up.
 
+### D33. Single-player turn screen, keypad-dominant (replan 2026-09-27)
+
+- **Status:** accepted (post-MVP; replaces the first T7.3 “trimmed dashboard” attempt, which was reverted).
+- **Decision:** After setup (names + who starts), the in-progress game screen records **one turn for one player** at a time. Top → bottom:
+  1. **Top bar** (D34): back, compact title, menu icon.
+  2. **Podium standings banner**: ranked totals in a compact “olympic podium” shape (1st centre/tallest, 2nd left, 3rd right; a 4th player sits as a small chip beside the podium). Ties share a step (D15). The current player is highlighted. Totals stay derived (D3).
+  3. **Current player** shown large (suggested current by default, D13). Tapping the name opens a small picker to log a different seat (soft rotation stays).
+  4. **Score display + calculator keypad** (D31) take **most of the screen**: digits 0–9, backspace, clear, and a small sign toggle (±) for negative corrections (D14).
+  5. **Optional word** text field (system keyboard), visually secondary; never required (D18).
+  6. **Bottom action bar**: **Kumoa** (undo last, short confirm, D11), **Ohi** (records 0, explicit pass), and the large primary **Seuraava pelaaja** (save this turn and advance to the next suggested player). Primary is disabled while no score is entered.
+- **Finished games:** the same screen shows the podium (final result), a read-only notice, and **Avaa peli uudelleen**. There is no keypad or bottom bar (D16).
+- **Not on this screen:** turn history, finish, delete, and settings. These go in the menu (D34).
+- **Why:** Family play showed the table needs “enter this player’s points, next” with fat-finger targets; everything else is secondary.
+
+### D34. Game top bar and menu (replan 2026-09-27)
+
+- **Status:** accepted (post-MVP; refines D30 placement).
+- **Decision:** Active-game secondary functions live behind a **menu icon in a top bar** and open as a sheet. Menu items: **Vuorot** (turn history screen with edit, D11), **Lopeta peli** (confirm, D16), **Poista peli** (confirm, D30), **Asetukset** (D35, once it exists). Undo stays on the turn screen's bottom bar because it is part of the scoring flow. Home gets the same top-bar pattern with a settings entry when settings land.
+- **Turn history** becomes its own in-app screen (navigation state, D24): newest first, tap a row to edit player / score / word, back returns to the turn screen.
+- **Why:** Keeps the first viewport about scoring; one predictable place for “more.”
+
+### D35. App settings and sounds (replan 2026-09-27)
+
+- **Status:** accepted direction (post-MVP; spec extension). Details marked *proposed* await confirmation.
+- **Decision:**
+  - **Settings** are app-wide (not per game). They are stored as their own small JSON document in `localStorage` behind a `SettingsStore` (same pattern as D9). They are never mixed into the `Game` document.
+  - First setting: **sounds on / off (mute)**. More settings are added only when a task needs them.
+  - Sounds are short UI cues synthesized with the **Web Audio API**: no audio files, no dependency, and they work offline. *Proposed* events are turn saved, pass, undo, and game finished. Keypad tap clicks are optional and off by default.
+  - *Proposed* default: sounds **on**. Mute sits in Asetukset (reachable from the game menu and home top bar).
+  - Sound playback is a UI concern. The domain and use cases never trigger sounds.
+- **Why:** User wish for settings + sounds with mute; keeps persistence and layers consistent.
+
 ## Open
 
 ### Possible scope expansion (not in MVP)
@@ -232,7 +264,8 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
-- **Turn-focused active-game layout** — promoted to **T7.3** (+ keypad **T7.4**).
+- **Turn-focused active-game layout** — replanned as **D33 / D34** (single-player keypad turn screen + top-bar menu), tasks **T7.3–T7.6**.
+- **D33 / D35 details awaiting confirmation:** bottom bar = Kumoa + Ohi + Seuraava pelaaja (vs pass as a keypad key); player switch by tapping the name; ± key on the keypad; sounds default on; which events play sounds.
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
 - **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
 - **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
@@ -281,3 +314,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T6.0 / P15–P17 / D30–D32 | 2026-09-27 | Backlog triage; T7/T8 chunks; open-game delete, keypad, dictionary approach |
 | T7.1 / P2+P10 | 2026-09-27 | Brand home + CSS falling tiles; AppShell atmosphere; canvas deferred |
 | T6.0 / D30–D32 / P15–P17 | 2026-09-27 | Backlog triage: T7/T8 chunks; delete-from-detail; keypad; Kotus word-check approach |
+| D33–D35 / P19–P20 | 2026-09-27 | Replan: single-player keypad turn screen with podium banner; top-bar game menu (history / finish / delete / settings); app settings + Web Audio sounds with mute. First T7.3 attempt reverted |
