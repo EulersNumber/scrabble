@@ -7,12 +7,11 @@ type FallingTilesBackdropProps = {
 }
 
 /**
- * Ambient Scrabble-tile field that falls and slowly spins (T7.1 / P2).
+ * Ambient Scrabble-tile field that falls and spins (T7.1 / P2).
  *
- * CSS/DOM driven (no canvas/WebGL): each tile is positioned and timed from
- * `buildFallingTileSpecs`. The layer is `pointer-events-none` so it never
- * blocks taps. When `prefers-reduced-motion: reduce`, tiles stay static with
- * a mix of letter faces and blanks.
+ * Each tile is a thick CSS 3D box (square faces + sides) so mid-spin it still
+ * reads as a physical tile, not a flat card. Specs from `buildFallingTileSpecs`.
+ * `pointer-events-none`; reduced-motion → static faces/backs.
  */
 export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
   const tiles = buildFallingTileSpecs(intensity)
@@ -37,17 +36,26 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
               '--tile-delay': `${tile.delaySec}s`,
               '--tile-spin-dur': `${tile.spinDurationSec}s`,
               '--tile-size': tile.sizeRem,
+              '--tile-depth': tile.depth,
               '--tile-tilt': `${tile.tiltDeg}deg`,
               '--tile-static-top': `${tile.staticTopPercent}%`,
               '--tile-static-spin': `${tile.staticSpinDeg}deg`,
             } as CSSProperties
           }
         >
-          <div className="falling-tile-inner">
-            <div className="falling-tile-face falling-tile-face-front">
-              <span className="falling-tile-letter">{tile.letter}</span>
+          <div className="falling-tile-tilt">
+            <div className="falling-tile-inner">
+              <div className="falling-tile-face falling-tile-face-front">
+                <span className="falling-tile-well" />
+                <span className="falling-tile-letter">{tile.letter}</span>
+                <span className="falling-tile-points">{tile.points}</span>
+              </div>
+              <div className="falling-tile-face falling-tile-face-back" />
+              <div className="falling-tile-side falling-tile-side-left" />
+              <div className="falling-tile-side falling-tile-side-right" />
+              <div className="falling-tile-side falling-tile-side-top" />
+              <div className="falling-tile-side falling-tile-side-bottom" />
             </div>
-            <div className="falling-tile-face falling-tile-face-back" />
           </div>
         </div>
       ))}
