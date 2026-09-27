@@ -74,8 +74,8 @@ export type FallingTileSpec = {
   /** Full fall duration in seconds. */
   fallDurationSec: number
   /**
-   * Fall animation delay (seconds). Small non-negative stagger so tiles enter
-   * from the top soon after a screen opens.
+   * Fall animation delay (seconds). Negative = start a little below the top
+   * (staggered initial Y in the top band).
    */
   delaySec: number
   /** Full Y-axis spin period in seconds (variable per tile). */
@@ -117,9 +117,9 @@ export function finnishTilePoints(letter: string): number {
 /**
  * Build a fixed set of falling-tile specs for the given atmosphere intensity.
  *
- * Hero tiles are denser; dimmed uses a thinner field. Tiles fall from the top
- * with a short stagger (not mid-screen spawn). Spin is faster and phase-offset
- * so letter faces show soon after entry. Size + depth vary for near/far.
+ * Hero tiles are denser; dimmed uses a thinner field. Tiles enter from near
+ * the top at staggered heights (not all at once, not mid-screen). Spin is
+ * phase-offset so letter faces vary. Size + depth vary for near/far.
  *
  * @param intensity - `hero` for home brand; `dimmed` for other screens
  * @returns Deterministic tile specs for CSS custom properties
@@ -138,10 +138,15 @@ export function buildFallingTileSpecs(
     const points = finnishTilePoints(letter)
     // Spread across width with a mild zig-zag so columns do not stack.
     const xPercent = ((i * 37 + 11) % 88) + 4
-    // Quicker fall from the top (~16–28s).
-    const fallDurationSec = 16 + ((i * 4) % 9) + t * 3
-    // Short stagger: first tiles enter almost immediately; last within ~2.5s.
-    const delaySec = (i / Math.max(count - 1, 1)) * 2.4
+    // Quicker fall (~12–22s).
+    const fallDurationSec = 12 + ((i * 3) % 8) + t * 2
+    /*
+      Staggered start heights in the top band only (first ~0–18% of the fall).
+      Negative delay = already a little way down from the top — different
+      tiles at different Y, without spawning mid-screen.
+    */
+    const startPhase = 0.02 + (i / Math.max(count - 1, 1)) * 0.16
+    const delaySec = -(startPhase * fallDurationSec)
     // Variable spin (~7–16s); phase-offset so faces are not all blank on entry.
     const spinDurationSec = 7 + ((i * 3) % 6) + ((i * 5) % 4)
     const spinDelaySec = -(((i * 3.1) % spinDurationSec) + 0.5)

@@ -40,29 +40,29 @@ describe('buildFallingTileSpecs', () => {
     )
   })
 
-  it('falls from the top with a short stagger and mid spin phase', () => {
+  it('staggers start heights near the top with varied spin', () => {
     const hero = buildFallingTileSpecs('hero')
     const spinSet = new Set(hero.map((tile) => tile.spinDurationSec))
     const depthSet = new Set(hero.map((tile) => tile.depth))
     const sizes = hero.map((tile) => tile.sizeRem)
+    const delays = hero.map((tile) => tile.delaySec)
     expect(spinSet.size).toBeGreaterThan(1)
     expect(depthSet.size).toBeGreaterThan(1)
     expect(Math.max(...sizes)).toBeGreaterThan(Math.min(...sizes))
+    // Different initial Y via distinct negative delays (not all identical).
+    expect(new Set(delays).size).toBeGreaterThan(1)
 
     for (const intensity of ['hero', 'dimmed'] as const) {
       const tiles = buildFallingTileSpecs(intensity)
-      expect(tiles[0]!.delaySec).toBe(0)
-      expect(Math.max(...tiles.map((tile) => tile.delaySec))).toBeLessThanOrEqual(
-        3,
-      )
+      expect(tiles.every((tile) => tile.delaySec < 0)).toBe(true)
       expect(tiles.every((tile) => tile.spinDelaySec < 0)).toBe(true)
-
+      // Stay in the top band: |delay| < ~20% of fall duration.
       for (const tile of tiles) {
+        expect(-tile.delaySec).toBeLessThan(tile.fallDurationSec * 0.25)
         expect(tile.xPercent).toBeGreaterThanOrEqual(0)
         expect(tile.xPercent).toBeLessThanOrEqual(100)
-        expect(tile.fallDurationSec).toBeGreaterThanOrEqual(15)
-        expect(tile.fallDurationSec).toBeLessThan(35)
-        expect(tile.delaySec).toBeGreaterThanOrEqual(0)
+        expect(tile.fallDurationSec).toBeGreaterThanOrEqual(10)
+        expect(tile.fallDurationSec).toBeLessThan(30)
         expect(tile.spinDurationSec).toBeGreaterThanOrEqual(6)
         expect(tile.spinDurationSec).toBeLessThan(20)
         expect(tile.sizeRem).toBeGreaterThanOrEqual(2.5)
