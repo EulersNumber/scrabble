@@ -73,10 +73,18 @@ export type FallingTileSpec = {
   xPercent: number
   /** Full fall duration in seconds. */
   fallDurationSec: number
-  /** Stagger as a negative phase offset into the fall (seconds); keeps tiles on-screen at mount. */
+  /**
+   * Fall animation delay (seconds). Small non-negative stagger so tiles enter
+   * from the top soon after a screen opens.
+   */
   delaySec: number
   /** Full Y-axis spin period in seconds (variable per tile). */
   spinDurationSec: number
+  /**
+   * Spin phase offset (typically negative) so letter faces are varied as soon
+   * as a tile enters the viewport.
+   */
+  spinDelaySec: number
   /** Tile edge length in rem (near tiles larger than far). */
   sizeRem: number
   /**
@@ -109,10 +117,9 @@ export function finnishTilePoints(letter: string): number {
 /**
  * Build a fixed set of falling-tile specs for the given atmosphere intensity.
  *
- * Hero tiles are denser; dimmed uses a thinner field. Fall is a calm drift;
- * spin is faster and variable so letter faces show regularly. Size + depth
- * vary so some tiles feel nearer than others. Delays are negative phase
- * offsets so tiles are already mid-fall (visible) as soon as a screen mounts.
+ * Hero tiles are denser; dimmed uses a thinner field. Tiles fall from the top
+ * with a short stagger (not mid-screen spawn). Spin is faster and phase-offset
+ * so letter faces show soon after entry. Size + depth vary for near/far.
  *
  * @param intensity - `hero` for home brand; `dimmed` for other screens
  * @returns Deterministic tile specs for CSS custom properties
@@ -131,13 +138,13 @@ export function buildFallingTileSpecs(
     const points = finnishTilePoints(letter)
     // Spread across width with a mild zig-zag so columns do not stack.
     const xPercent = ((i * 37 + 11) % 88) + 4
-    // Calm fall (~28–48s).
-    const fallDurationSec = 28 + ((i * 5) % 14) + t * 6
-    // Negative phase offset: already mid-fall on mount so letter tiles show
-    // immediately on home and list screens (no multi-second empty wait).
-    const delaySec = -(((i + 0.4) / count) * fallDurationSec)
-    // Variable spin: letter faces show often (~7–16s per turn).
+    // Quicker fall from the top (~16–28s).
+    const fallDurationSec = 16 + ((i * 4) % 9) + t * 3
+    // Short stagger: first tiles enter almost immediately; last within ~2.5s.
+    const delaySec = (i / Math.max(count - 1, 1)) * 2.4
+    // Variable spin (~7–16s); phase-offset so faces are not all blank on entry.
     const spinDurationSec = 7 + ((i * 3) % 6) + ((i * 5) % 4)
+    const spinDelaySec = -(((i * 3.1) % spinDurationSec) + 0.5)
     // Near/far depth: not uniform — some tiles closer, some back.
     const depth = ((i * 17) % 10) / 9
     const sizeRem = sizeFar + depth * (sizeNear - sizeFar)
@@ -153,6 +160,7 @@ export function buildFallingTileSpecs(
       fallDurationSec: Math.round(fallDurationSec * 10) / 10,
       delaySec: Math.round(delaySec * 10) / 10,
       spinDurationSec: Math.round(spinDurationSec * 10) / 10,
+      spinDelaySec: Math.round(spinDelaySec * 10) / 10,
       sizeRem: Math.round(sizeRem * 100) / 100,
       depth: Math.round(depth * 100) / 100,
       tiltDeg,
