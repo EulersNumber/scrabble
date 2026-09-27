@@ -9,9 +9,9 @@ type FallingTilesBackdropProps = {
 /**
  * Ambient Scrabble-tile field that falls and spins (T7.1 / P2).
  *
- * Each tile is a thick CSS 3D box with overlapping side walls so seams stay
- * closed. Specs from `buildFallingTileSpecs`. `pointer-events-none`;
- * reduced-motion → static faces/backs.
+ * Each tile is a sealed CSS 3D cuboid: front/back are S×S, sides match those
+ * edges exactly (no outer rounding — that caused overhang). Specs from
+ * `buildFallingTileSpecs`. `pointer-events-none`; reduced-motion → static.
  */
 export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
   const tiles = buildFallingTileSpecs(intensity)
