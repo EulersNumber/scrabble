@@ -99,16 +99,16 @@
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    perspective: 900px;
+    perspective: 1100px;
   }
 
   /* Soft ambient — readable behind content, not attention-grabbing. */
   .falling-tiles-hero {
-    opacity: 0.55;
+    opacity: 0.62;
   }
 
   .falling-tiles-dimmed {
-    opacity: 0.32;
+    opacity: 0.34;
   }
 
   .falling-tile {
@@ -117,15 +117,27 @@
     top: -18%;
     width: calc(var(--tile-size) * 1rem);
     height: calc(var(--tile-size) * 1rem);
-    transform: rotate(var(--tile-tilt));
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
+    /* Near tiles a bit clearer; far tiles softer (depth cue). */
+    opacity: calc(0.55 + var(--tile-depth) * 0.45);
     animation: tile-fall var(--tile-fall-dur) linear var(--tile-delay) infinite;
     will-change: transform;
+  }
+
+  /* Z-tilt only — keeps the face a true square while spun on Y. */
+  .falling-tile-tilt {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    transform: rotate(var(--tile-tilt));
   }
 
   .falling-tile-inner {
     position: relative;
     width: 100%;
     height: 100%;
+    aspect-ratio: 1 / 1;
     transform-style: preserve-3d;
     animation: tile-spin var(--tile-spin-dur) linear var(--tile-delay) infinite;
     will-change: transform;
@@ -134,22 +146,36 @@
   .falling-tile-face {
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
     border-radius: var(--radius-tile);
     backface-visibility: hidden;
-    box-shadow:
-      0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 80%, black),
-      0 8px 18px var(--color-tile-shadow);
+    -webkit-backface-visibility: hidden;
   }
 
   .falling-tile-face-front {
-    background: linear-gradient(
-      160deg,
-      var(--color-tile-face) 0%,
-      var(--color-tile-face-edge) 100%
-    );
-    border: 1px solid color-mix(in srgb, var(--color-tile-face-edge) 70%, #8a7344);
+    display: grid;
+    place-items: center;
+    /* Bevelled rim + recessed letter well (physical tile feel). */
+    background:
+      radial-gradient(
+        circle at 50% 48%,
+        color-mix(in srgb, var(--color-tile-face) 88%, #c4a96a) 0%,
+        var(--color-tile-face) 42%,
+        var(--color-tile-face-edge) 100%
+      );
+    border: 1px solid color-mix(in srgb, var(--color-tile-face-edge) 65%, #8a7344);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 75%, white),
+      0 calc(4px + var(--tile-depth) * 10px)
+        calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
+      inset 0 0 0 1.5px color-mix(in srgb, var(--color-tile-face) 70%, white),
+      inset 2px 2px 4px color-mix(in srgb, white 55%, transparent),
+      inset -2px -2px 5px color-mix(in srgb, #6a5428 22%, transparent),
+      inset 0 0 calc(0.22 * var(--tile-size) * 1rem)
+        color-mix(in srgb, #6a5428 14%, transparent);
   }
 
   .falling-tile-face-back {
@@ -159,24 +185,42 @@
       color-mix(in srgb, var(--color-tile-back) 70%, #8a7344) 100%
     );
     border: 1px solid color-mix(in srgb, var(--color-tile-back) 60%, #6e5a32);
+    box-shadow:
+      0 calc(4px + var(--tile-depth) * 10px)
+        calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
+      inset 1px 1px 3px color-mix(in srgb, white 35%, transparent),
+      inset -2px -2px 4px color-mix(in srgb, #6a5428 25%, transparent);
     transform: rotateY(180deg);
   }
 
   .falling-tile-letter {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-weight: 700;
-    font-size: calc(var(--tile-size) * 0.58rem);
+    font-size: calc(var(--tile-size) * 0.52rem);
     line-height: 1;
     color: var(--color-tile-letter);
     text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  .falling-tile-points {
+    position: absolute;
+    right: calc(var(--tile-size) * 0.1rem);
+    bottom: calc(var(--tile-size) * 0.08rem);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: calc(var(--tile-size) * 0.16rem);
+    line-height: 1;
+    color: var(--color-tile-letter);
+    opacity: 0.85;
   }
 
   @keyframes tile-fall {
     from {
-      transform: translate3d(0, -14vh, 0) rotate(var(--tile-tilt));
+      transform: translate3d(0, -14vh, 0);
     }
     to {
-      transform: translate3d(0, 120vh, 0) rotate(var(--tile-tilt));
+      transform: translate3d(0, 120vh, 0);
     }
   }
 
@@ -193,7 +237,7 @@
     .falling-tile {
       top: var(--tile-static-top);
       animation: none;
-      transform: rotate(var(--tile-tilt));
+      transform: none;
     }
 
     .falling-tile-inner {
