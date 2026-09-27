@@ -10,7 +10,6 @@ import {
 import { DomainError, getStandings, type Game, type Turn } from '../domain'
 import type { GameStore } from '../persistence'
 import {
-  nextSeatPlayer,
   normalizeOptionalWord,
   parseScoreInput,
   playerNameById,
@@ -20,12 +19,11 @@ import { formatPlayerNames } from './gameList'
 import {
   AppShell,
   Button,
-  CompactStandingsBanner,
   ConfirmPanel,
   FormError,
   PlayerPickList,
   ScreenHeader,
-  SecondarySheet,
+  StandingsList,
   TextField,
   TurnHistoryList,
 } from './primitives'
@@ -38,12 +36,15 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Turn-focused active-game screen (T7.3, plus T4.2–T4.4 / T7.2 flows).
+ * Active-game screen: standings, add turn, undo/edit, finish/reopen, and
+ * delete (T4.2–T4.4, T7.2, D11, D13, D16, D30).
  *
- * First viewport: compact standings, this turn’s player / score / pass, optional
- * word tucked behind a secondary control, and a soft-rotation “next” hint (D13).
- * History, undo, finish, and delete live in a secondary sheet so they do not
- * dominate scoring. Domain soft rotation is unchanged; keypad entry is T7.4.
+ * Highlights the suggested current player but allows logging any seat. Score
+ * is an integer (0 = pass); word is optional. Standings recompute from turns
+ * after each save. Turn history sits below the form (newest first); undo last
+ * asks for a short confirm; tap a turn to edit score/word/player inline.
+ * Finish confirms then blocks scoring until reopen. Delete (with confirm) is
+ * available for in-progress and finished games and returns via `onBack`.
  */
 export function ActiveGameScreen({
   store,
@@ -57,11 +58,8 @@ export function ActiveGameScreen({
   )
   const [scoreText, setScoreText] = useState('')
   const [wordText, setWordText] = useState('')
-  const [showWordField, setShowWordField] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-
-  const [sheetOpen, setSheetOpen] = useState(false)
 
   const [confirmUndo, setConfirmUndo] = useState(false)
   const [undoError, setUndoError] = useState<string | null>(null)
@@ -126,13 +124,11 @@ export function ActiveGameScreen({
 
   const historyTurns = turnsNewestFirst(game.turns)
   const lastTurnId = game.turns[game.turns.length - 1]?.id ?? null
-  const nextAfterSelected = nextSeatPlayer(game.players, playerId)
 
   function resetAddForm(nextGame: Game) {
     setPlayerId(nextGame.currentPlayerId)
     setScoreText('')
     setWordText('')
-    setShowWordField(false)
     setShowValidation(false)
     setSubmitError(null)
   }
@@ -146,18 +142,6 @@ export function ActiveGameScreen({
     setEditError(null)
   }
 
-  function closeSheet() {
-    setSheetOpen(false)
-    setConfirmUndo(false)
-    setConfirmFinish(false)
-    setConfirmDelete(false)
-    clearEditState()
-  }
-
-  function openSheet() {
-    setSheetOpen(true)
-  }
-
   function openEdit(turn: Turn) {
     setConfirmUndo(false)
     setUndoError(null)
@@ -165,7 +149,6 @@ export function ActiveGameScreen({
     setFinishError(null)
     setConfirmDelete(false)
     setDeleteError(null)
-    setSheetOpen(true)
     setEditingTurnId(turn.id)
     setEditPlayerId(turn.playerId)
     setEditScoreText(String(turn.score))
@@ -209,7 +192,6 @@ export function ActiveGameScreen({
       setFinishError(null)
       setConfirmDelete(false)
       setDeleteError(null)
-      clearEditState()
     } catch (error) {
       if (error instanceof DomainError) {
         setSubmitError(strings.recordTurnFailed)
@@ -300,7 +282,6 @@ export function ActiveGameScreen({
       clearEditState()
       setSubmitError(null)
       setReopenError(null)
-      setSheetOpen(false)
     } catch (error) {
       if (error instanceof DomainError) {
         setFinishError(strings.finishFailed)
@@ -346,316 +327,258 @@ export function ActiveGameScreen({
     ? `${strings.gameFinishedSubtitle} · ${strings.turnsCount(game.turns.length)}`
     : strings.turnsCount(game.turns.length)
 
-  const historySection =
-    game.turns.length > 0 ? (
-      <div className="flex flex-col gap-3">
+  return (
+    <AppShell>
+      <Button variant="ghost" onClick={onBack}>
+        {strings.back}
+      </Button>
+
+      <ScreenHeader
+        title={formatPlayerNames(game)}
+        subtitle={headerSubtitle}
+      />
+
+      <div className="mt-6 flex flex-col gap-6">
+        <StandingsList
+          heading={strings.standingsHeading}
+          standings={standings}
+          pointsLabel={strings.pointsLabel}
+          rankLabel={strings.rankLabel}
+        />
+
+        {finished ? (
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-ink-muted">
+              {strings.gameFinishedReadOnly}
+            </p>
+            <Button variant="primary" fullWidth onClick={handleReopen}>
+              {strings.reopenGame}
+            </Button>
+            {reopenError ? <FormError>{reopenError}</FormError> : null}
+          </div>
+        ) : (
+          <form className="flex flex-col gap-4" onSubmit={handleRecord}>
+            <PlayerPickList
+              name="add-turn-player"
+              legend={strings.whoseTurn}
+              hint={strings.whoseTurnHint}
+              players={game.players}
+              value={playerId}
+              suggestedId={game.currentPlayerId}
+              suggestedBadge={strings.suggestedBadge}
+              onChange={(id) => {
+                setSubmitError(null)
+                setPlayerId(id)
+              }}
+            />
+
+            <TextField
+              id="turn-score"
+              label={strings.scoreLabel}
+              value={scoreText}
+              onChange={(value) => {
+                setSubmitError(null)
+                setScoreText(value)
+              }}
+              error={scoreErrorMessage}
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder="0"
+            />
+            <p className="-mt-2 text-sm text-ink-muted">{strings.scoreHint}</p>
+
+            <TextField
+              id="turn-word"
+              label={strings.wordLabel}
+              value={wordText}
+              onChange={(value) => {
+                setSubmitError(null)
+                setWordText(value)
+              }}
+              autoComplete="off"
+              placeholder={strings.wordPlaceholder}
+            />
+
+            {submitError ? <FormError>{submitError}</FormError> : null}
+
+            <div className="flex flex-col gap-3">
+              <Button type="submit" variant="primary" fullWidth>
+                {strings.recordTurn}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                fullWidth
+                onClick={handlePass}
+              >
+                {strings.passTurn}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {game.turns.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {!finished ? (
+              confirmUndo ? (
+                <ConfirmPanel
+                  prompt={strings.undoConfirmPrompt}
+                  confirmLabel={strings.confirmUndo}
+                  cancelLabel={strings.cancel}
+                  onConfirm={handleUndoConfirm}
+                  onCancel={() => setConfirmUndo(false)}
+                />
+              ) : (
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={() => {
+                    setUndoError(null)
+                    setConfirmFinish(false)
+                    setConfirmDelete(false)
+                    setConfirmUndo(true)
+                  }}
+                >
+                  {strings.undoLast}
+                </Button>
+              )
+            ) : null}
+
+            {undoError ? <FormError>{undoError}</FormError> : null}
+
+            <TurnHistoryList
+              heading={strings.turnsHeading}
+              turns={historyTurns.map((turn) => ({
+                id: turn.id,
+                playerName: playerNameById(game.players, turn.playerId),
+                score: turn.score,
+                word: turn.word,
+                isLast: turn.id === lastTurnId,
+              }))}
+              pointsLabel={strings.pointsLabel}
+              noWordLabel={strings.noWordLabel}
+              lastBadge={strings.lastTurnBadge}
+              selectedId={editingTurnId}
+              onSelect={handleSelectTurn}
+              disabled={finished}
+              editPanel={
+                editingTurnId !== null && !finished ? (
+                  <form
+                    className="flex flex-col gap-3"
+                    onSubmit={handleSaveEdit}
+                  >
+                    <PlayerPickList
+                      name="edit-turn-player"
+                      legend={strings.editPlayerLabel}
+                      players={game.players}
+                      value={editPlayerId}
+                      onChange={(id) => {
+                        setEditError(null)
+                        setEditPlayerId(id)
+                      }}
+                    />
+                    <TextField
+                      id="edit-turn-score"
+                      label={strings.scoreLabel}
+                      value={editScoreText}
+                      onChange={(value) => {
+                        setEditError(null)
+                        setEditScoreText(value)
+                      }}
+                      error={editScoreErrorMessage}
+                      inputMode="numeric"
+                      autoComplete="off"
+                    />
+                    <TextField
+                      id="edit-turn-word"
+                      label={strings.wordLabel}
+                      value={editWordText}
+                      onChange={(value) => {
+                        setEditError(null)
+                        setEditWordText(value)
+                      }}
+                      autoComplete="off"
+                      placeholder={strings.wordPlaceholder}
+                    />
+                    {editError ? <FormError>{editError}</FormError> : null}
+                    <div className="flex flex-col gap-2">
+                      <Button type="submit" variant="primary" fullWidth>
+                        {strings.saveEdit}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        fullWidth
+                        onClick={clearEditState}
+                      >
+                        {strings.cancel}
+                      </Button>
+                    </div>
+                  </form>
+                ) : undefined
+              }
+            />
+          </div>
+        ) : null}
+
         {!finished ? (
-          confirmUndo ? (
+          <div className="flex flex-col gap-3">
+            {confirmFinish ? (
+              <ConfirmPanel
+                prompt={strings.finishConfirmPrompt}
+                confirmLabel={strings.confirmFinish}
+                cancelLabel={strings.cancel}
+                onConfirm={handleFinishConfirm}
+                onCancel={() => setConfirmFinish(false)}
+              />
+            ) : (
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={() => {
+                  setFinishError(null)
+                  setConfirmUndo(false)
+                  setConfirmDelete(false)
+                  clearEditState()
+                  setConfirmFinish(true)
+                }}
+              >
+                {strings.finishGame}
+              </Button>
+            )}
+            {finishError ? <FormError>{finishError}</FormError> : null}
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-3">
+          {confirmDelete ? (
             <ConfirmPanel
-              prompt={strings.undoConfirmPrompt}
-              confirmLabel={strings.confirmUndo}
+              prompt={strings.deleteConfirmPrompt}
+              confirmLabel={strings.confirmDelete}
               cancelLabel={strings.cancel}
-              onConfirm={handleUndoConfirm}
-              onCancel={() => setConfirmUndo(false)}
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => {
+                setConfirmDelete(false)
+                setDeleteError(null)
+              }}
             />
           ) : (
             <Button
-              variant="secondary"
-              fullWidth
+              variant="ghost"
               onClick={() => {
-                setUndoError(null)
+                setDeleteError(null)
+                setConfirmUndo(false)
                 setConfirmFinish(false)
-                setConfirmDelete(false)
-                setConfirmUndo(true)
+                clearEditState()
+                setConfirmDelete(true)
               }}
             >
-              {strings.undoLast}
+              {strings.deleteGame}
             </Button>
-          )
-        ) : null}
-
-        {undoError ? <FormError>{undoError}</FormError> : null}
-
-        <TurnHistoryList
-          heading={strings.turnsHeading}
-          turns={historyTurns.map((turn) => ({
-            id: turn.id,
-            playerName: playerNameById(game.players, turn.playerId),
-            score: turn.score,
-            word: turn.word,
-            isLast: turn.id === lastTurnId,
-          }))}
-          pointsLabel={strings.pointsLabel}
-          noWordLabel={strings.noWordLabel}
-          lastBadge={strings.lastTurnBadge}
-          selectedId={editingTurnId}
-          onSelect={handleSelectTurn}
-          disabled={finished}
-          editPanel={
-            editingTurnId !== null && !finished ? (
-              <form className="flex flex-col gap-3" onSubmit={handleSaveEdit}>
-                <PlayerPickList
-                  name="edit-turn-player"
-                  legend={strings.editPlayerLabel}
-                  players={game.players}
-                  value={editPlayerId}
-                  onChange={(id) => {
-                    setEditError(null)
-                    setEditPlayerId(id)
-                  }}
-                />
-                <TextField
-                  id="edit-turn-score"
-                  label={strings.scoreLabel}
-                  value={editScoreText}
-                  onChange={(value) => {
-                    setEditError(null)
-                    setEditScoreText(value)
-                  }}
-                  error={editScoreErrorMessage}
-                  inputMode="numeric"
-                  autoComplete="off"
-                />
-                <TextField
-                  id="edit-turn-word"
-                  label={strings.wordLabel}
-                  value={editWordText}
-                  onChange={(value) => {
-                    setEditError(null)
-                    setEditWordText(value)
-                  }}
-                  autoComplete="off"
-                  placeholder={strings.wordPlaceholder}
-                />
-                {editError ? <FormError>{editError}</FormError> : null}
-                <div className="flex flex-col gap-2">
-                  <Button type="submit" variant="primary" fullWidth>
-                    {strings.saveEdit}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    fullWidth
-                    onClick={clearEditState}
-                  >
-                    {strings.cancel}
-                  </Button>
-                </div>
-              </form>
-            ) : undefined
-          }
-        />
-      </div>
-    ) : (
-      <p className="text-sm text-ink-muted">{strings.noTurnsYet}</p>
-    )
-
-  const finishSection = !finished ? (
-    <div className="flex flex-col gap-3">
-      {confirmFinish ? (
-        <ConfirmPanel
-          prompt={strings.finishConfirmPrompt}
-          confirmLabel={strings.confirmFinish}
-          cancelLabel={strings.cancel}
-          onConfirm={handleFinishConfirm}
-          onCancel={() => setConfirmFinish(false)}
-        />
-      ) : (
-        <Button
-          variant="secondary"
-          fullWidth
-          onClick={() => {
-            setFinishError(null)
-            setConfirmUndo(false)
-            setConfirmDelete(false)
-            clearEditState()
-            setConfirmFinish(true)
-          }}
-        >
-          {strings.finishGame}
-        </Button>
-      )}
-      {finishError ? <FormError>{finishError}</FormError> : null}
-    </div>
-  ) : null
-
-  const deleteSection = (
-    <div className="flex flex-col gap-3">
-      {confirmDelete ? (
-        <ConfirmPanel
-          prompt={strings.deleteConfirmPrompt}
-          confirmLabel={strings.confirmDelete}
-          cancelLabel={strings.cancel}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => {
-            setConfirmDelete(false)
-            setDeleteError(null)
-          }}
-        />
-      ) : (
-        <Button
-          variant="ghost"
-          onClick={() => {
-            setDeleteError(null)
-            setConfirmUndo(false)
-            setConfirmFinish(false)
-            clearEditState()
-            setConfirmDelete(true)
-          }}
-        >
-          {strings.deleteGame}
-        </Button>
-      )}
-      {deleteError ? <FormError>{deleteError}</FormError> : null}
-    </div>
-  )
-
-  return (
-    <>
-      <AppShell>
-        <Button variant="ghost" onClick={onBack}>
-          {strings.back}
-        </Button>
-
-        <ScreenHeader
-          title={formatPlayerNames(game)}
-          subtitle={headerSubtitle}
-        />
-
-        <div className="mt-4 flex flex-col gap-5">
-          <CompactStandingsBanner
-            label={strings.standingsBannerLabel}
-            standings={standings}
-            pointsLabel={strings.pointsLabel}
-            highlightId={finished ? undefined : game.currentPlayerId}
-          />
-
-          {finished ? (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-ink-muted">
-                {strings.gameFinishedReadOnly}
-              </p>
-              <Button
-                variant="primary"
-                size="lg"
-                fullWidth
-                onClick={handleReopen}
-              >
-                {strings.reopenGame}
-              </Button>
-              {reopenError ? <FormError>{reopenError}</FormError> : null}
-            </div>
-          ) : (
-            <form className="flex flex-col gap-4" onSubmit={handleRecord}>
-              <PlayerPickList
-                name="add-turn-player"
-                legend={strings.whoseTurn}
-                hint={strings.whoseTurnHint}
-                players={game.players}
-                value={playerId}
-                suggestedId={game.currentPlayerId}
-                suggestedBadge={strings.suggestedBadge}
-                onChange={(id) => {
-                  setSubmitError(null)
-                  setPlayerId(id)
-                }}
-              />
-
-              {nextAfterSelected ? (
-                <p className="-mt-2 text-sm text-ink-muted">
-                  {strings.nextPlayerHint(nextAfterSelected.name)}
-                </p>
-              ) : null}
-
-              <TextField
-                id="turn-score"
-                label={strings.scoreLabel}
-                value={scoreText}
-                onChange={(value) => {
-                  setSubmitError(null)
-                  setScoreText(value)
-                }}
-                error={scoreErrorMessage}
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="0"
-              />
-              <p className="-mt-2 text-sm text-ink-muted">{strings.scoreHint}</p>
-
-              {showWordField || wordText.trim() !== '' ? (
-                <div className="flex flex-col gap-2">
-                  <TextField
-                    id="turn-word"
-                    label={strings.wordLabel}
-                    value={wordText}
-                    onChange={(value) => {
-                      setSubmitError(null)
-                      setWordText(value)
-                    }}
-                    autoComplete="off"
-                    placeholder={strings.wordPlaceholder}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      setWordText('')
-                      setShowWordField(false)
-                    }}
-                  >
-                    {strings.hideWord}
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowWordField(true)}
-                >
-                  {strings.addWord}
-                </Button>
-              )}
-
-              {submitError ? <FormError>{submitError}</FormError> : null}
-
-              <div className="flex flex-col gap-3">
-                <Button type="submit" variant="primary" size="lg" fullWidth>
-                  {strings.recordTurn}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  fullWidth
-                  onClick={handlePass}
-                >
-                  {strings.passTurn}
-                </Button>
-              </div>
-            </form>
           )}
-
-          <Button
-            variant="secondary"
-            fullWidth
-            onClick={() => {
-              openSheet()
-            }}
-          >
-            {strings.openSecondarySheet(game.turns.length)}
-          </Button>
+          {deleteError ? <FormError>{deleteError}</FormError> : null}
         </div>
-      </AppShell>
-
-      <SecondarySheet
-        open={sheetOpen}
-        title={strings.secondarySheetTitle}
-        closeLabel={strings.closeSheet}
-        onClose={closeSheet}
-      >
-        {historySection}
-        {finishSection}
-        {deleteSection}
-      </SecondarySheet>
-    </>
+      </div>
+    </AppShell>
   )
 }

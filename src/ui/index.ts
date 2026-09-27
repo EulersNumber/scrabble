@@ -10,7 +10,6 @@ export {
   listInProgressGamesNewestFirst,
 } from './gameList'
 export {
-  nextSeatPlayer,
   normalizeOptionalWord,
   parseScoreInput,
   playerNameById,
@@ -25,14 +24,12 @@ export {
   AppShell,
   Button,
   ChoiceChip,
-  CompactStandingsBanner,
   ConfirmPanel,
   FormError,
   ListRowButton,
   PlayerPickList,
   RadioGroup,
   ScreenHeader,
-  SecondarySheet,
   StandingsList,
   TextField,
   TurnHistoryList,

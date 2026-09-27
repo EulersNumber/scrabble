@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Turn } from '../domain'
 import {
-  nextSeatPlayer,
   normalizeOptionalWord,
   parseScoreInput,
   playerNameById,
@@ -79,27 +78,5 @@ describe('playerNameById', () => {
     ]
     expect(playerNameById(players, 'b')).toBe('Matti')
     expect(playerNameById(players, 'missing')).toBe('missing')
-  })
-})
-
-describe('nextSeatPlayer', () => {
-  const players = [
-    { id: 'a', name: 'Aino' },
-    { id: 'b', name: 'Matti' },
-    { id: 'c', name: 'Liisa' },
-  ]
-
-  it('returns the next seat after the given player', () => {
-    expect(nextSeatPlayer(players, 'a')?.id).toBe('b')
-    expect(nextSeatPlayer(players, 'b')?.id).toBe('c')
-  })
-
-  it('wraps from the last seat to the first', () => {
-    expect(nextSeatPlayer(players, 'c')?.id).toBe('a')
-  })
-
-  it('returns undefined for unknown player or empty seating', () => {
-    expect(nextSeatPlayer(players, 'missing')).toBeUndefined()
-    expect(nextSeatPlayer([], 'a')).toBeUndefined()
   })
 })

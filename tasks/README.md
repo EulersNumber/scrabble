@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.3 are done** (MVP closed; post-MVP triage locked; brand/tiles landed; open-game delete landed; turn-focused shell landed). Continue from **T7.4**.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.2 are done** (MVP closed; post-MVP triage locked; brand/tiles landed; open-game delete landed). Continue from **T7.3**.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -268,7 +268,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.3 Turn-focused active-game shell (P3)
 
-- **Status:** done (2026-09-27).
+- **Status:** todo.
 - **Goal:** Reshape active game so the first viewport is “this turn,” not a long dashboard scroll.
 - **Acceptance:**
   - Compact standings banner at top.
@@ -276,7 +276,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Hint of who’s next (soft rotation) without forcing that seat.
   - History / undo / finish as secondary navigation or sheets — not dominating the first viewport.
   - Domain soft-rotation rules unchanged (D13).
-- **Notes:** `CompactStandingsBanner` + `SecondarySheet` primitives; optional word behind “Lisää sana”; next-seat hint via `nextSeatPlayer`. Keypad remains **T7.4**. Next: **T7.4**.
+- **Notes:** Presentation only. Wire existing record/undo/edit/finish use cases. Numeric keypad is **T7.4** (can be same PR if small; prefer separate if either grows). Dimmed tiles from T7.1 may sit behind content.
 
 ### T7.4 Calculator-style score keypad (P15 / D31)
 
@@ -379,7 +379,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
-- **Status:** done via **T7.3** (keypad **T7.4**, hierarchy **T7.5**).
+- **Status:** promoted → **T7.3** (keypad **T7.4**, hierarchy **T7.5**).
 - **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
 - **Sketch:**
   - Compact **standings banner** at the top (who’s leading / current totals)
@@ -540,8 +540,7 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 9. Backlog triage (T6.0) — done; shortlist + **T7/T8** chunks; **P15–P17** added
 10. Brand home + falling tiles (T7.1) — done
 11. Delete from open game detail (T7.2) — done
-12. Turn-focused active-game shell (T7.3) — done
-13. **Next agent:** **T7.4** calculator-style score keypad
-14. Then T7.5 → T7.9 (hierarchy + polish + font pass), then T8.1+ (dictionary) when ready
+12. **Next agent:** **T7.3** turn-focused active-game shell
+13. Then T7.4 → T7.9 (scoring UX + polish + font pass), then T8.1+ (dictionary) when ready
 
 Domain before UI so the learning project practices testable logic first.
