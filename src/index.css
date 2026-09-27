@@ -112,12 +112,16 @@
   }
 
   .falling-tile {
-    --tile-thickness: calc(var(--tile-size) * 0.22rem);
+    --tile-thickness: calc(var(--tile-size) * 0.24rem);
     position: absolute;
     left: calc(var(--tile-x) * 1%);
     top: -18%;
     width: calc(var(--tile-size) * 1rem);
     height: calc(var(--tile-size) * 1rem);
+    min-width: calc(var(--tile-size) * 1rem);
+    min-height: calc(var(--tile-size) * 1rem);
+    max-width: calc(var(--tile-size) * 1rem);
+    max-height: calc(var(--tile-size) * 1rem);
     aspect-ratio: 1 / 1;
     box-sizing: border-box;
     /* Near tiles a bit clearer; far tiles softer (depth cue). */
@@ -165,24 +169,35 @@
     display: grid;
     place-items: center;
     transform: translateZ(calc(var(--tile-thickness) / 2));
-    /* Bevelled rim + recessed letter well (physical tile feel). */
-    background:
-      radial-gradient(
-        circle at 50% 46%,
-        color-mix(in srgb, var(--color-tile-face) 82%, #b89555) 0%,
-        var(--color-tile-face) 38%,
-        var(--color-tile-face-edge) 100%
-      );
+    background: linear-gradient(
+      145deg,
+      var(--color-tile-face) 0%,
+      var(--color-tile-face-edge) 100%
+    );
     border: 1px solid color-mix(in srgb, var(--color-tile-face-edge) 65%, #8a7344);
     box-shadow:
       0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 75%, white),
       0 calc(4px + var(--tile-depth) * 10px)
         calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
-      inset 0 0 0 2px color-mix(in srgb, var(--color-tile-face) 65%, white),
-      inset 3px 3px 5px color-mix(in srgb, white 60%, transparent),
-      inset -3px -3px 6px color-mix(in srgb, #6a5428 28%, transparent),
-      inset 0 0 calc(0.28 * var(--tile-size) * 1rem)
-        color-mix(in srgb, #6a5428 18%, transparent);
+      inset 2px 2px 3px color-mix(in srgb, white 55%, transparent),
+      inset -2px -2px 4px color-mix(in srgb, #6a5428 24%, transparent);
+  }
+
+  /* Recessed center “well” — slightly deeper middle like a physical tile. */
+  .falling-tile-well {
+    position: absolute;
+    inset: 12%;
+    border-radius: calc(var(--radius-tile) * 0.55);
+    background: radial-gradient(
+      circle at 50% 45%,
+      color-mix(in srgb, var(--color-tile-face) 75%, #c4a96a) 0%,
+      color-mix(in srgb, var(--color-tile-face) 92%, transparent) 70%
+    );
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, #6a5428 16%, transparent),
+      inset 2px 3px 5px color-mix(in srgb, #6a5428 22%, transparent),
+      inset -1px -1px 3px color-mix(in srgb, white 35%, transparent);
+    pointer-events: none;
   }
 
   .falling-tile-face-back {
@@ -243,9 +258,11 @@
   }
 
   .falling-tile-letter {
+    position: relative;
+    z-index: 1;
     font-family: var(--font-sans);
     font-weight: 700;
-    font-size: calc(var(--tile-size) * 0.5rem);
+    font-size: calc(var(--tile-size) * 0.48rem);
     line-height: 1;
     color: var(--color-tile-letter);
     text-transform: uppercase;
@@ -254,6 +271,7 @@
 
   .falling-tile-points {
     position: absolute;
+    z-index: 1;
     right: calc(var(--tile-size) * 0.1rem);
     bottom: calc(var(--tile-size) * 0.08rem);
     font-family: var(--font-sans);
