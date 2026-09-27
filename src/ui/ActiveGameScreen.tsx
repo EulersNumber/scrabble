@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import {
+  deleteGame,
   editTurn,
   finishGame,
   recordTurn,
@@ -35,14 +36,15 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Active-game screen: standings, add turn, undo/edit, and finish/reopen
- * (T4.2–T4.4, D11, D13, D16).
+ * Active-game screen: standings, add turn, undo/edit, finish/reopen, and
+ * delete (T4.2–T4.4, T7.2, D11, D13, D16, D30).
  *
  * Highlights the suggested current player but allows logging any seat. Score
  * is an integer (0 = pass); word is optional. Standings recompute from turns
  * after each save. Turn history sits below the form (newest first); undo last
  * asks for a short confirm; tap a turn to edit score/word/player inline.
- * Finish confirms then blocks scoring until reopen.
+ * Finish confirms then blocks scoring until reopen. Delete (with confirm) is
+ * available for in-progress and finished games and returns via `onBack`.
  */
 export function ActiveGameScreen({
   store,
@@ -72,6 +74,9 @@ export function ActiveGameScreen({
   const [confirmFinish, setConfirmFinish] = useState(false)
   const [finishError, setFinishError] = useState<string | null>(null)
   const [reopenError, setReopenError] = useState<string | null>(null)
+
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   if (game === null) {
     return (
@@ -142,6 +147,8 @@ export function ActiveGameScreen({
     setUndoError(null)
     setConfirmFinish(false)
     setFinishError(null)
+    setConfirmDelete(false)
+    setDeleteError(null)
     setEditingTurnId(turn.id)
     setEditPlayerId(turn.playerId)
     setEditScoreText(String(turn.score))
@@ -183,6 +190,8 @@ export function ActiveGameScreen({
       setUndoError(null)
       setConfirmFinish(false)
       setFinishError(null)
+      setConfirmDelete(false)
+      setDeleteError(null)
     } catch (error) {
       if (error instanceof DomainError) {
         setSubmitError(strings.recordTurnFailed)
@@ -268,6 +277,8 @@ export function ActiveGameScreen({
       setConfirmFinish(false)
       setConfirmUndo(false)
       setUndoError(null)
+      setConfirmDelete(false)
+      setDeleteError(null)
       clearEditState()
       setSubmitError(null)
       setReopenError(null)
@@ -289,12 +300,26 @@ export function ActiveGameScreen({
       resetAddForm(updated)
       setFinishError(null)
       setConfirmFinish(false)
+      setConfirmDelete(false)
+      setDeleteError(null)
     } catch (error) {
       if (error instanceof DomainError) {
         setReopenError(strings.reopenFailed)
         return
       }
       throw error
+    }
+  }
+
+  function handleDeleteConfirm() {
+    try {
+      deleteGame(store, gameId)
+      setConfirmDelete(false)
+      setDeleteError(null)
+      onBack()
+    } catch {
+      setDeleteError(strings.deleteFailed)
+      setConfirmDelete(false)
     }
   }
 
@@ -410,6 +435,7 @@ export function ActiveGameScreen({
                   onClick={() => {
                     setUndoError(null)
                     setConfirmFinish(false)
+                    setConfirmDelete(false)
                     setConfirmUndo(true)
                   }}
                 >
@@ -512,6 +538,7 @@ export function ActiveGameScreen({
                 onClick={() => {
                   setFinishError(null)
                   setConfirmUndo(false)
+                  setConfirmDelete(false)
                   clearEditState()
                   setConfirmFinish(true)
                 }}
@@ -522,6 +549,35 @@ export function ActiveGameScreen({
             {finishError ? <FormError>{finishError}</FormError> : null}
           </div>
         ) : null}
+
+        <div className="flex flex-col gap-3">
+          {confirmDelete ? (
+            <ConfirmPanel
+              prompt={strings.deleteConfirmPrompt}
+              confirmLabel={strings.confirmDelete}
+              cancelLabel={strings.cancel}
+              onConfirm={handleDeleteConfirm}
+              onCancel={() => {
+                setConfirmDelete(false)
+                setDeleteError(null)
+              }}
+            />
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setDeleteError(null)
+                setConfirmUndo(false)
+                setConfirmFinish(false)
+                clearEditState()
+                setConfirmDelete(true)
+              }}
+            >
+              {strings.deleteGame}
+            </Button>
+          )}
+          {deleteError ? <FormError>{deleteError}</FormError> : null}
+        </div>
       </div>
     </AppShell>
   )
