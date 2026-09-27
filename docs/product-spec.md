@@ -49,7 +49,8 @@ These may be considered later. The architecture should leave a seam for **word v
 ### 2. Enter a player’s score for each turn
 
 - After a physical turn, the user records that player’s score.
-- **Soft rotation:** the app tracks seating order and highlights whose turn it is; the user may still log a different player if needed. After a logged turn for P, suggestion advances to the next seat after P.
+- **Soft rotation (MVP shipped):** the app tracks seating order and highlights whose turn it is; the user may still log a different player if needed. After a logged turn for P, suggestion advances to the next seat after P.
+- **Post-MVP (D36):** new turns are **strict** — only the current player may score or pass; mistakes use undo/edit. Official play-out / empty-bag / leftover tiles are **D37**, not this MVP item.
 - A turn belongs to exactly one player and has an integer score (zero and negatives allowed). Zero records a pass.
 - The app does not calculate the score from tiles; the user types (or otherwise enters) the points.
 - Player elimination after consecutive skips, and automatic end-of-game from pass streaks, are **not** MVP.
@@ -129,6 +130,10 @@ The family can:
 6. Optionally note the word for a turn.
 
 **T5.2 (2026-09-26):** Walked against a full sitting and marked met. Post-MVP polish and features live in `tasks/README.md` (**P1–P14**); next planning step is **T6.0**.
+
+## Post-MVP direction (accepted)
+
+Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**: podium-style standings, a large calculator keypad for points, an optional word, and bottom actions for undo / pass / next player. **Turn order is strict** (D36): the current player must score or pass; there is no seat picker. History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is accepted (D35). Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in the first keypad slice. See `docs/decisions.md` D33–D37 and `tasks/README.md` T7.3+ / T9.x / T10.x.
 
 ## Product decisions
 
