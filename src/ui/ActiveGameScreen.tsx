@@ -11,6 +11,7 @@ import type { GameStore } from '../persistence'
 import {
   gameMenuActions,
   normalizeOptionalWord,
+  playerNameById,
   type GameMenuAction,
 } from './activeGame'
 import {
@@ -24,14 +25,14 @@ import {
 import { formatPlayerNames } from './gameList'
 import {
   AppShell,
+  BottomActionBar,
   Button,
   ConfirmPanel,
   FormError,
   MenuSheet,
-  PlayerPickList,
   ScoreDisplay,
   ScoreKeypad,
-  StandingsList,
+  StandingsSlot,
   TextField,
   TopBar,
   type MenuSheetItem,
@@ -51,13 +52,13 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Active-game screen: standings, add turn, and undo (T4.2–T4.4, T7.3).
+ * Single-player turn screen (T7.5 / D33 / D36).
  *
- * Highlights the suggested current player but still allows logging any seat
- * until strict rotation (D36 / T7.5). Points use the on-screen keypad (D31);
- * pass stays the separate zero button (D33). Word is optional. History,
- * finish, reopen, and delete live in the top-bar menu (D34 / D30). Undo last
- * stays here with a short confirm.
+ * In progress: standings slot, the current player's name (not a picker),
+ * score keypad, optional word, and the bottom bar (Kumoa, Ohi, Seuraava
+ * pelaaja). A new turn is always for `currentPlayerId`. Finished games show
+ * the standings slot, a read-only notice, and reopen — no keypad or bar.
+ * History, finish, and delete stay in the top-bar menu (D34).
  */
 export function ActiveGameScreen({
   store,
@@ -67,9 +68,6 @@ export function ActiveGameScreen({
 }: ActiveGameScreenProps) {
   const initial = store.getById(gameId)
   const [game, setGame] = useState<Game | null>(initial)
-  const [playerId, setPlayerId] = useState(
-    () => initial?.currentPlayerId ?? '',
-  )
   const [scoreEntry, setScoreEntry] = useState<ScoreKeypadState>(emptyScoreKeypad)
   const [wordText, setWordText] = useState('')
   const [showValidation, setShowValidation] = useState(false)
@@ -86,7 +84,7 @@ export function ActiveGameScreen({
 
   if (game === null) {
     return (
-      <AppShell>
+      <AppShell pad="compact">
         <TopBar
           title={strings.appTitle}
           subtitle={strings.gameNotFound}
@@ -99,13 +97,13 @@ export function ActiveGameScreen({
 
   const standings = getStandings(game)
   const finished = game.status === 'finished'
+  const currentName = playerNameById(game.players, game.currentPlayerId)
   const scoreErrorMessage =
     showValidation && scoreEntry.value === null
       ? strings.scoreRequired
       : undefined
 
-  function resetAddForm(nextGame: Game) {
-    setPlayerId(nextGame.currentPlayerId)
+  function resetEntry() {
     setScoreEntry(emptyScoreKeypad())
     setWordText('')
     setShowValidation(false)
@@ -134,19 +132,19 @@ export function ActiveGameScreen({
   }
 
   function submitScore(score: number) {
-    if (finished) {
+    if (finished || game === null) {
       return
     }
 
     setSubmitError(null)
     try {
       const updated = recordTurn(store, gameId, {
-        playerId,
+        playerId: game.currentPlayerId,
         score,
         word: normalizeOptionalWord(wordText),
       })
       setGame(updated)
-      resetAddForm(updated)
+      resetEntry()
       setConfirmUndo(false)
       setUndoError(null)
     } catch (error) {
@@ -177,7 +175,7 @@ export function ActiveGameScreen({
     try {
       const updated = undoLastTurn(store, gameId)
       setGame(updated)
-      resetAddForm(updated)
+      resetEntry()
       setConfirmUndo(false)
     } catch (error) {
       if (error instanceof DomainError) {
@@ -214,7 +212,7 @@ export function ActiveGameScreen({
     try {
       const updated = reopenGame(store, gameId)
       setGame(updated)
-      resetAddForm(updated)
+      resetEntry()
       setFinishError(null)
       closeMenu()
     } catch (error) {
@@ -277,9 +275,6 @@ export function ActiveGameScreen({
   }
 
   const menuNotice = finishError ?? deleteError ?? reopenError
-  const headerSubtitle = finished
-    ? `${strings.gameFinishedSubtitle} · ${strings.turnsCount(game.turns.length)}`
-    : strings.turnsCount(game.turns.length)
 
   const confirmPanel =
     menuConfirm === 'finish' ? (
@@ -305,43 +300,50 @@ export function ActiveGameScreen({
     ) : undefined
 
   return (
-    <AppShell>
-      <TopBar
-        title={formatPlayerNames(game)}
-        subtitle={headerSubtitle}
-        backLabel={strings.back}
-        onBack={onBack}
-        menuLabel={strings.menuLabel}
-        menuExpanded={menuOpen}
-        menuControlsId={GAME_MENU_ID}
-        onMenu={openMenu}
-      />
-
-      <div className="mt-6 flex flex-col gap-6">
-        <StandingsList
-          heading={strings.standingsHeading}
-          standings={standings}
-          pointsLabel={strings.pointsLabel}
-          rankLabel={strings.rankLabel}
+    <AppShell pad="compact">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <TopBar
+          title={formatPlayerNames(game)}
+          subtitle={finished ? strings.gameFinishedSubtitle : undefined}
+          backLabel={strings.back}
+          onBack={onBack}
+          menuLabel={strings.menuLabel}
+          menuExpanded={menuOpen}
+          menuControlsId={GAME_MENU_ID}
+          onMenu={openMenu}
         />
 
         {finished ? (
-          <p className="text-sm text-ink-muted">{strings.gameFinishedReadOnly}</p>
-        ) : (
-          <form className="flex flex-col gap-4" onSubmit={handleRecord}>
-            <PlayerPickList
-              name="add-turn-player"
-              legend={strings.whoseTurn}
-              hint={strings.whoseTurnHint}
-              players={game.players}
-              value={playerId}
-              suggestedId={game.currentPlayerId}
-              suggestedBadge={strings.suggestedBadge}
-              onChange={(id) => {
-                setSubmitError(null)
-                setPlayerId(id)
-              }}
+          <div className="mt-4 flex flex-col gap-4">
+            <StandingsSlot
+              heading={strings.standingsHeading}
+              standings={standings}
+              pointsLabel={strings.pointsLabel}
+              rankLabel={strings.rankLabel}
             />
+            <p className="text-sm text-ink-muted">{strings.gameFinishedReadOnly}</p>
+            <Button variant="primary" fullWidth onClick={handleReopen}>
+              {strings.reopenGame}
+            </Button>
+            {reopenError ? <FormError>{reopenError}</FormError> : null}
+          </div>
+        ) : (
+          <form
+            className="mt-2 flex min-h-0 flex-1 flex-col gap-2"
+            onSubmit={handleRecord}
+          >
+            <StandingsSlot
+              heading={strings.standingsHeading}
+              standings={standings}
+              pointsLabel={strings.pointsLabel}
+              rankLabel={strings.rankLabel}
+              currentPlayerId={game.currentPlayerId}
+            />
+
+            <p className="truncate text-center font-display text-3xl font-semibold leading-tight text-ink">
+              <span className="sr-only">{strings.currentTurn}</span>
+              {currentName}
+            </p>
 
             <ScoreDisplay
               id="turn-score"
@@ -349,11 +351,12 @@ export function ActiveGameScreen({
               display={scoreEntry.display}
               emptyLabel={strings.scoreEmpty}
               error={scoreErrorMessage}
+              density="compact"
             />
-            <p className="-mt-2 text-sm text-ink-muted">{strings.scoreHint}</p>
             <ScoreKeypad
               id="turn-score-keypad"
               label={strings.keypadLabel}
+              fill
               onDigit={(digit) =>
                 updateScore((current) => appendScoreDigit(current, digit))
               }
@@ -369,6 +372,7 @@ export function ActiveGameScreen({
               id="turn-word"
               label={strings.wordLabel}
               value={wordText}
+              density="compact"
               onChange={(value) => {
                 setSubmitError(null)
                 setWordText(value)
@@ -378,48 +382,29 @@ export function ActiveGameScreen({
             />
 
             {submitError ? <FormError>{submitError}</FormError> : null}
+            {undoError ? <FormError>{undoError}</FormError> : null}
 
-            <div className="flex flex-col gap-3">
-              <Button type="submit" variant="primary" fullWidth>
-                {strings.recordTurn}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                fullWidth
-                onClick={handlePass}
-              >
-                {strings.passTurn}
-              </Button>
-            </div>
+            <BottomActionBar
+              undoLabel={strings.undoTurn}
+              passLabel={strings.passTurn}
+              nextLabel={strings.nextPlayer}
+              undoDisabled={game.turns.length === 0}
+              nextDisabled={scoreEntry.value === null}
+              confirmingUndo={confirmUndo}
+              undoConfirmPrompt={strings.undoConfirmPrompt}
+              confirmUndoLabel={strings.confirmUndo}
+              cancelUndoLabel={strings.cancel}
+              onUndo={() => {
+                setUndoError(null)
+                setConfirmUndo(true)
+              }}
+              onPass={handlePass}
+              onConfirmUndo={handleUndoConfirm}
+              onCancelUndo={() => setConfirmUndo(false)}
+              nextType="submit"
+            />
           </form>
         )}
-
-        {!finished && game.turns.length > 0 ? (
-          <div className="flex flex-col gap-3">
-            {confirmUndo ? (
-              <ConfirmPanel
-                prompt={strings.undoConfirmPrompt}
-                confirmLabel={strings.confirmUndo}
-                cancelLabel={strings.cancel}
-                onConfirm={handleUndoConfirm}
-                onCancel={() => setConfirmUndo(false)}
-              />
-            ) : (
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={() => {
-                  setUndoError(null)
-                  setConfirmUndo(true)
-                }}
-              >
-                {strings.undoLast}
-              </Button>
-            )}
-            {undoError ? <FormError>{undoError}</FormError> : null}
-          </div>
-        ) : null}
       </div>
 
       <MenuSheet

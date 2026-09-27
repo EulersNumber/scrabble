@@ -35,6 +35,7 @@ export {
 } from './newGameSetup'
 export {
   AppShell,
+  BottomActionBar,
   Button,
   ChoiceChip,
   ConfirmPanel,
@@ -47,6 +48,7 @@ export {
   ScoreKeypad,
   ScreenHeader,
   StandingsList,
+  StandingsSlot,
   TextField,
   TopBar,
   TurnHistoryList,

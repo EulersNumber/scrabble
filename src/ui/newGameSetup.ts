@@ -31,7 +31,7 @@ export function playerNameKey(name: string): string {
  * Rotates seating so the chosen starter is first (D13 / D25).
  *
  * Remaining players keep their relative order after the starter. Domain
- * `createGame` then treats index 0 as the initial suggested current player.
+ * `createGame` then treats index 0 as the initial current player (D36).
  *
  * @param names - Filled display names in the order entered on the form
  * @param starterIndex - Index of the starter within `names`

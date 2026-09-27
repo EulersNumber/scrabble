@@ -53,6 +53,18 @@ describe('recordTurn use case', () => {
     expect(getStandings(updated).map((row) => row.total)).toEqual([14, 0])
   })
 
+  it('does not save when the player is not the current seat', () => {
+    const store = createTestStore()
+    const game = createGame(store, ['Aino', 'Matti'])
+    const other = game.players[1]!
+
+    expect(() =>
+      recordTurn(store, game.id, { playerId: other.id, score: 10 }),
+    ).toThrow(DomainError)
+    expect(store.getById(game.id)?.turns).toEqual([])
+    expect(store.getById(game.id)?.currentPlayerId).toBe(game.currentPlayerId)
+  })
+
   it('does not save when domain rejects the turn', () => {
     const store = createTestStore()
     const game = createGame(store, ['Aino', 'Matti'])
@@ -74,7 +86,7 @@ describe('recordTurn use case', () => {
 })
 
 describe('undoLastTurn and editTurn use cases', () => {
-  it('undo removes the last turn and restores suggestion after save', () => {
+  it('undo removes the last turn and restores the current player after save', () => {
     const store = createTestStore()
     const game = createGame(store, ['Aino', 'Matti'])
     const [aino, matti] = game.players

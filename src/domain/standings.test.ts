@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createGame } from './createGame'
 import { recordTurn } from './recordTurn'
 import { getStandings } from './standings'
+import type { Game, Turn } from './types'
 
 function playerIds(game: ReturnType<typeof createGame>) {
   return game.players.map((player) => player.id)
@@ -62,10 +63,12 @@ describe('getStandings', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
     const [aino, matti, liisa] = playerIds(game)
 
-    // Log out of seating order so totals alone do not imply display order.
-    let next = recordTurn(game, { playerId: liisa!, score: 8 })
-    next = recordTurn(next, { playerId: matti!, score: 15 })
-    next = recordTurn(next, { playerId: aino!, score: 8 })
+    // Off-rotation history (readable after D36) so turn order is not seating order.
+    const next = withTurns(game, [
+      { playerId: liisa!, score: 8 },
+      { playerId: matti!, score: 15 },
+      { playerId: aino!, score: 8 },
+    ])
 
     const standings = getStandings(next)
 
@@ -83,3 +86,17 @@ describe('getStandings', () => {
     ])
   })
 })
+
+function withTurns(
+  game: Game,
+  scores: readonly { playerId: string; score: number }[],
+): Game {
+  const turns: Turn[] = scores.map((entry, sequence) => ({
+    id: `turn-${sequence}`,
+    playerId: entry.playerId,
+    score: entry.score,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    sequence,
+  }))
+  return { ...game, turns }
+}

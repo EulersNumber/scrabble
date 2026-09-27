@@ -98,7 +98,7 @@ See also `docs/architecture.md` (UI section) and `docs/decisions.md` (D27).
 - Do not add a PWA plugin until task T5.
 - Do not add a router in scaffold; add when multi-screen UI needs it.
 - Player names unique within a game (trimmed, case-insensitive).
-- Soft rotation: seating order + suggested current player in domain; logging other players still allowed; pass = score 0.
+- Strict turn order (D36): seating order + `currentPlayerId`; a new turn must be that player; pass = score 0. Edit/undo may still correct any turn (D11).
 - If a task requires a **new** major choice not in `docs/decisions.md`, stop and ask.
 
 ## Tests

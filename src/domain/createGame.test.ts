@@ -55,7 +55,7 @@ describe('createGame', () => {
     expect(game.turns).toEqual([])
   })
 
-  it('sets suggested current player to the first seated player', () => {
+  it('sets the current player to the first seated player', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
     const firstPlayer = game.players[0]
 

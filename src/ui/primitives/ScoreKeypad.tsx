@@ -15,6 +15,8 @@ type ScoreKeypadProps = {
   backspaceLabel: string
   /** Visible hint that holding ⌫ clears the score. */
   clearHint: string
+  /** Grow to fill leftover height on the turn screen (T7.5). */
+  fill?: boolean
 }
 
 const ROWS: readonly (readonly number[])[] = [
@@ -23,13 +25,16 @@ const ROWS: readonly (readonly number[])[] = [
   [1, 2, 3],
 ]
 
-const keyClass = [
-  'flex min-h-16 items-center justify-center rounded-control border border-line bg-panel',
-  'text-3xl font-medium text-ink tabular-nums select-none touch-manipulation',
-  'active:bg-board-soft hover:bg-board-soft',
-  'focus:outline-none focus:ring-2 focus:ring-board/30',
-  '[-webkit-touch-callout:none]',
-].join(' ')
+function keyClass(fill: boolean): string {
+  return [
+    'flex items-center justify-center rounded-control border border-line bg-panel',
+    'text-3xl font-medium text-ink tabular-nums select-none touch-manipulation',
+    'active:bg-board-soft hover:bg-board-soft',
+    'focus:outline-none focus:ring-2 focus:ring-board/30',
+    '[-webkit-touch-callout:none]',
+    fill ? 'h-full min-h-11' : 'min-h-16',
+  ].join(' ')
+}
 
 /**
  * Calculator keypad for turn points (T7.4 / D31 / D33).
@@ -48,17 +53,32 @@ export function ScoreKeypad({
   toggleSignLabel,
   backspaceLabel,
   clearHint,
+  fill = false,
 }: ScoreKeypadProps) {
   const hintId = `${id}-clear-hint`
+  const keyLook = keyClass(fill)
 
   return (
-    <div className="flex flex-col gap-2">
-      <div id={id} role="group" aria-label={label} className="grid grid-cols-3 gap-2">
+    <div
+      className={
+        fill ? 'flex min-h-0 flex-1 flex-col gap-1' : 'flex flex-col gap-2'
+      }
+    >
+      <div
+        id={id}
+        role="group"
+        aria-label={label}
+        className={
+          fill
+            ? 'grid min-h-0 flex-1 grid-cols-3 grid-rows-4 gap-2'
+            : 'grid grid-cols-3 gap-2'
+        }
+      >
         {ROWS.flat().map((digit) => (
           <button
             key={digit}
             type="button"
-            className={keyClass}
+            className={keyLook}
             onClick={() => onDigit(digit)}
           >
             {digit}
@@ -66,24 +86,24 @@ export function ScoreKeypad({
         ))}
         <button
           type="button"
-          className={keyClass}
+          className={keyLook}
           aria-label={toggleSignLabel}
           onClick={onToggleSign}
         >
           ±
         </button>
-        <button type="button" className={keyClass} onClick={() => onDigit(0)}>
+        <button type="button" className={keyLook} onClick={() => onDigit(0)}>
           0
         </button>
         <BackspaceKey
           label={backspaceLabel}
           describedBy={hintId}
-          className={keyClass}
+          className={keyLook}
           onBackspace={onBackspace}
           onClear={onClear}
         />
       </div>
-      <p id={hintId} className="text-sm text-ink-muted">
+      <p id={hintId} className={fill ? 'text-xs text-ink-muted' : 'text-sm text-ink-muted'}>
         {clearHint}
       </p>
     </div>

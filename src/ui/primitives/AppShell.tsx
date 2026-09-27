@@ -13,6 +13,11 @@ type AppShellProps = {
    * - `none` — flat surface, no tiles
    */
   atmosphere?: AppShellAtmosphere
+  /**
+   * `compact` tightens vertical padding so the turn screen can fit a phone
+   * viewport (T7.5). Other screens keep the default padding.
+   */
+  pad?: 'default' | 'compact'
 }
 
 /**
@@ -25,6 +30,7 @@ type AppShellProps = {
 export function AppShell({
   children,
   atmosphere = 'dimmed',
+  pad = 'default',
 }: AppShellProps) {
   const isHero = atmosphere === 'hero'
   const showTiles = atmosphere === 'hero' || atmosphere === 'dimmed'
@@ -50,9 +56,10 @@ export function AppShell({
       <div
         className={[
           'relative z-10 mx-auto flex min-h-svh w-full flex-col',
-          'max-w-lg px-4 py-8',
-          'md:max-w-2xl md:px-8 md:py-10',
+          'max-w-lg px-4',
+          'md:max-w-2xl md:px-8',
           'lg:max-w-3xl',
+          pad === 'compact' ? 'py-3 md:py-6' : 'py-8 md:py-10',
           isHero ? 'justify-center' : '',
         ].join(' ')}
       >

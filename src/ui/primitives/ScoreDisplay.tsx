@@ -5,6 +5,11 @@ type ScoreDisplayProps = {
   display: string
   emptyLabel: string
   error?: string
+  /**
+   * `compact` hides the visible label (it stays available to assistive tech)
+   * and shortens the readout so the turn-screen keypad can take the height.
+   */
+  density?: 'default' | 'compact'
 }
 
 /**
@@ -19,14 +24,21 @@ export function ScoreDisplay({
   display,
   emptyLabel,
   error,
+  density = 'default',
 }: ScoreDisplayProps) {
   const isEmpty = display === ''
   const labelId = `${id}-label`
   const errorId = `${id}-error`
+  const compact = density === 'compact'
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <span id={labelId} className="text-sm font-medium text-ink">
+    <div className={compact ? 'flex flex-col gap-1' : 'flex flex-col gap-1.5'}>
+      <span
+        id={labelId}
+        className={
+          compact ? 'sr-only' : 'text-sm font-medium text-ink'
+        }
+      >
         {label}
       </span>
       <div
@@ -37,8 +49,11 @@ export function ScoreDisplay({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         className={[
-          'flex min-h-20 items-center justify-end rounded-control border bg-panel px-4 py-3',
-          'text-right text-5xl font-medium tabular-nums tracking-tight',
+          'flex items-center justify-end rounded-control border bg-panel px-4',
+          'text-right font-medium tabular-nums tracking-tight',
+          compact
+            ? 'min-h-14 py-1 text-4xl'
+            : 'min-h-20 py-3 text-5xl',
           error ? 'border-red-700' : 'border-line',
           isEmpty ? 'text-ink-muted' : 'text-ink',
         ].join(' ')}

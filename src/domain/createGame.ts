@@ -8,8 +8,8 @@ const MAX_PLAYERS = 4
  * Creates a new in-progress game with 2–4 uniquely named players (D7, D23).
  *
  * Names are trimmed; uniqueness is case-insensitive (Finnish locale). Seating
- * order is the player list order. Suggested current player starts as the first
- * seat. Turns start empty; `finishedAt` is null.
+ * order is the player list order. The current player starts as the first
+ * seat (D36). Turns start empty; `finishedAt` is null.
  *
  * @param playerNames - Display names in seating order (length 2–4)
  * @returns A new immutable game aggregate

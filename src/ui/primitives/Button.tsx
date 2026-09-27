@@ -6,13 +6,16 @@ type ButtonVariant =
   | 'ghost'
   | 'inverse'
   | 'inverseSecondary'
-type ButtonSize = 'md' | 'hero'
+type ButtonSize = 'compact' | 'md' | 'hero'
+type ButtonAlign = 'start' | 'center'
 
 type ButtonProps = {
   children: ReactNode
   variant?: ButtonVariant
   /** Visual scale; `hero` is for a dominant primary CTA (e.g. home new game). */
   size?: ButtonSize
+  /** Horizontal label alignment. Bar CTAs use `center`. */
+  align?: ButtonAlign
   fullWidth?: boolean
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>
 
@@ -32,8 +35,14 @@ const variantClass: Record<ButtonVariant, string> = {
 }
 
 const sizeClass: Record<ButtonSize, string> = {
+  compact: 'px-3 py-3 text-base',
   md: 'px-4 py-4 text-lg',
   hero: 'min-h-28 px-5 py-8 text-2xl md:min-h-32 md:py-10 md:text-3xl',
+}
+
+const alignClass: Record<ButtonAlign, string> = {
+  start: 'text-left',
+  center: 'text-center',
 }
 
 /**
@@ -45,6 +54,7 @@ export function Button({
   children,
   variant = 'primary',
   size = 'md',
+  align = 'start',
   fullWidth = false,
   type = 'button',
   ...rest
@@ -53,12 +63,12 @@ export function Button({
     <button
       type={type}
       className={[
-        'rounded-control text-left font-medium transition-colors',
+        'rounded-control font-medium transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-50',
         fullWidth ? 'w-full' : '',
         variant === 'ghost'
-          ? 'self-start px-0 py-1 text-base'
-          : sizeClass[size],
+          ? 'self-start px-0 py-1 text-left text-base'
+          : [sizeClass[size], alignClass[align]].join(' '),
         variantClass[variant],
       ]
         .filter(Boolean)
