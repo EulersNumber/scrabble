@@ -8,19 +8,21 @@
  */
 
 import type { GameStatus, Player, Turn } from '../domain'
+import { SCORE_ABS_MAX } from './scoreKeypad'
 
-/** UI sanity cap for typed scores (D14); domain has no max. */
-export const SCORE_ABS_MAX = 9999
+export { SCORE_ABS_MAX }
 
 export type ParseScoreResult =
   | { ok: true; score: number }
   | { ok: false; reason: 'empty' | 'not_integer' | 'out_of_range' }
 
 /**
- * Parses a score field from the active-game form into an integer.
+ * Parses a raw score string into an integer.
  *
- * Trims whitespace; accepts an optional leading `+` or `-`. Rejects blanks,
- * decimals, and values whose absolute value exceeds {@link SCORE_ABS_MAX}.
+ * The on-screen keypad (T7.4) does not use this; it keeps its own display and
+ * value. This remains the check for a typed string: trims whitespace, accepts
+ * an optional leading `+` or `-`, and rejects blanks, decimals, and values
+ * whose absolute value exceeds {@link SCORE_ABS_MAX}.
  *
  * @param raw - Text from the score input
  * @returns Parsed integer score, or a reason the field is invalid

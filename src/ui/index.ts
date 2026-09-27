@@ -19,6 +19,16 @@ export {
 } from './activeGame'
 export type { GameMenuAction } from './activeGame'
 export {
+  appendScoreDigit,
+  backspaceScore,
+  clearScoreKeypad,
+  emptyScoreKeypad,
+  SCORE_ABS_MAX,
+  scoreKeypadFromInteger,
+  toggleScoreSign,
+} from './scoreKeypad'
+export type { ScoreKeypadState } from './scoreKeypad'
+export {
   orderNamesWithStarterFirst,
   suggestPlayerNames,
   validateNewGameNames,
@@ -33,6 +43,8 @@ export {
   MenuSheet,
   PlayerPickList,
   RadioGroup,
+  ScoreDisplay,
+  ScoreKeypad,
   ScreenHeader,
   StandingsList,
   TextField,

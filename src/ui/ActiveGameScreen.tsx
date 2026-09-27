@@ -11,9 +11,16 @@ import type { GameStore } from '../persistence'
 import {
   gameMenuActions,
   normalizeOptionalWord,
-  parseScoreInput,
   type GameMenuAction,
 } from './activeGame'
+import {
+  appendScoreDigit,
+  backspaceScore,
+  clearScoreKeypad,
+  emptyScoreKeypad,
+  toggleScoreSign,
+  type ScoreKeypadState,
+} from './scoreKeypad'
 import { formatPlayerNames } from './gameList'
 import {
   AppShell,
@@ -22,6 +29,8 @@ import {
   FormError,
   MenuSheet,
   PlayerPickList,
+  ScoreDisplay,
+  ScoreKeypad,
   StandingsList,
   TextField,
   TopBar,
@@ -45,9 +54,10 @@ type ActiveGameScreenProps = {
  * Active-game screen: standings, add turn, and undo (T4.2–T4.4, T7.3).
  *
  * Highlights the suggested current player but still allows logging any seat
- * until strict rotation (D36 / T7.5). Score is an integer (0 = pass); word is
- * optional. History, finish, reopen, and delete live in the top-bar menu
- * (D34 / D30). Undo last stays here with a short confirm.
+ * until strict rotation (D36 / T7.5). Points use the on-screen keypad (D31);
+ * pass stays the separate zero button (D33). Word is optional. History,
+ * finish, reopen, and delete live in the top-bar menu (D34 / D30). Undo last
+ * stays here with a short confirm.
  */
 export function ActiveGameScreen({
   store,
@@ -60,7 +70,7 @@ export function ActiveGameScreen({
   const [playerId, setPlayerId] = useState(
     () => initial?.currentPlayerId ?? '',
   )
-  const [scoreText, setScoreText] = useState('')
+  const [scoreEntry, setScoreEntry] = useState<ScoreKeypadState>(emptyScoreKeypad)
   const [wordText, setWordText] = useState('')
   const [showValidation, setShowValidation] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -89,26 +99,23 @@ export function ActiveGameScreen({
 
   const standings = getStandings(game)
   const finished = game.status === 'finished'
-  const scoreParse = parseScoreInput(scoreText)
-  const scoreErrorMessage = (() => {
-    if (!showValidation || scoreParse.ok) {
-      return undefined
-    }
-    if (scoreParse.reason === 'empty') {
-      return strings.scoreRequired
-    }
-    if (scoreParse.reason === 'out_of_range') {
-      return strings.scoreOutOfRange
-    }
-    return strings.scoreNotInteger
-  })()
+  const scoreErrorMessage =
+    showValidation && scoreEntry.value === null
+      ? strings.scoreRequired
+      : undefined
 
   function resetAddForm(nextGame: Game) {
     setPlayerId(nextGame.currentPlayerId)
-    setScoreText('')
+    setScoreEntry(emptyScoreKeypad())
     setWordText('')
     setShowValidation(false)
     setSubmitError(null)
+  }
+
+  function updateScore(reduce: (current: ScoreKeypadState) => ScoreKeypadState) {
+    setSubmitError(null)
+    setShowValidation(false)
+    setScoreEntry(reduce)
   }
 
   function closeMenu() {
@@ -153,11 +160,11 @@ export function ActiveGameScreen({
 
   function handleRecord(event: FormEvent) {
     event.preventDefault()
-    setShowValidation(true)
-    if (!scoreParse.ok) {
+    if (scoreEntry.value === null) {
+      setShowValidation(true)
       return
     }
-    submitScore(scoreParse.score)
+    submitScore(scoreEntry.value)
   }
 
   function handlePass() {
@@ -336,20 +343,27 @@ export function ActiveGameScreen({
               }}
             />
 
-            <TextField
+            <ScoreDisplay
               id="turn-score"
               label={strings.scoreLabel}
-              value={scoreText}
-              onChange={(value) => {
-                setSubmitError(null)
-                setScoreText(value)
-              }}
+              display={scoreEntry.display}
+              emptyLabel={strings.scoreEmpty}
               error={scoreErrorMessage}
-              inputMode="numeric"
-              autoComplete="off"
-              placeholder="0"
             />
             <p className="-mt-2 text-sm text-ink-muted">{strings.scoreHint}</p>
+            <ScoreKeypad
+              id="turn-score-keypad"
+              label={strings.keypadLabel}
+              onDigit={(digit) =>
+                updateScore((current) => appendScoreDigit(current, digit))
+              }
+              onBackspace={() => updateScore(backspaceScore)}
+              onClear={() => updateScore(() => clearScoreKeypad())}
+              onToggleSign={() => updateScore(toggleScoreSign)}
+              toggleSignLabel={strings.keypadToggleSign}
+              backspaceLabel={strings.keypadBackspace}
+              clearHint={strings.keypadClearHint}
+            />
 
             <TextField
               id="turn-word"

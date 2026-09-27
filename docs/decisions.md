@@ -213,6 +213,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Status:** accepted (post-MVP).
 - **Decision:** Turn point entry uses a large on-screen **digit pad** and a large primary confirm control (fat-finger friendly). The system keyboard is not required for entering points. Optional word may still use a text field. Pass remains an explicit zero path.
 - **Why:** Family table play is thumb-driven; numeric `inputMode` keyboards are awkward for “enter score and OK.”
+- **Shipped (T7.4):** The pad is a 3×4 calculator grid: 7 8 9 / 4 5 6 / 1 2 3 / ± 0 ⌫. Clear is a long-press on ⌫ (the grid has no separate C key). Digits that would exceed `SCORE_ABS_MAX` (9999) are ignored. No leading zeros. A lone minus is not a score yet. Pass stays **Vuoro ohi**, not a keypad key (D33). The same pad edits a turn on the history screen. Placing it in the single-player layout is T7.5.
 
 ### D32. Finnish word check approach (T6.0 / P17)
 
@@ -349,3 +350,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D33–D35 / P19–P20 | 2026-09-27 | Replan: single-player keypad turn screen with podium banner; top-bar game menu (history / finish / delete / settings); app settings + Web Audio sounds with mute. First T7.3 attempt reverted |
 | D33–D37 confirm | 2026-09-27 | Bottom bar confirmed; strict rotation (D36); sounds default on with progress/revert/action cues; play-out + empty bag + rack runoff directed (D37) |
 | T7.3 / D34 | 2026-09-27 | Top bar + game menu + turn history screen. Score form and soft picker unchanged until T7.4 / T7.5 |
+| T7.4 / D31 | 2026-09-27 | Calculator keypad replaces numeric score fields on the turn form and history edit. Clear is long-press on ⌫ |

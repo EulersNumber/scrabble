@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D37). **T0.1–T7.2 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): continue from **T7.3** (top bar + menu), then T7.4–T7.6 (keypad, **strict** turn screen, podium), then settings/sound **T9.x**. Official play-out / rack runoff is **T10.1** (after the keypad screen). MVP still shipped soft rotation; D36 replaces that for new turns.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D37). **T0.1–T7.4 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu) and T7.4 (keypad) are in; next is **T7.5** (**strict** turn screen) then T7.6 (podium), then settings/sound **T9.x**. Official play-out / rack runoff is **T10.1**. MVP still shipped soft rotation; D36 replaces that for new turns.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -282,14 +282,14 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.4 Calculator score keypad (P15 / D31)
 
-- **Status:** todo.
+- **Status:** done (2026-09-27).
 - **Goal:** A large on-screen keypad replaces system-keyboard score entry.
 - **Acceptance:**
   - Pure helper `scoreKeypad.ts`: append digit, backspace, clear, sign toggle (±), sanity cap (`SCORE_ABS_MAX`), no leading zeros; returns display text + parsed integer or empty. Unit tests.
   - `ScoreDisplay` + `ScoreKeypad` primitives: 3×4 grid of big targets (1–9, ±, 0, ⌫), clear via long-press or a C key.
   - Wired into the existing add-turn form in place of the numeric text field. The edit flow in the history screen uses the pad too (or note a follow-up in the PR if scope grows).
   - Points entry never opens the system keyboard. **Pass is not a keypad key** (D33).
-- **Notes:** Independent of the final layout. T7.5 places it. Everyday scores are usually 0 or positive; ± is for rare corrections. Official leftover-tile negatives are **T10.1**.
+- **Notes:** Calculator order (7–9 on top). Clear is a long-press on ⌫ (no C key). Same pad on history edit. Pass stays **Vuoro ohi**. Layout pass is T7.5. Everyday scores are usually 0 or positive; ± is for rare corrections. Official leftover-tile negatives are **T10.1**. Next: **T7.5**.
 
 ### T7.5 Strict rotation + single-player turn screen (P3 / P13 / D33 / D36)
 
@@ -555,7 +555,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P15. Calculator-style score keypad (fat-finger OK)
 
-- **Status:** promoted → **T7.4** (D31).
+- **Status:** done via **T7.4** (D31).
 - **Goal:** Replace system-keyboard score typing with a large on-screen digit pad and a large primary OK/save — table play with thumbs, minimal fat-finger errors.
 - **Why:** Family play showed point entry is the hot path; a phone keyboard is the wrong tool for “enter 24 and confirm.”
 - **Notes:** Optional word can still use a text field. Pass = explicit 0 path. Pairs with **P3**.
@@ -626,8 +626,9 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 11. Delete from open game detail (T7.2) — done
 12. Turn-screen replan (D33–D37) — docs (first T7.3 attempt reverted)
 13. Top bar + game menu + turn history screen (T7.3) — done
-14. **Next agent:** **T7.4** calculator keypad → T7.5 strict rotation + turn layout → T7.6 podium banner
-15. T9.1 settings → T9.2 sounds
-16. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
+14. Calculator keypad (T7.4) — done
+15. **Next agent:** **T7.5** strict rotation + turn layout → T7.6 podium banner
+16. T9.1 settings → T9.2 sounds
+17. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
 
 Domain before UI so the learning project practices testable logic first.

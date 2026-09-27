@@ -59,16 +59,17 @@ Later (not now), isolated modules:
 ### UI
 
 - Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
-- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `TurnHistoryList`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, `TopBar`, `MenuSheet`, `FallingTilesBackdrop`, etc.
+- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `TurnHistoryList`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, `TopBar`, `MenuSheet`, `ScoreDisplay`, `ScoreKeypad`, `FallingTilesBackdrop`, etc.
 - **Atmosphere (T7.1):** `AppShell` accepts `atmosphere` (`hero` | `dimmed` | `none`). Home and inner screens share a light sage-green token family; `hero` is a slightly richer mist wash + clearer tiles, `dimmed` is quieter. Tile specs in `src/ui/fallingTiles.ts` (large tiles, slow variable fall/spin); CSS keyframes with reduced-motion static fallback.
 - **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
 - **Turn screen direction (D33–D37, T7.3+):**
-  - **Shipped in T7.3 (D34):** `TopBar` (back, compact title, menu icon), `MenuSheet`, and `TurnHistoryScreen` (`turn-history`). The open game no longer scrolls history, finish, or delete; undo stays on the game screen. Menu items are Vuorot, Lopeta peli / Avaa peli uudelleen, and Poista peli. The score form and any-player picker stay until T7.4 / T7.5. Settings menu item waits for T9.1.
+  - **Shipped in T7.3 (D34):** `TopBar` (back, compact title, menu icon), `MenuSheet`, and `TurnHistoryScreen` (`turn-history`). The open game no longer scrolls history, finish, or delete; undo stays on the game screen. Menu items are Vuorot, Lopeta peli / Avaa peli uudelleen, and Poista peli. Any-player picker stays until T7.5. Settings menu item waits for T9.1.
+  - **Shipped in T7.4 (D31):** `scoreKeypad.ts` plus `ScoreDisplay` and `ScoreKeypad`. Points on the add-turn form and on history edit use the pad (calculator order, long-press ⌫ to clear). Pass is still the separate zero button. The optional word stays a text field. The single-player layout is still T7.5.
   - Screens still to come: `ActiveGameScreen` becomes the single-player **turn screen** (in progress) / **result view** (finished) in T7.5. `SettingsScreen` arrives in T9.1. `navigation.ts` gains a `settings` entry then (still no URL router, D24). `turn-history` is already present.
-  - Primitives still ahead: `PodiumStandings`, `ScoreDisplay`, `ScoreKeypad`, `BottomActionBar` (`TopBar` and `MenuSheet` shipped in T7.3).
-  - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty) and `podium.ts` (standings → podium slots with shared-rank steps, 2–4 players).
+  - Primitives still ahead: `PodiumStandings`, `BottomActionBar` (`TopBar`, `MenuSheet`, `ScoreDisplay`, and `ScoreKeypad` are in).
+  - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty, shipped T7.4) and `podium.ts` (standings → podium slots with shared-rank steps, 2–4 players, still T7.6).
   - Sounds: `src/ui/sound/` wraps Web Audio cues (progress / revert / action) and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
   - **D36:** new turns only for `currentPlayerId`. **D37 / T10.1:** later play-out + leftover tiles; not in T7.3–T7.6.
 - Does not own scoring rules or persistence details.
@@ -181,8 +182,8 @@ Enough screens to support MVP; names can change:
 2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
 3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-5. **Active game** — standings + add turn (player, score, optional word) + undo. Finish, reopen, and delete with confirm are in the top-bar menu (D30 / D34, T7.3). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP target still ahead (D33/D36, T7.4–T7.6): podium banner → large current player (not a picker) → calculator keypad → optional word → bottom bar (Kumoa · Ohi · Seuraava pelaaja).
-6. **Turn history** (T7.3) — separate screen from the game menu; newest first; tap to edit while in progress (D11). Finished games are read-only here until reopen.
+5. **Active game** — standings + add turn (player, keypad score, optional word) + undo. Finish, reopen, and delete with confirm are in the top-bar menu (D30 / D34, T7.3). Score entry is the calculator keypad (D31, T7.4). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP layout still ahead (D33/D36, T7.5–T7.6): podium banner → large current player (not a picker) → keypad using most of the height → optional word → bottom bar (Kumoa · Ohi · Seuraava pelaaja).
+6. **Turn history** (T7.3) — separate screen from the game menu; newest first; tap to edit while in progress (D11), including the same score keypad (T7.4). Finished games are read-only here until reopen.
 7. **Settings** (T9.1) — app-wide; sounds on/off first (D35).
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.

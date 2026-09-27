@@ -52,7 +52,7 @@ These may be considered later. The architecture should leave a seam for **word v
 - **Soft rotation (MVP shipped):** the app tracks seating order and highlights whose turn it is; the user may still log a different player if needed. After a logged turn for P, suggestion advances to the next seat after P.
 - **Post-MVP (D36):** new turns are **strict** — only the current player may score or pass; mistakes use undo/edit. Official play-out / empty-bag / leftover tiles are **D37**, not this MVP item.
 - A turn belongs to exactly one player and has an integer score (zero and negatives allowed). Zero records a pass.
-- The app does not calculate the score from tiles; the user types (or otherwise enters) the points.
+- The app does not calculate the score from tiles; the user enters the points on an on-screen keypad (D31 / T7.4). The optional word is still typed.
 - Player elimination after consecutive skips, and automatic end-of-game from pass streaks, are **not** MVP.
 
 ### 3. Show cumulative scores and standings
