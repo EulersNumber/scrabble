@@ -1,19 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import {
   deleteGame,
-  editTurn,
   finishGame,
   recordTurn,
   reopenGame,
   undoLastTurn,
 } from '../application'
-import { DomainError, getStandings, type Game, type Turn } from '../domain'
+import { DomainError, getStandings, type Game } from '../domain'
 import type { GameStore } from '../persistence'
 import {
+  gameMenuActions,
   normalizeOptionalWord,
   parseScoreInput,
-  playerNameById,
-  turnsNewestFirst,
+  type GameMenuAction,
 } from './activeGame'
 import { formatPlayerNames } from './gameList'
 import {
@@ -21,35 +20,40 @@ import {
   Button,
   ConfirmPanel,
   FormError,
+  MenuSheet,
   PlayerPickList,
-  ScreenHeader,
   StandingsList,
   TextField,
-  TurnHistoryList,
+  TopBar,
+  type MenuSheetItem,
 } from './primitives'
 import { strings } from './strings'
+
+const GAME_MENU_ID = 'game-menu'
+
+type MenuConfirm = 'finish' | 'delete' | null
 
 type ActiveGameScreenProps = {
   store: GameStore
   gameId: string
   onBack: () => void
+  /** Opens the turn-history screen (T7.3). */
+  onOpenTurns: () => void
 }
 
 /**
- * Active-game screen: standings, add turn, undo/edit, finish/reopen, and
- * delete (T4.2–T4.4, T7.2, D11, D13, D16, D30).
+ * Active-game screen: standings, add turn, and undo (T4.2–T4.4, T7.3).
  *
- * Highlights the suggested current player but allows logging any seat. Score
- * is an integer (0 = pass); word is optional. Standings recompute from turns
- * after each save. Turn history sits below the form (newest first); undo last
- * asks for a short confirm; tap a turn to edit score/word/player inline.
- * Finish confirms then blocks scoring until reopen. Delete (with confirm) is
- * available for in-progress and finished games and returns via `onBack`.
+ * Highlights the suggested current player but still allows logging any seat
+ * until strict rotation (D36 / T7.5). Score is an integer (0 = pass); word is
+ * optional. History, finish, reopen, and delete live in the top-bar menu
+ * (D34 / D30). Undo last stays here with a short confirm.
  */
 export function ActiveGameScreen({
   store,
   gameId,
   onBack,
+  onOpenTurns,
 }: ActiveGameScreenProps) {
   const initial = store.getById(gameId)
   const [game, setGame] = useState<Game | null>(initial)
@@ -64,29 +68,20 @@ export function ActiveGameScreen({
   const [confirmUndo, setConfirmUndo] = useState(false)
   const [undoError, setUndoError] = useState<string | null>(null)
 
-  const [editingTurnId, setEditingTurnId] = useState<string | null>(null)
-  const [editPlayerId, setEditPlayerId] = useState('')
-  const [editScoreText, setEditScoreText] = useState('')
-  const [editWordText, setEditWordText] = useState('')
-  const [showEditValidation, setShowEditValidation] = useState(false)
-  const [editError, setEditError] = useState<string | null>(null)
-
-  const [confirmFinish, setConfirmFinish] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuConfirm, setMenuConfirm] = useState<MenuConfirm>(null)
   const [finishError, setFinishError] = useState<string | null>(null)
   const [reopenError, setReopenError] = useState<string | null>(null)
-
-  const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   if (game === null) {
     return (
       <AppShell>
-        <Button variant="ghost" onClick={onBack}>
-          {strings.back}
-        </Button>
-        <ScreenHeader
+        <TopBar
           title={strings.appTitle}
           subtitle={strings.gameNotFound}
+          backLabel={strings.back}
+          onBack={onBack}
         />
       </AppShell>
     )
@@ -108,23 +103,6 @@ export function ActiveGameScreen({
     return strings.scoreNotInteger
   })()
 
-  const editScoreParse = parseScoreInput(editScoreText)
-  const editScoreErrorMessage = (() => {
-    if (!showEditValidation || editScoreParse.ok) {
-      return undefined
-    }
-    if (editScoreParse.reason === 'empty') {
-      return strings.scoreRequired
-    }
-    if (editScoreParse.reason === 'out_of_range') {
-      return strings.scoreOutOfRange
-    }
-    return strings.scoreNotInteger
-  })()
-
-  const historyTurns = turnsNewestFirst(game.turns)
-  const lastTurnId = game.turns[game.turns.length - 1]?.id ?? null
-
   function resetAddForm(nextGame: Game) {
     setPlayerId(nextGame.currentPlayerId)
     setScoreText('')
@@ -133,43 +111,19 @@ export function ActiveGameScreen({
     setSubmitError(null)
   }
 
-  function clearEditState() {
-    setEditingTurnId(null)
-    setEditPlayerId('')
-    setEditScoreText('')
-    setEditWordText('')
-    setShowEditValidation(false)
-    setEditError(null)
+  function closeMenu() {
+    setMenuOpen(false)
+    setMenuConfirm(null)
   }
 
-  function openEdit(turn: Turn) {
+  function openMenu() {
     setConfirmUndo(false)
     setUndoError(null)
-    setConfirmFinish(false)
     setFinishError(null)
-    setConfirmDelete(false)
+    setReopenError(null)
     setDeleteError(null)
-    setEditingTurnId(turn.id)
-    setEditPlayerId(turn.playerId)
-    setEditScoreText(String(turn.score))
-    setEditWordText(turn.word ?? '')
-    setShowEditValidation(false)
-    setEditError(null)
-  }
-
-  function handleSelectTurn(turnId: string) {
-    if (game === null || finished) {
-      return
-    }
-    if (editingTurnId === turnId) {
-      clearEditState()
-      return
-    }
-    const turn = game.turns.find((entry) => entry.id === turnId)
-    if (turn === undefined) {
-      return
-    }
-    openEdit(turn)
+    setMenuConfirm(null)
+    setMenuOpen(true)
   }
 
   function submitScore(score: number) {
@@ -188,10 +142,6 @@ export function ActiveGameScreen({
       resetAddForm(updated)
       setConfirmUndo(false)
       setUndoError(null)
-      setConfirmFinish(false)
-      setFinishError(null)
-      setConfirmDelete(false)
-      setDeleteError(null)
     } catch (error) {
       if (error instanceof DomainError) {
         setSubmitError(strings.recordTurnFailed)
@@ -222,47 +172,10 @@ export function ActiveGameScreen({
       setGame(updated)
       resetAddForm(updated)
       setConfirmUndo(false)
-      if (editingTurnId !== null && lastTurnId === editingTurnId) {
-        clearEditState()
-      } else if (
-        editingTurnId !== null &&
-        !updated.turns.some((turn) => turn.id === editingTurnId)
-      ) {
-        clearEditState()
-      }
     } catch (error) {
       if (error instanceof DomainError) {
         setUndoError(strings.undoFailed)
         setConfirmUndo(false)
-        return
-      }
-      throw error
-    }
-  }
-
-  function handleSaveEdit(event: FormEvent) {
-    event.preventDefault()
-    if (editingTurnId === null || finished) {
-      return
-    }
-    setShowEditValidation(true)
-    if (!editScoreParse.ok) {
-      return
-    }
-
-    setEditError(null)
-    try {
-      const updated = editTurn(store, gameId, editingTurnId, {
-        playerId: editPlayerId,
-        score: editScoreParse.score,
-        word: normalizeOptionalWord(editWordText),
-      })
-      setGame(updated)
-      resetAddForm(updated)
-      clearEditState()
-    } catch (error) {
-      if (error instanceof DomainError) {
-        setEditError(strings.editFailed)
         return
       }
       throw error
@@ -274,18 +187,15 @@ export function ActiveGameScreen({
     try {
       const updated = finishGame(store, gameId)
       setGame(updated)
-      setConfirmFinish(false)
       setConfirmUndo(false)
       setUndoError(null)
-      setConfirmDelete(false)
-      setDeleteError(null)
-      clearEditState()
       setSubmitError(null)
       setReopenError(null)
+      closeMenu()
     } catch (error) {
       if (error instanceof DomainError) {
         setFinishError(strings.finishFailed)
-        setConfirmFinish(false)
+        setMenuConfirm(null)
         return
       }
       throw error
@@ -299,9 +209,7 @@ export function ActiveGameScreen({
       setGame(updated)
       resetAddForm(updated)
       setFinishError(null)
-      setConfirmFinish(false)
-      setConfirmDelete(false)
-      setDeleteError(null)
+      closeMenu()
     } catch (error) {
       if (error instanceof DomainError) {
         setReopenError(strings.reopenFailed)
@@ -314,28 +222,92 @@ export function ActiveGameScreen({
   function handleDeleteConfirm() {
     try {
       deleteGame(store, gameId)
-      setConfirmDelete(false)
-      setDeleteError(null)
+      closeMenu()
       onBack()
     } catch {
       setDeleteError(strings.deleteFailed)
-      setConfirmDelete(false)
+      setMenuConfirm(null)
     }
   }
 
+  function menuItem(action: GameMenuAction): MenuSheetItem {
+    switch (action) {
+      case 'turns':
+        return {
+          id: action,
+          label: strings.turnsHeading,
+          onSelect: () => {
+            closeMenu()
+            onOpenTurns()
+          },
+        }
+      case 'finish':
+        return {
+          id: action,
+          label: strings.finishGame,
+          onSelect: () => {
+            setFinishError(null)
+            setMenuConfirm('finish')
+          },
+        }
+      case 'reopen':
+        return {
+          id: action,
+          label: strings.reopenGame,
+          onSelect: handleReopen,
+        }
+      case 'delete':
+        return {
+          id: action,
+          label: strings.deleteGame,
+          tone: 'danger',
+          onSelect: () => {
+            setDeleteError(null)
+            setMenuConfirm('delete')
+          },
+        }
+    }
+  }
+
+  const menuNotice = finishError ?? deleteError ?? reopenError
   const headerSubtitle = finished
     ? `${strings.gameFinishedSubtitle} · ${strings.turnsCount(game.turns.length)}`
     : strings.turnsCount(game.turns.length)
 
+  const confirmPanel =
+    menuConfirm === 'finish' ? (
+      <div className="mt-4">
+        <ConfirmPanel
+          prompt={strings.finishConfirmPrompt}
+          confirmLabel={strings.confirmFinish}
+          cancelLabel={strings.cancel}
+          onConfirm={handleFinishConfirm}
+          onCancel={() => setMenuConfirm(null)}
+        />
+      </div>
+    ) : menuConfirm === 'delete' ? (
+      <div className="mt-4">
+        <ConfirmPanel
+          prompt={strings.deleteConfirmPrompt}
+          confirmLabel={strings.confirmDelete}
+          cancelLabel={strings.cancel}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setMenuConfirm(null)}
+        />
+      </div>
+    ) : undefined
+
   return (
     <AppShell>
-      <Button variant="ghost" onClick={onBack}>
-        {strings.back}
-      </Button>
-
-      <ScreenHeader
+      <TopBar
         title={formatPlayerNames(game)}
         subtitle={headerSubtitle}
+        backLabel={strings.back}
+        onBack={onBack}
+        menuLabel={strings.menuLabel}
+        menuExpanded={menuOpen}
+        menuControlsId={GAME_MENU_ID}
+        onMenu={openMenu}
       />
 
       <div className="mt-6 flex flex-col gap-6">
@@ -347,15 +319,7 @@ export function ActiveGameScreen({
         />
 
         {finished ? (
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-ink-muted">
-              {strings.gameFinishedReadOnly}
-            </p>
-            <Button variant="primary" fullWidth onClick={handleReopen}>
-              {strings.reopenGame}
-            </Button>
-            {reopenError ? <FormError>{reopenError}</FormError> : null}
-          </div>
+          <p className="text-sm text-ink-muted">{strings.gameFinishedReadOnly}</p>
         ) : (
           <form className="flex flex-col gap-4" onSubmit={handleRecord}>
             <PlayerPickList
@@ -417,168 +381,50 @@ export function ActiveGameScreen({
           </form>
         )}
 
-        {game.turns.length > 0 ? (
+        {!finished && game.turns.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {!finished ? (
-              confirmUndo ? (
-                <ConfirmPanel
-                  prompt={strings.undoConfirmPrompt}
-                  confirmLabel={strings.confirmUndo}
-                  cancelLabel={strings.cancel}
-                  onConfirm={handleUndoConfirm}
-                  onCancel={() => setConfirmUndo(false)}
-                />
-              ) : (
-                <Button
-                  variant="secondary"
-                  fullWidth
-                  onClick={() => {
-                    setUndoError(null)
-                    setConfirmFinish(false)
-                    setConfirmDelete(false)
-                    setConfirmUndo(true)
-                  }}
-                >
-                  {strings.undoLast}
-                </Button>
-              )
-            ) : null}
-
-            {undoError ? <FormError>{undoError}</FormError> : null}
-
-            <TurnHistoryList
-              heading={strings.turnsHeading}
-              turns={historyTurns.map((turn) => ({
-                id: turn.id,
-                playerName: playerNameById(game.players, turn.playerId),
-                score: turn.score,
-                word: turn.word,
-                isLast: turn.id === lastTurnId,
-              }))}
-              pointsLabel={strings.pointsLabel}
-              noWordLabel={strings.noWordLabel}
-              lastBadge={strings.lastTurnBadge}
-              selectedId={editingTurnId}
-              onSelect={handleSelectTurn}
-              disabled={finished}
-              editPanel={
-                editingTurnId !== null && !finished ? (
-                  <form
-                    className="flex flex-col gap-3"
-                    onSubmit={handleSaveEdit}
-                  >
-                    <PlayerPickList
-                      name="edit-turn-player"
-                      legend={strings.editPlayerLabel}
-                      players={game.players}
-                      value={editPlayerId}
-                      onChange={(id) => {
-                        setEditError(null)
-                        setEditPlayerId(id)
-                      }}
-                    />
-                    <TextField
-                      id="edit-turn-score"
-                      label={strings.scoreLabel}
-                      value={editScoreText}
-                      onChange={(value) => {
-                        setEditError(null)
-                        setEditScoreText(value)
-                      }}
-                      error={editScoreErrorMessage}
-                      inputMode="numeric"
-                      autoComplete="off"
-                    />
-                    <TextField
-                      id="edit-turn-word"
-                      label={strings.wordLabel}
-                      value={editWordText}
-                      onChange={(value) => {
-                        setEditError(null)
-                        setEditWordText(value)
-                      }}
-                      autoComplete="off"
-                      placeholder={strings.wordPlaceholder}
-                    />
-                    {editError ? <FormError>{editError}</FormError> : null}
-                    <div className="flex flex-col gap-2">
-                      <Button type="submit" variant="primary" fullWidth>
-                        {strings.saveEdit}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        fullWidth
-                        onClick={clearEditState}
-                      >
-                        {strings.cancel}
-                      </Button>
-                    </div>
-                  </form>
-                ) : undefined
-              }
-            />
-          </div>
-        ) : null}
-
-        {!finished ? (
-          <div className="flex flex-col gap-3">
-            {confirmFinish ? (
+            {confirmUndo ? (
               <ConfirmPanel
-                prompt={strings.finishConfirmPrompt}
-                confirmLabel={strings.confirmFinish}
+                prompt={strings.undoConfirmPrompt}
+                confirmLabel={strings.confirmUndo}
                 cancelLabel={strings.cancel}
-                onConfirm={handleFinishConfirm}
-                onCancel={() => setConfirmFinish(false)}
+                onConfirm={handleUndoConfirm}
+                onCancel={() => setConfirmUndo(false)}
               />
             ) : (
               <Button
                 variant="secondary"
                 fullWidth
                 onClick={() => {
-                  setFinishError(null)
-                  setConfirmUndo(false)
-                  setConfirmDelete(false)
-                  clearEditState()
-                  setConfirmFinish(true)
+                  setUndoError(null)
+                  setConfirmUndo(true)
                 }}
               >
-                {strings.finishGame}
+                {strings.undoLast}
               </Button>
             )}
-            {finishError ? <FormError>{finishError}</FormError> : null}
+            {undoError ? <FormError>{undoError}</FormError> : null}
           </div>
         ) : null}
-
-        <div className="flex flex-col gap-3">
-          {confirmDelete ? (
-            <ConfirmPanel
-              prompt={strings.deleteConfirmPrompt}
-              confirmLabel={strings.confirmDelete}
-              cancelLabel={strings.cancel}
-              onConfirm={handleDeleteConfirm}
-              onCancel={() => {
-                setConfirmDelete(false)
-                setDeleteError(null)
-              }}
-            />
-          ) : (
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setDeleteError(null)
-                setConfirmUndo(false)
-                setConfirmFinish(false)
-                clearEditState()
-                setConfirmDelete(true)
-              }}
-            >
-              {strings.deleteGame}
-            </Button>
-          )}
-          {deleteError ? <FormError>{deleteError}</FormError> : null}
-        </div>
       </div>
+
+      <MenuSheet
+        id={GAME_MENU_ID}
+        open={menuOpen}
+        title={
+          menuConfirm === 'finish'
+            ? strings.finishGame
+            : menuConfirm === 'delete'
+              ? strings.deleteGame
+              : strings.gameMenuTitle
+        }
+        closeLabel={strings.closeMenu}
+        onClose={closeMenu}
+        items={gameMenuActions(game.status).map(menuItem)}
+        panel={confirmPanel}
+        focusKey={menuConfirm ?? 'menu'}
+        notice={menuNotice ? <FormError>{menuNotice}</FormError> : undefined}
+      />
     </AppShell>
   )
 }

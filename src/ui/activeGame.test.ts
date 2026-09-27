@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Turn } from '../domain'
 import {
+  gameMenuActions,
   normalizeOptionalWord,
   parseScoreInput,
   playerNameById,
@@ -67,6 +68,20 @@ describe('turnsNewestFirst', () => {
 
   it('handles empty history', () => {
     expect(turnsNewestFirst([])).toEqual([])
+  })
+})
+
+describe('gameMenuActions', () => {
+  it('offers history, finish, and delete while the game is in progress', () => {
+    expect(gameMenuActions('in_progress')).toEqual([
+      'turns',
+      'finish',
+      'delete',
+    ])
+  })
+
+  it('swaps finish for reopen when the game is finished', () => {
+    expect(gameMenuActions('finished')).toEqual(['turns', 'reopen', 'delete'])
   })
 })
 

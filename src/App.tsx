@@ -5,6 +5,7 @@ import {
   HomeScreen,
   NewGameScreen,
   SavedGamesListScreen,
+  TurnHistoryScreen,
   listFinishedGamesNewestFirst,
   listInProgressGamesNewestFirst,
   strings,
@@ -14,7 +15,8 @@ import {
 const store = createLocalStorageGameStore()
 
 /**
- * Root shell: wires localStorage store to home, setup, lists, and active game.
+ * Root shell: wires localStorage store to home, setup, lists, active game,
+ * and turn history.
  *
  * Screen switching is plain React state (D24) — no router dependency for MVP.
  */
@@ -67,12 +69,26 @@ function App() {
     )
   }
 
+  if (screen.name === 'turn-history') {
+    const { gameId, backTo } = screen
+    return (
+      <TurnHistoryScreen
+        store={store}
+        gameId={gameId}
+        onBack={() => setScreen({ name: 'active-game', gameId, backTo })}
+      />
+    )
+  }
+
   if (screen.name === 'active-game') {
-    const backTo = screen.backTo
+    const { gameId, backTo } = screen
     return (
       <ActiveGameScreen
         store={store}
-        gameId={screen.gameId}
+        gameId={gameId}
+        onOpenTurns={() =>
+          setScreen({ name: 'turn-history', gameId, backTo })
+        }
         onBack={() => {
           if (backTo === 'continue') {
             setScreen({ name: 'continue' })

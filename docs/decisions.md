@@ -348,3 +348,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T6.0 / D30–D32 / P15–P17 | 2026-09-27 | Backlog triage: T7/T8 chunks; delete-from-detail; keypad; Kotus word-check approach |
 | D33–D35 / P19–P20 | 2026-09-27 | Replan: single-player keypad turn screen with podium banner; top-bar game menu (history / finish / delete / settings); app settings + Web Audio sounds with mute. First T7.3 attempt reverted |
 | D33–D37 confirm | 2026-09-27 | Bottom bar confirmed; strict rotation (D36); sounds default on with progress/revert/action cues; play-out + empty bag + rack runoff directed (D37) |
+| T7.3 / D34 | 2026-09-27 | Top bar + game menu + turn history screen. Score form and soft picker unchanged until T7.4 / T7.5 |
