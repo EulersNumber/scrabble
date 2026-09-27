@@ -9,10 +9,9 @@ type FallingTilesBackdropProps = {
 /**
  * Ambient Scrabble-tile field that falls and spins (T7.1 / P2).
  *
- * CSS/DOM driven (no canvas/WebGL): square faces with Finnish point values,
- * bevelled “well”, Z-tilt, and near/far size. Specs come from
- * `buildFallingTileSpecs`. The layer is `pointer-events-none`. When
- * `prefers-reduced-motion: reduce`, tiles stay static with mixed faces/backs.
+ * Each tile is a thick CSS 3D box (square faces + sides) so mid-spin it still
+ * reads as a physical tile, not a flat card. Specs from `buildFallingTileSpecs`.
+ * `pointer-events-none`; reduced-motion → static faces/backs.
  */
 export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
   const tiles = buildFallingTileSpecs(intensity)
@@ -44,7 +43,6 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
             } as CSSProperties
           }
         >
-          {/* Tilt wrapper keeps the face square; spin lives on the inner cube. */}
           <div className="falling-tile-tilt">
             <div className="falling-tile-inner">
               <div className="falling-tile-face falling-tile-face-front">
@@ -52,6 +50,10 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
                 <span className="falling-tile-points">{tile.points}</span>
               </div>
               <div className="falling-tile-face falling-tile-face-back" />
+              <div className="falling-tile-side falling-tile-side-left" />
+              <div className="falling-tile-side falling-tile-side-right" />
+              <div className="falling-tile-side falling-tile-side-top" />
+              <div className="falling-tile-side falling-tile-side-bottom" />
             </div>
           </div>
         </div>

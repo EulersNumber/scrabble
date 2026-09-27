@@ -99,19 +99,20 @@
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    perspective: 1100px;
+    perspective: 1400px;
   }
 
   /* Soft ambient — readable behind content, not attention-grabbing. */
   .falling-tiles-hero {
-    opacity: 0.62;
+    opacity: 0.68;
   }
 
   .falling-tiles-dimmed {
-    opacity: 0.34;
+    opacity: 0.36;
   }
 
   .falling-tile {
+    --tile-thickness: calc(var(--tile-size) * 0.22rem);
     position: absolute;
     left: calc(var(--tile-x) * 1%);
     top: -18%;
@@ -125,12 +126,13 @@
     will-change: transform;
   }
 
-  /* Z-tilt only — keeps the face a true square while spun on Y. */
+  /* Z-tilt only — face stays a true square; spin is on the thick box. */
   .falling-tile-tilt {
     width: 100%;
     height: 100%;
     aspect-ratio: 1 / 1;
     transform: rotate(var(--tile-tilt));
+    transform-style: preserve-3d;
   }
 
   .falling-tile-inner {
@@ -143,27 +145,32 @@
     will-change: transform;
   }
 
-  .falling-tile-face {
+  .falling-tile-face,
+  .falling-tile-side {
     position: absolute;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .falling-tile-face {
     inset: 0;
     width: 100%;
     height: 100%;
     aspect-ratio: 1 / 1;
-    box-sizing: border-box;
-    border-radius: var(--radius-tile);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    border-radius: calc(var(--radius-tile) * 0.85);
   }
 
   .falling-tile-face-front {
     display: grid;
     place-items: center;
+    transform: translateZ(calc(var(--tile-thickness) / 2));
     /* Bevelled rim + recessed letter well (physical tile feel). */
     background:
       radial-gradient(
-        circle at 50% 48%,
-        color-mix(in srgb, var(--color-tile-face) 88%, #c4a96a) 0%,
-        var(--color-tile-face) 42%,
+        circle at 50% 46%,
+        color-mix(in srgb, var(--color-tile-face) 82%, #b89555) 0%,
+        var(--color-tile-face) 38%,
         var(--color-tile-face-edge) 100%
       );
     border: 1px solid color-mix(in srgb, var(--color-tile-face-edge) 65%, #8a7344);
@@ -171,11 +178,11 @@
       0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 75%, white),
       0 calc(4px + var(--tile-depth) * 10px)
         calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
-      inset 0 0 0 1.5px color-mix(in srgb, var(--color-tile-face) 70%, white),
-      inset 2px 2px 4px color-mix(in srgb, white 55%, transparent),
-      inset -2px -2px 5px color-mix(in srgb, #6a5428 22%, transparent),
-      inset 0 0 calc(0.22 * var(--tile-size) * 1rem)
-        color-mix(in srgb, #6a5428 14%, transparent);
+      inset 0 0 0 2px color-mix(in srgb, var(--color-tile-face) 65%, white),
+      inset 3px 3px 5px color-mix(in srgb, white 60%, transparent),
+      inset -3px -3px 6px color-mix(in srgb, #6a5428 28%, transparent),
+      inset 0 0 calc(0.28 * var(--tile-size) * 1rem)
+        color-mix(in srgb, #6a5428 18%, transparent);
   }
 
   .falling-tile-face-back {
@@ -186,17 +193,59 @@
     );
     border: 1px solid color-mix(in srgb, var(--color-tile-back) 60%, #6e5a32);
     box-shadow:
-      0 calc(4px + var(--tile-depth) * 10px)
-        calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
       inset 1px 1px 3px color-mix(in srgb, white 35%, transparent),
       inset -2px -2px 4px color-mix(in srgb, #6a5428 25%, transparent);
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) translateZ(calc(var(--tile-thickness) / 2));
+  }
+
+  .falling-tile-side {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-tile-face-edge) 80%, #a88848) 0%,
+      color-mix(in srgb, var(--color-tile-back) 70%, #6e5a32) 100%
+    );
+  }
+
+  .falling-tile-side-left,
+  .falling-tile-side-right {
+    width: var(--tile-thickness);
+    height: 100%;
+    top: 0;
+    left: 50%;
+  }
+
+  .falling-tile-side-left {
+    transform: translateX(-50%) rotateY(-90deg)
+      translateZ(calc(var(--tile-size) * 0.5rem));
+  }
+
+  .falling-tile-side-right {
+    transform: translateX(-50%) rotateY(90deg)
+      translateZ(calc(var(--tile-size) * 0.5rem));
+  }
+
+  .falling-tile-side-top,
+  .falling-tile-side-bottom {
+    width: 100%;
+    height: var(--tile-thickness);
+    left: 0;
+    top: 50%;
+  }
+
+  .falling-tile-side-top {
+    transform: translateY(-50%) rotateX(90deg)
+      translateZ(calc(var(--tile-size) * 0.5rem));
+  }
+
+  .falling-tile-side-bottom {
+    transform: translateY(-50%) rotateX(-90deg)
+      translateZ(calc(var(--tile-size) * 0.5rem));
   }
 
   .falling-tile-letter {
     font-family: var(--font-sans);
     font-weight: 700;
-    font-size: calc(var(--tile-size) * 0.52rem);
+    font-size: calc(var(--tile-size) * 0.5rem);
     line-height: 1;
     color: var(--color-tile-letter);
     text-transform: uppercase;
@@ -209,10 +258,10 @@
     bottom: calc(var(--tile-size) * 0.08rem);
     font-family: var(--font-sans);
     font-weight: 600;
-    font-size: calc(var(--tile-size) * 0.16rem);
+    font-size: calc(var(--tile-size) * 0.15rem);
     line-height: 1;
     color: var(--color-tile-letter);
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
   @keyframes tile-fall {
