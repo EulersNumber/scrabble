@@ -163,6 +163,9 @@
     height: 100%;
     aspect-ratio: 1 / 1;
     border-radius: calc(var(--radius-tile) * 0.85);
+    overflow: hidden;
+    /* Flatten letter/points onto the face so they hide with backface-visibility. */
+    transform-style: flat;
   }
 
   .falling-tile-face-front {
@@ -183,7 +186,35 @@
       inset -2px -2px 4px color-mix(in srgb, #6a5428 24%, transparent);
   }
 
-  /* Recessed center “well” — slightly deeper middle like a physical tile. */
+  .falling-tile-letter {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: calc(var(--tile-size) * 0.48rem);
+    line-height: 1;
+    color: var(--color-tile-letter);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .falling-tile-points {
+    position: absolute;
+    z-index: 1;
+    right: calc(var(--tile-size) * 0.1rem);
+    bottom: calc(var(--tile-size) * 0.08rem);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: calc(var(--tile-size) * 0.15rem);
+    line-height: 1;
+    color: var(--color-tile-letter);
+    opacity: 0.9;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   .falling-tile-well {
     position: absolute;
     inset: 12%;
@@ -198,6 +229,8 @@
       inset 2px 3px 5px color-mix(in srgb, #6a5428 22%, transparent),
       inset -1px -1px 3px color-mix(in srgb, white 35%, transparent);
     pointer-events: none;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .falling-tile-face-back {
@@ -255,31 +288,6 @@
   .falling-tile-side-bottom {
     transform: translateY(-50%) rotateX(-90deg)
       translateZ(calc(var(--tile-size) * 0.5rem));
-  }
-
-  .falling-tile-letter {
-    position: relative;
-    z-index: 1;
-    font-family: var(--font-sans);
-    font-weight: 700;
-    font-size: calc(var(--tile-size) * 0.48rem);
-    line-height: 1;
-    color: var(--color-tile-letter);
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
-
-  .falling-tile-points {
-    position: absolute;
-    z-index: 1;
-    right: calc(var(--tile-size) * 0.1rem);
-    bottom: calc(var(--tile-size) * 0.08rem);
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: calc(var(--tile-size) * 0.15rem);
-    line-height: 1;
-    color: var(--color-tile-letter);
-    opacity: 0.9;
   }
 
   @keyframes tile-fall {
