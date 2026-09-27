@@ -59,7 +59,8 @@ Later (not now), isolated modules:
 ### UI
 
 - Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
-- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `TurnHistoryList`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, etc.
+- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `TurnHistoryList`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, `FallingTilesBackdrop`, etc.
+- **Atmosphere (T7.1):** `AppShell` accepts `atmosphere` (`hero` | `dimmed` | `none`). Home and inner screens share a light sage-green token family; `hero` is a slightly richer mist wash + clearer tiles, `dimmed` is quieter. Tile specs in `src/ui/fallingTiles.ts` (large tiles, slow variable fall/spin); CSS keyframes with reduced-motion static fallback.
 - **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.

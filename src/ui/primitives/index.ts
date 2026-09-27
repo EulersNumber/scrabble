@@ -1,5 +1,6 @@
 export { AppShell } from './AppShell'
 export { Button } from './Button'
+export { FallingTilesBackdrop } from './FallingTilesBackdrop'
 export { ChoiceChip } from './ChoiceChip'
 export { ConfirmPanel } from './ConfirmPanel'
 export { FormError } from './FormError'

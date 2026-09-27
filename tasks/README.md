@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T6.0 are done** (MVP closed; post-MVP triage locked). Continue from **T7.1**.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T7.1 are done** (MVP closed; post-MVP triage locked; brand/tiles landed). Continue from **T7.2**.
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -224,7 +224,7 @@ Home must support both **new game** and **continue** (resume an in-progress game
   - Ordered shortlist (what to build next vs later / park).
   - Chosen items split into focused tasks with rough acceptance notes (no need to implement yet).
   - `tasks/README.md` updated so tomorrow’s work can pick one task at a time.
-- **Notes:** Docs/planning only. Human priorities from family play + triage chat: (1) brand + falling tiles as one visual chunk, (2) turn-focused scoring with calculator keypad, (3) delete from open game detail, (4) Finnish dictionary later with feasibility notes. New backlog: **P15–P17**. Decisions: **D30** (delete from open game), **D31** (numeric keypad), **D32** (dictionary approach). Next work starts at **T7.1**.
+- **Notes:** Docs/planning only. Human priorities from family play + triage chat: (1) brand + falling tiles as one visual chunk, (2) turn-focused scoring with calculator keypad, (3) delete from open game detail, (4) Finnish dictionary later with feasibility notes. New backlog: **P15–P17**. Decisions: **D30** (delete from open game), **D31** (numeric keypad), **D32** (dictionary approach). **T7.1** done; next **T7.2**.
 
 ---
 
@@ -245,7 +245,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.1 Brand home + falling Scrabble tiles (P10 + P2)
 
-- **Status:** todo (next).
+- **Status:** done (2026-09-27).
 - **Goal:** Give the home hub a strong brand/atmosphere signal, with ambient rectangular letter tiles that fall top → bottom and slowly spin (letter face sometimes visible). Same motion may run dimmed on other screens so focus stays on controls.
 - **Acceptance:**
   - Home first viewport reads as one branded composition (product name hero-level; not a sparse button list on a flat green field).
@@ -253,7 +253,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Falling tiles: mathematical fall/spin (no game-engine dependency); do not block taps; respect `prefers-reduced-motion` (static or no motion).
   - Other screens: tiles absent or clearly dimmed/pushed back.
   - No scorepad behavior changes.
-- **Notes:** One agent chunk by design (human: brand + tiles are “one”). Split only if the PR grows unwieldy (atmosphere tokens first, then motion). Decide canvas vs CSS/DOM in-task; prefer the simpler approach that stays performant on older phones/iPads.
+- **Notes:** CSS/DOM tiles (no canvas). Specs in `fallingTiles.ts` (large, slow variable fall/spin). `AppShell atmosphere=hero|dimmed|none` share a light sage-green family. Next: **T7.2**.
 
 ### T7.2 Delete from open game detail (P16 / D30)
 
@@ -361,18 +361,11 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P2. Falling Scrabble-tile background animation
 
-- **Status:** promoted → **T7.1** (with P10).
+- **Status:** done via **T7.1** (with P10).
 - **Goal:** Ambient rectangular letter tiles (like physical Scrabble tiles) fall slowly top → bottom with a slow spin (letter face sometimes visible, sometimes the back).
-- **Screen treatment (product choice — accepted for post-MVP):**
-  - **Home:** tiles are a **key visual** — prominent and engaging.
-  - **Other screens** (new game, active game, history, etc.): same animation may still run, but **dimmed / pushed back** so focus stays on scores, words, and controls.
-- **Approach sketch:**
-  - Store tile geometry (and letter face styling) in the codebase
-  - Drive motion with a mathematical fall/spin definition (no heavy game-engine dependency unless we later decide otherwise)
-  - Must not block taps or compete with primary content
-- **Still open in T7.1:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
-- **Notes:** Pure polish / engagement. Grouped with **P10** as one agent chunk (human priority).
-- **T5.2 note:** Home today is correct but sparse (title + three buttons on a flat surface). P2 (and/or **P10**) would give the hub a stronger brand/atmosphere signal.
+- **Screen treatment:** Home = key visual; other screens = dimmed via `AppShell`.
+- **Shipped approach:** CSS/DOM + `buildFallingTileSpecs`; `prefers-reduced-motion` → static mix of faces/backs; `pointer-events: none`.
+- **Notes:** Grouped with **P10** as one agent chunk.
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
@@ -448,10 +441,9 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P10. Visual atmosphere and brand presence (home-first)
 
-- **Status:** promoted → **T7.1** (with P2).
-- **Goal:** Give the scorepad a clearer visual identity beyond flat green buttons on a flat surface — especially on **home**, which currently passes the “functional hub” bar but not a strong brand/atmosphere bar.
-- **Candidates:** richer background (gradient / subtle table texture — not purple/AI-generic clichés); stronger typography hierarchy; tile motif via **P2** motion; keep D27 tokens/primitives.
-- **Notes:** Complements **P2** (motion). Do not expand into marketing-site chrome.
+- **Status:** done via **T7.1** (with P2).
+- **Goal:** Give the scorepad a clearer visual identity beyond flat green buttons on a flat surface — especially on **home**.
+- **Shipped:** Felt-green hero gradient, larger display title, cream/inverse CTAs, falling-tile motif; D27 tokens/primitives extended (no marketing-site chrome).
 
 ### P11. Edit-turn discoverability and affordance
 
@@ -529,7 +521,8 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 7. Offline verification (T5.1) — done; PWA deferred to **P8**
 8. MVP review (T5.2) — done; UX notes → **P10–P14**
 9. Backlog triage (T6.0) — done; shortlist + **T7/T8** chunks; **P15–P17** added
-10. **Next agent:** **T7.1** brand home + falling tiles
-11. Then T7.2 → T7.8 (scoring UX + polish), then T8.1+ (dictionary) when ready
+10. Brand home + falling tiles (T7.1) — done
+11. **Next agent:** **T7.2** delete from open game detail
+12. Then T7.3 → T7.8 (scoring UX + polish), then T8.1+ (dictionary) when ready
 
 Domain before UI so the learning project practices testable logic first.
