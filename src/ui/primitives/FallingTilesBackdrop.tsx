@@ -9,9 +9,9 @@ type FallingTilesBackdropProps = {
 /**
  * Ambient Scrabble-tile field that falls and spins (T7.1 / P2).
  *
- * Each tile is a thick CSS 3D box (square faces + sides) so mid-spin it still
- * reads as a physical tile, not a flat card. Specs from `buildFallingTileSpecs`.
- * `pointer-events-none`; reduced-motion → static faces/backs.
+ * Each tile is a thick CSS 3D box with overlapping side walls so seams stay
+ * closed. Specs from `buildFallingTileSpecs`. `pointer-events-none`;
+ * reduced-motion → static faces/backs.
  */
 export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
   const tiles = buildFallingTileSpecs(intensity)
@@ -35,6 +35,7 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
               '--tile-fall-dur': `${tile.fallDurationSec}s`,
               '--tile-delay': `${tile.delaySec}s`,
               '--tile-spin-dur': `${tile.spinDurationSec}s`,
+              '--tile-spin-delay': `${tile.spinDelaySec}s`,
               '--tile-size': tile.sizeRem,
               '--tile-depth': tile.depth,
               '--tile-tilt': `${tile.tiltDeg}deg`,
@@ -45,6 +46,10 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
         >
           <div className="falling-tile-tilt">
             <div className="falling-tile-inner">
+              {/* Interior slabs fill the cube so tiny face seams never show background. */}
+              <div className="falling-tile-fill falling-tile-fill-a" />
+              <div className="falling-tile-fill falling-tile-fill-b" />
+              <div className="falling-tile-fill falling-tile-fill-c" />
               <div className="falling-tile-face falling-tile-face-front">
                 <span className="falling-tile-well" />
                 <span className="falling-tile-letter">{tile.letter}</span>

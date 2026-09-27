@@ -40,7 +40,7 @@ describe('buildFallingTileSpecs', () => {
     )
   })
 
-  it('uses near/far depth with faster spin and Finnish points', () => {
+  it('falls from the top with a short stagger and mid spin phase', () => {
     const hero = buildFallingTileSpecs('hero')
     const spinSet = new Set(hero.map((tile) => tile.spinDurationSec))
     const depthSet = new Set(hero.map((tile) => tile.depth))
@@ -50,11 +50,19 @@ describe('buildFallingTileSpecs', () => {
     expect(Math.max(...sizes)).toBeGreaterThan(Math.min(...sizes))
 
     for (const intensity of ['hero', 'dimmed'] as const) {
-      for (const tile of buildFallingTileSpecs(intensity)) {
+      const tiles = buildFallingTileSpecs(intensity)
+      expect(tiles[0]!.delaySec).toBe(0)
+      expect(Math.max(...tiles.map((tile) => tile.delaySec))).toBeLessThanOrEqual(
+        3,
+      )
+      expect(tiles.every((tile) => tile.spinDelaySec < 0)).toBe(true)
+
+      for (const tile of tiles) {
         expect(tile.xPercent).toBeGreaterThanOrEqual(0)
         expect(tile.xPercent).toBeLessThanOrEqual(100)
-        expect(tile.fallDurationSec).toBeGreaterThanOrEqual(25)
-        expect(tile.fallDurationSec).toBeLessThan(55)
+        expect(tile.fallDurationSec).toBeGreaterThanOrEqual(15)
+        expect(tile.fallDurationSec).toBeLessThan(35)
+        expect(tile.delaySec).toBeGreaterThanOrEqual(0)
         expect(tile.spinDurationSec).toBeGreaterThanOrEqual(6)
         expect(tile.spinDurationSec).toBeLessThan(20)
         expect(tile.sizeRem).toBeGreaterThanOrEqual(2.5)
@@ -63,17 +71,6 @@ describe('buildFallingTileSpecs', () => {
         expect(tile.points).toBe(finnishTilePoints(tile.letter))
         expect(FALLING_TILE_LETTERS).toContain(tile.letter)
       }
-    }
-  })
-
-  it('uses negative phase delays so tiles are mid-fall as soon as a screen mounts', () => {
-    for (const intensity of ['hero', 'dimmed'] as const) {
-      const tiles = buildFallingTileSpecs(intensity)
-      expect(tiles.every((tile) => tile.delaySec < 0)).toBe(true)
-      // Spread across the fall cycle so several tiles are in-view at once.
-      const delays = tiles.map((tile) => tile.delaySec)
-      expect(Math.min(...delays)).toBeLessThan(-10)
-      expect(Math.max(...delays)).toBeLessThan(0)
     }
   })
 
