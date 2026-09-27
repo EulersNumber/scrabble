@@ -114,8 +114,8 @@
   .falling-tile {
     --tile-thickness: calc(var(--tile-size) * 0.22rem);
     --tile-half: calc(var(--tile-size) * 0.5rem);
-    /* Tiny overlap so CSS 3D face edges don't show background seams. */
-    --tile-seal: 1.5px;
+    /* Overlap faces so anti-aliased edges do not show background seams. */
+    --tile-seal: 2px;
     position: absolute;
     left: calc(var(--tile-x) * 1%);
     top: -18%;
@@ -177,8 +177,7 @@
   .falling-tile-face-front {
     display: grid;
     place-items: center;
-    /* Slightly past half-thickness so front seals against the side walls. */
-    transform: translateZ(calc(var(--tile-thickness) / 2 + var(--tile-seal)));
+    transform: translateZ(calc(var(--tile-thickness) / 2));
     background: linear-gradient(
       145deg,
       var(--color-tile-face) 0%,
@@ -248,11 +247,10 @@
     box-shadow:
       inset 1px 1px 3px color-mix(in srgb, white 30%, transparent),
       inset -2px -2px 4px color-mix(in srgb, #6a5428 22%, transparent);
-    transform: rotateY(180deg)
-      translateZ(calc(var(--tile-thickness) / 2 + var(--tile-seal)));
+    transform: rotateY(180deg) translateZ(calc(var(--tile-thickness) / 2));
   }
 
-  /* Solid continuous wood edge — slightly oversized to close face seams. */
+  /* Solid continuous wood edge — deeper than thickness so front/back meet sides. */
   .falling-tile-side {
     background: linear-gradient(
       180deg,
@@ -263,40 +261,38 @@
 
   .falling-tile-side-left,
   .falling-tile-side-right {
-    width: var(--tile-thickness);
+    /* Width maps to cube depth after rotateY — must cover front↔back + seal. */
+    width: calc(var(--tile-thickness) + 2 * var(--tile-seal));
     height: calc(100% + 2 * var(--tile-seal));
     top: calc(-1 * var(--tile-seal));
     left: 50%;
-    margin-left: calc(var(--tile-thickness) / -2);
+    margin-left: calc((var(--tile-thickness) + 2 * var(--tile-seal)) / -2);
   }
 
   .falling-tile-side-left {
-    transform: rotateY(-90deg)
-      translateZ(calc(var(--tile-half) + var(--tile-seal)));
+    transform: rotateY(-90deg) translateZ(var(--tile-half));
   }
 
   .falling-tile-side-right {
-    transform: rotateY(90deg)
-      translateZ(calc(var(--tile-half) + var(--tile-seal)));
+    transform: rotateY(90deg) translateZ(var(--tile-half));
   }
 
   .falling-tile-side-top,
   .falling-tile-side-bottom {
     width: calc(100% + 2 * var(--tile-seal));
-    height: var(--tile-thickness);
+    /* Height maps to cube depth after rotateX — must cover front↔back + seal. */
+    height: calc(var(--tile-thickness) + 2 * var(--tile-seal));
     left: calc(-1 * var(--tile-seal));
     top: 50%;
-    margin-top: calc(var(--tile-thickness) / -2);
+    margin-top: calc((var(--tile-thickness) + 2 * var(--tile-seal)) / -2);
   }
 
   .falling-tile-side-top {
-    transform: rotateX(90deg)
-      translateZ(calc(var(--tile-half) + var(--tile-seal)));
+    transform: rotateX(90deg) translateZ(var(--tile-half));
   }
 
   .falling-tile-side-bottom {
-    transform: rotateX(-90deg)
-      translateZ(calc(var(--tile-half) + var(--tile-seal)));
+    transform: rotateX(-90deg) translateZ(var(--tile-half));
   }
 
   @keyframes tile-fall {
