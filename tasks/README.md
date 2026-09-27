@@ -253,7 +253,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Falling tiles: mathematical fall/spin (no game-engine dependency); do not block taps; respect `prefers-reduced-motion` (static or no motion).
   - Other screens: tiles absent or clearly dimmed/pushed back.
   - No scorepad behavior changes.
-- **Notes:** CSS/DOM tiles (no canvas). Specs in `fallingTiles.ts` (large, slow variable fall/spin). `AppShell atmosphere=hero|dimmed|none` share a light sage-green family. Next: **T7.2**.
+- **Notes:** CSS/DOM tiles (no canvas). Square bevelled faces with Finnish point values; slow-ish fall, faster variable spin; near/far size. Light sage `AppShell` family. App display-font pass deferred. Next: **T7.2**.
 
 ### T7.2 Delete from open game detail (P16 / D30)
 
