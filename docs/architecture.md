@@ -59,7 +59,7 @@ Later (not now), isolated modules:
 ### UI
 
 - Presents screens and collects input. User-visible strings are Finnish (`strings` module, not an i18n library).
-- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `TurnHistoryList`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, `FallingTilesBackdrop`, etc.
+- **Theme tokens** live in `src/index.css`; reusable **primitives** in `src/ui/primitives/` (D27): `AppShell`, `Button`, `TextField`, `ChoiceChip`, `RadioGroup`, `PlayerPickList`, `StandingsList`, `CompactStandingsBanner`, `TurnHistoryList`, `SecondarySheet`, `ConfirmPanel`, `FormError`, `ListRowButton`, `ScreenHeader`, `FallingTilesBackdrop`, etc.
 - **Atmosphere (T7.1):** `AppShell` accepts `atmosphere` (`hero` | `dimmed` | `none`). Home and inner screens share a light sage-green token family; `hero` is a slightly richer mist wash + clearer tiles, `dimmed` is quieter. Tile specs in `src/ui/fallingTiles.ts` (large tiles, slow variable fall/spin); CSS keyframes with reduced-motion static fallback.
 - **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
@@ -171,7 +171,7 @@ Enough screens to support MVP; names can change:
 2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
 3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP layout direction: turn-focused shell + calculator keypad (D31 / T7.3–T7.4).
+5. **Active game** — turn-focused shell (T7.3): compact standings banner, this-turn score/pass (optional word secondary), soft-rotation next hint; history / undo / finish / delete in a secondary sheet; **delete with confirm** (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Calculator keypad is T7.4 (D31).
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 

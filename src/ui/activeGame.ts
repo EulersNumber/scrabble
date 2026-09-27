@@ -1,9 +1,10 @@
 /**
- * Pure helpers for the active-game score entry and correction flow (T4.2, T4.3).
+ * Pure helpers for the active-game score entry and correction flow (T4.2, T4.3, T7.3).
  *
- * Keeps score parsing, word normalize, and turn-list presentation helpers out
- * of the React screen so they stay unit-testable. Domain still owns final
- * integer validation (D14) and undo/edit rules (D11).
+ * Keeps score parsing, word normalize, turn-list presentation, and soft-rotation
+ * next-seat preview helpers out of the React screen so they stay unit-testable.
+ * Domain still owns final integer validation (D14), undo/edit rules (D11), and
+ * suggested-current updates (D13).
  */
 
 import type { Player, Turn } from '../domain'
@@ -84,4 +85,28 @@ export function playerNameById(
   playerId: string,
 ): string {
   return players.find((player) => player.id === playerId)?.name ?? playerId
+}
+
+/**
+ * Soft-rotation preview: who would be suggested after a turn for `playerId` (D13, T7.3).
+ *
+ * Mirrors domain seat wrap without requiring a full `Game`. Used only as a UI
+ * hint — logging another seat remains allowed.
+ *
+ * @param players - Seating order (2–4)
+ * @param playerId - Player about to be logged
+ * @returns The next seated player, or `undefined` if `playerId` is unknown / list empty
+ */
+export function nextSeatPlayer(
+  players: readonly Player[],
+  playerId: string,
+): Player | undefined {
+  if (players.length === 0) {
+    return undefined
+  }
+  const index = players.findIndex((player) => player.id === playerId)
+  if (index === -1) {
+    return undefined
+  }
+  return players[(index + 1) % players.length]
 }

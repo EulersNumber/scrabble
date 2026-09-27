@@ -6,12 +6,15 @@ type ButtonVariant =
   | 'ghost'
   | 'inverse'
   | 'inverseSecondary'
-type ButtonSize = 'md' | 'hero'
+type ButtonSize = 'md' | 'lg' | 'hero'
 
 type ButtonProps = {
   children: ReactNode
   variant?: ButtonVariant
-  /** Visual scale; `hero` is for a dominant primary CTA (e.g. home new game). */
+  /**
+   * Visual scale: `md` default, `lg` fat-finger primary actions (T7.3),
+   * `hero` dominant home CTA.
+   */
   size?: ButtonSize
   fullWidth?: boolean
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'>
@@ -33,6 +36,7 @@ const variantClass: Record<ButtonVariant, string> = {
 
 const sizeClass: Record<ButtonSize, string> = {
   md: 'px-4 py-4 text-lg',
+  lg: 'min-h-16 px-4 py-5 text-xl',
   hero: 'min-h-28 px-5 py-8 text-2xl md:min-h-32 md:py-10 md:text-3xl',
 }
 
