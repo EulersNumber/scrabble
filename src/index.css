@@ -112,10 +112,11 @@
   }
 
   .falling-tile {
-    --tile-thickness: calc(var(--tile-size) * 0.22rem);
+    /* Thinner extrusion — previous depth looked too long edge-on. */
+    --tile-thickness: calc(var(--tile-size) * 0.12rem);
     --tile-half: calc(var(--tile-size) * 0.5rem);
-    /* Overlap faces so anti-aliased edges do not show background seams. */
-    --tile-seal: 2px;
+    /* Face corner roundness; sides stop inside this so ends can curve shut. */
+    --tile-radius: calc(var(--tile-size) * 0.09rem);
     position: absolute;
     left: calc(var(--tile-x) * 1%);
     top: -18%;
@@ -127,13 +128,11 @@
     max-height: calc(var(--tile-size) * 1rem);
     aspect-ratio: 1 / 1;
     box-sizing: border-box;
-    /* Near tiles a bit clearer; far tiles softer (depth cue). */
     opacity: calc(0.55 + var(--tile-depth) * 0.45);
     animation: tile-fall var(--tile-fall-dur) linear var(--tile-delay) infinite;
     will-change: transform;
   }
 
-  /* Z-tilt only — face stays a true square; spin is on the thick box. */
   .falling-tile-tilt {
     width: 100%;
     height: 100%;
@@ -153,16 +152,16 @@
     will-change: transform;
   }
 
-  /* Opaque interior — hides any sub-pixel gaps between outer faces. */
+  /* Opaque interior under rounded corners. */
   .falling-tile-fill {
     position: absolute;
-    inset: 3%;
+    inset: 8%;
     background: color-mix(in srgb, var(--color-tile-back) 88%, #8a7344);
-    border-radius: 0;
+    border-radius: calc(var(--tile-radius) * 0.6);
   }
 
   .falling-tile-fill-a {
-    transform: translateZ(calc(var(--tile-thickness) * -0.28));
+    transform: translateZ(calc(var(--tile-thickness) * -0.25));
   }
 
   .falling-tile-fill-b {
@@ -170,15 +169,13 @@
   }
 
   .falling-tile-fill-c {
-    transform: translateZ(calc(var(--tile-thickness) * 0.28));
+    transform: translateZ(calc(var(--tile-thickness) * 0.25));
   }
 
   .falling-tile-face,
   .falling-tile-side {
     position: absolute;
     box-sizing: border-box;
-    /* Sharp cube corners — rounding caused visible corner gaps with sides. */
-    border-radius: 0;
     border: 0;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
@@ -190,7 +187,7 @@
     height: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    /* Flatten letter/points onto the face so they hide with backface-visibility. */
+    border-radius: var(--tile-radius);
     transform-style: flat;
   }
 
@@ -204,8 +201,8 @@
       var(--color-tile-face-edge) 100%
     );
     box-shadow:
-      0 calc(4px + var(--tile-depth) * 10px)
-        calc(10px + var(--tile-depth) * 14px) var(--color-tile-shadow),
+      0 calc(3px + var(--tile-depth) * 8px)
+        calc(8px + var(--tile-depth) * 12px) var(--color-tile-shadow),
       inset 2px 2px 3px color-mix(in srgb, white 55%, transparent),
       inset -2px -2px 4px color-mix(in srgb, #6a5428 24%, transparent);
   }
@@ -239,11 +236,10 @@
     -webkit-backface-visibility: hidden;
   }
 
-  /* Recessed center “well” — slightly deeper middle like a physical tile. */
   .falling-tile-well {
     position: absolute;
     inset: 12%;
-    border-radius: calc(var(--radius-tile) * 0.55);
+    border-radius: calc(var(--tile-radius) * 0.85);
     background: radial-gradient(
       circle at 50% 45%,
       color-mix(in srgb, var(--color-tile-face) 75%, #c4a96a) 0%,
@@ -270,23 +266,26 @@
     transform: rotateY(180deg) translateZ(calc(var(--tile-thickness) / 2));
   }
 
-  /* Solid continuous wood edge — deeper than thickness so front/back meet sides. */
+  /*
+    Sides sit between the face corner radii and use half-thickness rounding
+    on the short ends so they curve into the front/back instead of a hard gap.
+  */
   .falling-tile-side {
     background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-tile-face-edge) 85%, #b89555) 0%,
-      color-mix(in srgb, var(--color-tile-back) 65%, #6e5a32) 100%
+      90deg,
+      color-mix(in srgb, var(--color-tile-face-edge) 90%, #b89555) 0%,
+      color-mix(in srgb, var(--color-tile-back) 70%, #6e5a32) 100%
     );
+    border-radius: calc(var(--tile-thickness) / 2);
   }
 
   .falling-tile-side-left,
   .falling-tile-side-right {
-    /* Width maps to cube depth after rotateY — must cover front↔back + seal. */
-    width: calc(var(--tile-thickness) + 2 * var(--tile-seal));
-    height: calc(100% + 2 * var(--tile-seal));
-    top: calc(-1 * var(--tile-seal));
+    width: var(--tile-thickness);
+    height: calc(100% - 2 * var(--tile-radius));
+    top: var(--tile-radius);
     left: 50%;
-    margin-left: calc((var(--tile-thickness) + 2 * var(--tile-seal)) / -2);
+    margin-left: calc(var(--tile-thickness) / -2);
   }
 
   .falling-tile-side-left {
@@ -299,12 +298,11 @@
 
   .falling-tile-side-top,
   .falling-tile-side-bottom {
-    width: calc(100% + 2 * var(--tile-seal));
-    /* Height maps to cube depth after rotateX — must cover front↔back + seal. */
-    height: calc(var(--tile-thickness) + 2 * var(--tile-seal));
-    left: calc(-1 * var(--tile-seal));
+    width: calc(100% - 2 * var(--tile-radius));
+    height: var(--tile-thickness);
+    left: var(--tile-radius);
     top: 50%;
-    margin-top: calc((var(--tile-thickness) + 2 * var(--tile-seal)) / -2);
+    margin-top: calc(var(--tile-thickness) / -2);
   }
 
   .falling-tile-side-top {
