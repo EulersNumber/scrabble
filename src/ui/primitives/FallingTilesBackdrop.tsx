@@ -46,6 +46,7 @@ export function FallingTilesBackdrop({ intensity }: FallingTilesBackdropProps) {
           <div className="falling-tile-tilt">
             <div className="falling-tile-inner">
               <div className="falling-tile-face falling-tile-face-front">
+                <span className="falling-tile-well" />
                 <span className="falling-tile-letter">{tile.letter}</span>
                 <span className="falling-tile-points">{tile.points}</span>
               </div>
