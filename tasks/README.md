@@ -1,8 +1,8 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation. **T0.1–T5.2 are done** (MVP checklist closed). Continue from **T6.0** (backlog triage).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D30), including soft rotation. **T0.1–T6.0 are done** (MVP closed; post-MVP triage locked). Continue from **T7.1**.
 
-Each task should be one focused change, with tests where the task says so. Commit when the user asks.
+Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
 Suggested order is the numbering below. A task may be split further if it grows.
 
@@ -218,19 +218,131 @@ Home must support both **new game** and **continue** (resume an in-progress game
 
 ### T6.0 Backlog triage and implementation plan
 
-- **Status:** todo (next after T5.2).
-- **Goal:** Review the full post-MVP backlog (**P1–P14**), prioritize with the human, and break the chosen slice into small numbered implementation tasks for separate chats.
+- **Status:** done (2026-09-27).
+- **Goal:** Review the full post-MVP backlog (**P1–P17**), prioritize with the human, and break the chosen slice into small numbered implementation tasks for separate chats.
 - **Acceptance:**
   - Ordered shortlist (what to build next vs later / park).
   - Chosen items split into focused tasks with rough acceptance notes (no need to implement yet).
   - `tasks/README.md` updated so tomorrow’s work can pick one task at a time.
-- **Notes:** Docs/planning only unless a tiny clarification fix is required. Prefer not to invent new product scope beyond what is already captured in P*.
+- **Notes:** Docs/planning only. Human priorities from family play + triage chat: (1) brand + falling tiles as one visual chunk, (2) turn-focused scoring with calculator keypad, (3) delete from open game detail, (4) Finnish dictionary later with feasibility notes. New backlog: **P15–P17**. Decisions: **D30** (delete from open game), **D31** (numeric keypad), **D32** (dictionary approach). Next work starts at **T7.1**.
 
 ---
 
-## Post-MVP ideas (not scheduled)
+## 7. Post-MVP implementation (one chunk per agent)
 
-Capture product wishes here without pulling them into T1–T5. Promote to numbered tasks only after a decision update when we choose to build them.
+Build in this order. Do not start the next numbered task until the previous is reviewed/merged unless the human says otherwise.
+
+### Priority shortlist (T6.0)
+
+| Priority | Build now | Park / later |
+| --- | --- | --- |
+| 1 | **P10 + P2** brand atmosphere + falling tiles (grouped) | **P1** celebration / turn timer |
+| 2 | **P16** delete from open game detail | **P4** stats / leaderboards |
+| 3 | **P3 + P15 + P13** turn-focused UI + calculator keypad + action hierarchy | **P5** rack runoff |
+| 4 | **P11, P12, P14** polish | **P6** skip-twice elimination |
+| 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
+| — | — | **P8** PWA shell; **P9** cross-device sync |
+
+### T7.1 Brand home + falling Scrabble tiles (P10 + P2)
+
+- **Status:** todo (next).
+- **Goal:** Give the home hub a strong brand/atmosphere signal, with ambient rectangular letter tiles that fall top → bottom and slowly spin (letter face sometimes visible). Same motion may run dimmed on other screens so focus stays on controls.
+- **Acceptance:**
+  - Home first viewport reads as one branded composition (product name hero-level; not a sparse button list on a flat green field).
+  - Visual direction uses existing D27 tokens/primitives; extend `@theme` as needed. Avoid purple/AI-generic clichés and the cream/terracotta/serif cluster.
+  - Falling tiles: mathematical fall/spin (no game-engine dependency); do not block taps; respect `prefers-reduced-motion` (static or no motion).
+  - Other screens: tiles absent or clearly dimmed/pushed back.
+  - No scorepad behavior changes.
+- **Notes:** One agent chunk by design (human: brand + tiles are “one”). Split only if the PR grows unwieldy (atmosphere tokens first, then motion). Decide canvas vs CSS/DOM in-task; prefer the simpler approach that stays performant on older phones/iPads.
+
+### T7.2 Delete from open game detail (P16 / D30)
+
+- **Status:** todo.
+- **Goal:** Allow deleting the currently open game (in progress or finished) from the active-game / detail view, with the same confirm pattern as list delete.
+- **Acceptance:**
+  - Destructive control is secondary (not competing with “Tallenna vuoro”); confirm required.
+  - After delete, navigate back to home (or continue/history list); game gone from store.
+  - List delete remains.
+  - Works for both `in_progress` and `finished`.
+- **Notes:** Small independent chunk. Use cases already support delete (T3.2); this is UI + D30. Good to land before or right after the turn-UI rewrite so abandoned sittings are easy to clear while staring at the game.
+
+### T7.3 Turn-focused active-game shell (P3)
+
+- **Status:** todo.
+- **Goal:** Reshape active game so the first viewport is “this turn,” not a long dashboard scroll.
+- **Acceptance:**
+  - Compact standings banner at top.
+  - Primary content: current/suggested player, large score/pass actions, optional word secondary.
+  - Hint of who’s next (soft rotation) without forcing that seat.
+  - History / undo / finish as secondary navigation or sheets — not dominating the first viewport.
+  - Domain soft-rotation rules unchanged (D13).
+- **Notes:** Presentation only. Wire existing record/undo/edit/finish use cases. Numeric keypad is **T7.4** (can be same PR if small; prefer separate if either grows). Dimmed tiles from T7.1 may sit behind content.
+
+### T7.4 Calculator-style score keypad (P15 / D31)
+
+- **Status:** todo.
+- **Goal:** Enter turn points with a large on-screen digit pad (no system keyboard for the score), plus a large primary OK / save control sized for fat-finger table use.
+- **Acceptance:**
+  - Digit pad primitive (D27): big hit targets; clear/backspace; builds an integer score.
+  - Large primary confirm (e.g. OK / Tallenna) — hard to miss-tap.
+  - Pass remains a clear secondary path (score 0).
+  - Optional word still uses a text field when the user wants it; points entry must not require the system keyboard.
+  - Works in add-turn and edit-turn flows (or edit gets the pad in a follow-up if scope blows up — note in PR).
+  - Unit tests for pad value building / parse helpers where non-trivial.
+- **Notes:** Depends on T7.3 layout (or lands together). Do not invent auto-scoring.
+
+### T7.5 Action hierarchy pass (P13)
+
+- **Status:** todo.
+- **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on save first.
+- **Acceptance:** New or extended Button / ConfirmPanel variants in primitives; screens compose them (no one-off chrome in `*Screen.tsx`).
+- **Notes:** Often natural to fold into T7.3/T7.4; keep as its own checkbox so it is not forgotten. Skip a separate PR if already satisfied in those tasks.
+
+### T7.6 Edit-turn affordance (P11)
+
+- **Status:** todo.
+- **Goal:** Make “edit a turn from two–three turns ago” obvious without teaching.
+- **Acceptance:** Visible edit affordance or hint on history rows / under Vuorot; behavior still D11.
+
+### T7.7 Richer game-list rows (P12)
+
+- **Status:** todo.
+- **Goal:** Continue/history rows show enough to recognize a sitting (e.g. leader or ordered totals), not only names + date + turn count.
+- **Acceptance:** Derived from existing standings helpers; delete control stays clearly tied to its row.
+
+### T7.8 Lightweight save feedback (P14)
+
+- **Status:** todo.
+- **Goal:** Brief confirmation after record/edit so table users trust the save.
+- **Acceptance:** Subtle (toast, inline flash, or standings highlight) — not a noisy snackbar farm.
+
+### T8.1 Dictionary seam + advisory headword check (P17 phase A)
+
+- **Status:** todo (after T7 scoring UX; not top priority).
+- **Goal:** First offline word-check slice: advisory lookup against Kotus **Nykysuomen sanalista** (CC BY 4.0), wired through the empty dictionary seam — not a scrape of kielitoimistonsanakirja.fi.
+- **Acceptance:**
+  - Optional word field can show valid / unknown against headwords (lemmas).
+  - Never blocks recording a score (advisory only).
+  - Attribution for Kotus / CC BY visible where appropriate.
+  - Bundle or lazy-load strategy documented (size vs offline).
+  - Tests for normalize + lookup helpers.
+- **Notes:** Full Kielitoimiston sanakirja content/API is copyrighted and has no sanctioned public API for bulk use. See **P17** feasibility. Inflected forms (plurals, cases) are **T8.2**.
+
+### T8.2 Inflected-form checking (P17 phase B)
+
+- **Status:** todo (after T8.1).
+- **Goal:** Check played surface forms (e.g. plural/case), not only dictionary headwords — via expanding Kotus inflection types and/or an offline morphology engine (e.g. Voikko WASM), still advisory.
+- **Acceptance:**
+  - Common noun/adjective/verb surface forms resolve when the lemma would.
+  - Still offline-capable after assets cached; still advisory.
+  - Decision update if a specific engine/dependency is chosen.
+- **Notes:** Larger than T8.1; do not start until phase A proves useful at the table.
+
+---
+
+## Post-MVP ideas (reference)
+
+Capture product wishes here. Promoted items stay listed with pointer to T7/T8 tasks.
 
 ### P1. End-of-game celebration + light recap (+ turn timer foundation)
 
@@ -249,22 +361,22 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 
 ### P2. Falling Scrabble-tile background animation
 
-- **Status:** idea (backlog only; not MVP).
+- **Status:** promoted → **T7.1** (with P10).
 - **Goal:** Ambient rectangular letter tiles (like physical Scrabble tiles) fall slowly top → bottom with a slow spin (letter face sometimes visible, sometimes the back).
 - **Screen treatment (product choice — accepted for post-MVP):**
   - **Home:** tiles are a **key visual** — prominent and engaging.
   - **Other screens** (new game, active game, history, etc.): same animation may still run, but **dimmed / pushed back** so focus stays on scores, words, and controls.
-- **Approach sketch (when promoted):**
+- **Approach sketch:**
   - Store tile geometry (and letter face styling) in the codebase
   - Drive motion with a mathematical fall/spin definition (no heavy game-engine dependency unless we later decide otherwise)
   - Must not block taps or compete with primary content
-- **Still open when promoting:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
-- **Notes:** Pure polish / engagement. Do not pull into T4–T5.
+- **Still open in T7.1:** canvas vs CSS/WebGL; `prefers-reduced-motion` behavior; performance on older phones/iPads.
+- **Notes:** Pure polish / engagement. Grouped with **P10** as one agent chunk (human priority).
 - **T5.2 note:** Home today is correct but sparse (title + three buttons on a flat surface). P2 (and/or **P10**) would give the hub a stronger brand/atmosphere signal.
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
-- **Status:** idea (backlog only; not MVP). Bigger UX direction than T4.2’s combined standings + form layout.
+- **Status:** promoted → **T7.3** (keypad **T7.4**, hierarchy **T7.5**).
 - **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
 - **Sketch:**
   - Compact **standings banner** at the top (who’s leading / current totals)
@@ -272,9 +384,7 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
   - **Hint of who’s next** (soft rotation) without forcing that seat
   - Dimmed falling tiles (P2) behind the content on this screen
   - **History / undo / finish** as secondary navigation or separate sheets/screens so the first viewport is “this turn,” not the whole sitting
-- **Why backlog, not now:** Needs undo/edit (T4.3) and finish (T4.4) designed into the same flow; reworking mid-T4 would churn unfinished screens. Finish the MVP scorepad path first, then promote this as a visual/UX pass (can replace or reshape the T4.2 layout).
-- **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Promote with a short decision + acceptance criteria before coding.
-- **T5.2 note:** Confirmed pain — active game is a long single scroll (standings + full player radio list + score/word + pass + undo + full history + finish). Secondary buttons (**Vuoro ohi**, **Kumoa**, **Lopeta**) look similar; finish is easy to miss at the bottom. Strong candidate to promote early in T6.0.
+- **Notes:** Does not change domain soft-rotation rules (D13); it’s presentation. Calculator pad is **P15**. Confirmed pain from family play — promote early after brand chunk.
 
 ### P4. Statistics and leaderboards
 
@@ -338,44 +448,73 @@ Capture product wishes here without pulling them into T1–T5. Promote to number
 
 ### P10. Visual atmosphere and brand presence (home-first)
 
-- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Status:** promoted → **T7.1** (with P2).
 - **Goal:** Give the scorepad a clearer visual identity beyond flat green buttons on a flat surface — especially on **home**, which currently passes the “functional hub” bar but not a strong brand/atmosphere bar.
-- **Candidates:** richer background (gradient / subtle table texture — not purple/AI-generic clichés); stronger typography hierarchy; maybe a simple static tile motif if **P2** motion is deferred; keep D27 tokens/primitives.
-- **Notes:** Complements **P2** (motion) without requiring it. Do not expand into marketing-site chrome. Promote with a short visual direction note.
+- **Candidates:** richer background (gradient / subtle table texture — not purple/AI-generic clichés); stronger typography hierarchy; tile motif via **P2** motion; keep D27 tokens/primitives.
+- **Notes:** Complements **P2** (motion). Do not expand into marketing-site chrome.
 
 ### P11. Edit-turn discoverability and affordance
 
-- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Status:** promoted → **T7.6**.
 - **Goal:** Make “fix a turn from two–three turns ago” obvious without teaching. Today tap-to-edit works but history rows look read-only (no Muokkaa / pencil / hint).
 - **Candidates:** edit affordance on rows; short hint under **Vuorot**; dedicated edit sheet/screen; keep undo for last-only mistakes.
-- **Notes:** Behavior already meets MVP (D11). This is UX clarity only. May ship with **P3** or alone as a small polish task.
+- **Notes:** Behavior already meets MVP (D11). This is UX clarity only.
 
 ### P12. Richer game-list rows (winner / final totals)
 
-- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Status:** promoted → **T7.7**.
 - **Goal:** On **Päättyneet pelit** (and maybe continue), show enough to recognize a sitting at a glance — e.g. winner or ordered totals — not only names + date + turn count.
-- **Notes:** Presentation-only; derive from existing standings helpers. Pairs well with **P7**. Delete control should stay clearly tied to its row (already per-row; consider less “ghost link under card” chrome when polishing).
+- **Notes:** Presentation-only; derive from existing standings helpers. Pairs well with **P7**. Delete control should stay clearly tied to its row.
 
 ### P13. Action hierarchy and destructive/secondary styling
 
-- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Status:** promoted → **T7.5** (may fold into T7.3/T7.4).
 - **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on **Tallenna vuoro** first and finish/delete feel appropriately secondary or cautious.
 - **Candidates:** new Button variants or ConfirmPanel emphasis in primitives (D27); keep screens free of one-off chrome.
-- **Notes:** Small design-system pass; can land before or with **P3**.
+- **Notes:** Small design-system pass; lands with turn-focused UI.
 
 ### P14. Lightweight save / state feedback
 
-- **Status:** idea (backlog only; not MVP). From T5.2 sitting (2026-09-26).
+- **Status:** promoted → **T7.8**.
 - **Goal:** After recording or editing a turn, give a brief confirmation (toast, inline flash, or standings highlight) so table users trust the save without re-reading the whole history list.
-- **Notes:** Keep subtle — family scorepad, not a noisy snackbar farm. Optional nicety once core layout (**P3**) settles.
+- **Notes:** Keep subtle — family scorepad, not a noisy snackbar farm.
+
+### P15. Calculator-style score keypad (fat-finger OK)
+
+- **Status:** promoted → **T7.4** (D31).
+- **Goal:** Replace system-keyboard score typing with a large on-screen digit pad and a large primary OK/save — table play with thumbs, minimal fat-finger errors.
+- **Why:** Family play showed point entry is the hot path; a phone keyboard is the wrong tool for “enter 24 and confirm.”
+- **Notes:** Optional word can still use a text field. Pass = explicit 0 path. Pairs with **P3**.
+
+### P16. Delete from open game detail
+
+- **Status:** promoted → **T7.2** (D30).
+- **Goal:** Delete the currently open game (in progress or finished) from the active-game / detail screen, with confirm — not only from continue/history lists.
+- **Why:** List delete already works (D29 / T4.5), but during a sitting people look at the open game and expect “Poista” there too.
+- **Notes:** Use case already exists; UI + navigation after delete.
+
+### P17. Finnish word check (Kielitoimiston / Kotus lineage)
+
+- **Status:** idea → phased **T8.1 / T8.2** (after T7; not top priority). Feasibility captured 2026-09-27.
+- **Goal:** Let players optionally check whether a played word is a known Finnish word, ideally **offline**, including common **inflected forms** (plurals, cases, etc.).
+- **Product constraints:**
+  - **Advisory only** — never block recording a turn score (scorepad trust stays with the table).
+  - Prefer offline after assets are present (cabin / weak network).
+- **Feasibility (research summary):**
+  - **Kielitoimiston sanakirja** (full dictionary at kielitoimistonsanakirja.fi): copyrighted database; **no sanctioned public API** for app bulk/offline use. Unofficial private web APIs / scraping are fragile and inappropriate.
+  - **Nykysuomen sanalista** (Kotus): ~100k+ **headwords** derived from Kielitoimiston sanakirja, with **inflection-type** and gradation codes; published **CC BY 4.0** as downloadable TXT — suitable to ship or build from for offline lemma checks (**T8.1**).
+  - **Inflected surface forms:** headword list alone is not enough for Scrabble plays like *kissoja*. Options: (a) generate paradigms from Kotus type tables, (b) offline morphology such as **Voikko** (WASM builds exist; dictionary size / licensing / dependency review required in-task). That is **T8.2**.
+  - Commercial MOT / Kielikone APIs exist but need network + licensing — poor fit for offline cabin use.
+- **Notes:** Architecture already has an empty dictionary seam — implement against that. Attribution required for Kotus CC BY. Do not pretend full Kielitoimiston article text is embedded.
 
 ---
 
 ## Out of backlog (do not pull into MVP silently)
 
-- Word validation, auto-scoring, accounts, sync, sharing, payments, alternate full rulesets.
+- Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
+- Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1** turn timer / recap, **P2** falling tiles, **P3** turn-focused UI, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere, **P11** edit affordance, **P12** richer list rows, **P13** action hierarchy, **P14** save feedback.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3, **P4** statistics & leaderboards, **P5** rack end-of-game adjustment, **P6** skip-twice elimination, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.6, **P12** richer list rows → T7.7, **P13** action hierarchy → T7.5, **P14** save feedback → T7.8, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2.
 
 ---
 
@@ -389,6 +528,8 @@ Tracked as post-MVP ideas above (do not expand T1–T5 without a decision): **P1
 6. Finnish UI flows (T4): T4.0–T4.5 done
 7. Offline verification (T5.1) — done; PWA deferred to **P8**
 8. MVP review (T5.2) — done; UX notes → **P10–P14**
-9. **Next:** T6.0 backlog triage → prioritized implementation tasks for P*
+9. Backlog triage (T6.0) — done; shortlist + **T7/T8** chunks; **P15–P17** added
+10. **Next agent:** **T7.1** brand home + falling tiles
+11. Then T7.2 → T7.8 (scoring UX + polish), then T8.1+ (dictionary) when ready
 
 Domain before UI so the learning project practices testable logic first.

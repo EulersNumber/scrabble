@@ -89,10 +89,10 @@ Later (not now), isolated modules:
 
 Two empty seams, unused in MVP:
 
-1. **Word validation** — would accept a word (and later a language/lexicon) and return valid/invalid.
+1. **Word validation** — would accept a word (and later a language/lexicon) and return valid/invalid. Post-MVP direction (**D32** / **P17**): advisory offline checks via Kotus **Nykysuomen sanalista** (then inflected forms); not a scrape of Kielitoimiston sanakirja.
 2. **Automatic scoring** — would accept a play description and return a point value.
 
-MVP records a user-supplied integer score and an optional string word. Do not call these modules. Do not build a fake dictionary “to be ready.”
+MVP records a user-supplied integer score and an optional string word. Do not call these modules until a promoted task (T8.x) lands. Do not build a fake dictionary “to be ready.”
 
 ## Domain model
 
@@ -167,10 +167,10 @@ Not stored as authority:
 Enough screens to support MVP; names can change:
 
 1. **Home** — hub: primary **new game**; secondary **continue** and **history** entry points (D17, D29).
-2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm (list only).
-3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm (list only).
+2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
+3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen. Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP).
+5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP layout direction: turn-focused shell + calculator keypad (D31 / T7.3–T7.4).
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 

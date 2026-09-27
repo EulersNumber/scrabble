@@ -192,29 +192,53 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ### D29. Home hub, history list, and list-only delete (T4.5)
 
-- **Status:** accepted
+- **Status:** accepted (open-game delete added later in **D30**).
 - **Decision:**
   - **Home** focuses on starting a game: primary control is **Uusi peli** (board-green primary button, large — spans the top row of a 2×2-style hub). Secondary controls open **Kesken olevat pelit** (continue list) and **Päättyneet pelit** (history list), side by side on the second row.
   - Continue list: in-progress only, newest `createdAt` first. History list: finished only, newest `finishedAt` first.
   - Opening an in-progress game goes to the active-game screen. Opening a finished game **reuses** that screen in its finished/read-only mode (reopen remains available). A dedicated past-game summary screen is post-MVP (**P7**).
-  - **Delete** (with confirm) is available on the **continue and history lists only**, for both in-progress and finished games. Not on the open active-game screen in MVP.
-- **Why:** Matches how the family plays (usually start → finish in one sitting); keeps home uncluttered; list delete covers abandoned/test games without opening them; avoids another destructive control on the busy score screen.
+  - **Delete** (with confirm) is available on the **continue and history lists**, for both in-progress and finished games.
+- **Why:** Matches how the family plays (usually start → finish in one sitting); keeps home uncluttered; list delete covers abandoned/test games without opening them.
+- **Follow-up:** Open-game delete added in **D30** after family play (T6.0).
+
+### D30. Delete from open game detail (T6.0 / T7.2)
+
+- **Status:** accepted (post-MVP).
+- **Decision:** The open active-game / detail view may offer **delete with confirm** for the current game (in progress or finished), in addition to list delete (D29). After delete, leave the detail view (typically return home). Styling stays secondary/destructive so it does not compete with scoring.
+- **Why:** During a sitting, users look at the open game and expect to remove abandoned or test games there; list-only delete was easy to miss.
+
+### D31. Calculator-style score entry (T6.0 / T7.4)
+
+- **Status:** accepted (post-MVP).
+- **Decision:** Turn point entry uses a large on-screen **digit pad** and a large primary confirm control (fat-finger friendly). The system keyboard is not required for entering points. Optional word may still use a text field. Pass remains an explicit zero path.
+- **Why:** Family table play is thumb-driven; numeric `inputMode` keyboards are awkward for “enter score and OK.”
+
+### D32. Finnish word check approach (T6.0 / P17)
+
+- **Status:** accepted direction (implement in **T8.x**, not before scoring UX).
+- **Decision:**
+  - Word check is **advisory only** — never blocks saving a turn score.
+  - Do **not** scrape or depend on unofficial kielitoimistonsanakirja.fi APIs; full dictionary articles remain out of scope.
+  - Prefer **offline** assets derived from Kotus open data (**Nykysuomen sanalista**, CC BY 4.0) for headword checks, then a later phase for **inflected forms** (paradigm expansion and/or Voikko-class morphology), with attribution.
+  - Implement behind the existing empty dictionary seam in architecture.
+- **Why:** Matches the user’s Kielitoimiston intent via the lawful open headword list; cabin play needs offline; morphology is a larger follow-up.
 
 ## Open
 
 ### Possible scope expansion (not in MVP)
 
-- **Skip-twice → player eliminated** — direction captured in backlog **P6** (warn before the eliminating pass; remaining players continue). Exact tournament vs house wording still open when promoted.
+- **Skip-twice → player eliminated** — direction captured in backlog **P6** (warn before the eliminating pass; remaining players continue). Exact tournament vs house wording still open when promoting.
 - Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
 - Tile exchange as a first-class turn type (vs recording 0).
-- **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoted (D12 has no roster in MVP).
-- **Falling tile ambient UI** — backlog **P2** (strong on home, dimmed elsewhere).
-- **Turn-focused active-game layout** — backlog **P3** (standings banner + per-turn primary actions). Presentation-only vs soft rotation (D13); promote after MVP T4 screens work.
+- **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
+- **Falling tile ambient UI** — promoted to **T7.1** (with **P10**); canvas vs CSS still open in-task.
+- **Turn-focused active-game layout** — promoted to **T7.3** (+ keypad **T7.4**).
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
 - **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
 - **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
 - **PWA / installable offline shell** — backlog **P8** (deferred from T5.1; cold start offline + Add to Home Screen).
 - **Cross-device shared history** — backlog **P9** (cabin visitors on different phones; same people/stats over time). Priority vs **P8** still open when promoting.
+- **Inflection engine choice for P17 phase B** — Voikko WASM vs generating forms from Kotus type tables; decide in **T8.2**.
 
 ---
 
@@ -255,3 +279,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | P8 (backlog) | 2026-09-26 | PWA / installable offline shell deferred from T5.1 |
 | P9 (backlog) | 2026-09-26 | Cross-device shared history + durable identity for cabin family stats |
 | T5.2 / P10–P14 | 2026-09-26 | MVP checklist closed; UX backlog P10–P14; next T6.0 triage |
+| T6.0 / D30–D32 / P15–P17 | 2026-09-27 | Backlog triage: T7/T8 chunks; delete-from-detail; keypad; Kotus word-check approach |
