@@ -3,34 +3,38 @@
 /*
   Design tokens (D27). Change colors/fonts here — UI primitives and screens
   read these via Tailwind theme utilities (bg-board, text-ink, font-display…).
+  T7.1: light modern sage green family — home and inner screens share one look.
 */
 
 @theme {
-  --color-board: #1f6b3a;
-  --color-board-dark: #16532c;
-  --color-board-deeper: #0f3d20;
-  --color-board-soft: #e7f1eb;
-  --color-ink: #142018;
-  --color-ink-muted: #4d5f54;
-  --color-surface: #eef3ef;
-  --color-surface-deep: #e2ebe5;
-  --color-panel: #fbfcfb;
-  --color-line: #c2d1c7;
+  /* Accent green (buttons, focus) — clean mid green, not deep forest. */
+  --color-board: #3d8f5c;
+  --color-board-dark: #2f7349;
+  --color-board-deeper: #25603c;
+  --color-board-soft: #d9ebe0;
+  --color-board-mist: #eaf4ee;
+
+  --color-ink: #1a2a20;
+  --color-ink-muted: #4d6356;
+  --color-surface: #f3f8f5;
+  --color-surface-deep: #e5efe9;
+  --color-panel: #fbfdfb;
+  --color-line: #c5d6cb;
   --color-on-board: #f7faf7;
-  --color-on-board-muted: #c5dbcce6;
+  --color-on-board-muted: #d5e8db;
 
   /* Classic Scrabble-tile ivory (product motif — not page chrome). */
   --color-tile-face: #f3e6c4;
   --color-tile-face-edge: #e0cfa0;
   --color-tile-back: #d7c49a;
   --color-tile-letter: #1a1814;
-  --color-tile-shadow: #0a241280;
+  --color-tile-shadow: #1a2a2033;
 
   --font-sans: 'Source Sans 3', ui-sans-serif, sans-serif;
   --font-display: 'Source Serif 4', ui-serif, Georgia, serif;
 
   --radius-control: 0.75rem;
-  --radius-tile: 0.4rem;
+  --radius-tile: 0.45rem;
 }
 
 @layer base {
@@ -46,25 +50,30 @@
 /* Ambient shell + falling tiles (T7.1 / P2 / P10) — chrome lives here. */
 
 @layer components {
+  /*
+    Hero and dimmed share the same light-sage family so continue/history
+    feel related to home (modern clean green, not dark felt vs grey).
+  */
   .app-shell-atmosphere-hero {
-    color: var(--color-on-board);
-    background-color: var(--color-board);
+    color: var(--color-ink);
+    background-color: var(--color-board-mist);
     background-image:
       radial-gradient(
-        ellipse 120% 80% at 50% -10%,
-        color-mix(in srgb, var(--color-board) 55%, white) 0%,
-        transparent 55%
+        ellipse 110% 75% at 50% -15%,
+        color-mix(in srgb, var(--color-board-soft) 90%, white) 0%,
+        transparent 58%
       ),
       radial-gradient(
-        ellipse 90% 60% at 100% 100%,
-        var(--color-board-deeper) 0%,
-        transparent 50%
+        ellipse 80% 55% at 100% 100%,
+        color-mix(in srgb, var(--color-board-soft) 70%, var(--color-board-mist))
+          0%,
+        transparent 55%
       ),
       linear-gradient(
         165deg,
-        var(--color-board) 0%,
-        var(--color-board-dark) 48%,
-        var(--color-board-deeper) 100%
+        var(--color-board-mist) 0%,
+        var(--color-board-soft) 52%,
+        var(--color-surface-deep) 100%
       );
   }
 
@@ -74,12 +83,13 @@
     background-image:
       radial-gradient(
         ellipse 100% 70% at 50% 0%,
-        var(--color-board-soft) 0%,
+        var(--color-board-mist) 0%,
         transparent 55%
       ),
       linear-gradient(
         180deg,
-        var(--color-surface) 0%,
+        var(--color-board-mist) 0%,
+        var(--color-surface) 45%,
         var(--color-surface-deep) 100%
       );
   }
@@ -92,18 +102,19 @@
     perspective: 900px;
   }
 
+  /* Soft ambient — readable behind content, not attention-grabbing. */
   .falling-tiles-hero {
-    opacity: 0.92;
+    opacity: 0.55;
   }
 
   .falling-tiles-dimmed {
-    opacity: 0.22;
+    opacity: 0.32;
   }
 
   .falling-tile {
     position: absolute;
     left: calc(var(--tile-x) * 1%);
-    top: -14%;
+    top: -18%;
     width: calc(var(--tile-size) * 1rem);
     height: calc(var(--tile-size) * 1rem);
     transform: rotate(var(--tile-tilt));
@@ -129,7 +140,7 @@
     backface-visibility: hidden;
     box-shadow:
       0 1px 0 color-mix(in srgb, var(--color-tile-face-edge) 80%, black),
-      0 6px 14px var(--color-tile-shadow);
+      0 8px 18px var(--color-tile-shadow);
   }
 
   .falling-tile-face-front {
@@ -162,10 +173,10 @@
 
   @keyframes tile-fall {
     from {
-      transform: translate3d(0, -12vh, 0) rotate(var(--tile-tilt));
+      transform: translate3d(0, -14vh, 0) rotate(var(--tile-tilt));
     }
     to {
-      transform: translate3d(0, 118vh, 0) rotate(var(--tile-tilt));
+      transform: translate3d(0, 120vh, 0) rotate(var(--tile-tilt));
     }
   }
 

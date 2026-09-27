@@ -14,9 +14,9 @@ type HomeScreenProps = {
 /**
  * Home hub: branded first viewport with falling-tile atmosphere (T7.1 / P10 / P2).
  *
- * Product name stays hero-level; primary action is new game; continue and
- * history share the second row (D29). Visual chrome comes from tokens +
- * primitives (D27) — screens only arrange layout.
+ * Shares the light sage-green shell family with continue/history. Product name
+ * stays hero-level; primary action is new game; continue and history share the
+ * second row (D29). Visual chrome comes from tokens + primitives (D27).
  */
 export function HomeScreen({
   onNewGame,
@@ -27,30 +27,20 @@ export function HomeScreen({
     <AppShell atmosphere="hero">
       <ScreenHeader
         size="hero"
-        tone="onBoard"
         title={strings.appTitle}
         subtitle={strings.homeSubtitle}
       />
 
       <div className="grid grid-cols-2 gap-3 md:gap-4">
         <div className="col-span-2">
-          <Button
-            fullWidth
-            size="hero"
-            variant="inverse"
-            onClick={onNewGame}
-          >
+          <Button fullWidth size="hero" onClick={onNewGame}>
             {strings.newGame}
           </Button>
         </div>
-        <Button
-          variant="inverseSecondary"
-          fullWidth
-          onClick={onContinueList}
-        >
+        <Button variant="secondary" fullWidth onClick={onContinueList}>
           {strings.continueSection}
         </Button>
-        <Button variant="inverseSecondary" fullWidth onClick={onHistory}>
+        <Button variant="secondary" fullWidth onClick={onHistory}>
           {strings.historySection}
         </Button>
       </div>

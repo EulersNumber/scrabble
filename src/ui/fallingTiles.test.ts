@@ -9,7 +9,7 @@ describe('buildFallingTileSpecs', () => {
     const hero = buildFallingTileSpecs('hero')
     const dimmed = buildFallingTileSpecs('dimmed')
     expect(hero.length).toBeGreaterThan(dimmed.length)
-    expect(hero.length).toBeGreaterThanOrEqual(12)
+    expect(hero.length).toBeGreaterThanOrEqual(10)
     expect(dimmed.length).toBeGreaterThanOrEqual(6)
   })
 
@@ -20,14 +20,18 @@ describe('buildFallingTileSpecs', () => {
     )
   })
 
-  it('keeps tiles on-screen horizontally with positive motion timings', () => {
+  it('keeps tiles large with slow, variable fall and spin timings', () => {
+    const hero = buildFallingTileSpecs('hero')
+    const spinSet = new Set(hero.map((tile) => tile.spinDurationSec))
+    expect(spinSet.size).toBeGreaterThan(1)
+
     for (const intensity of ['hero', 'dimmed'] as const) {
       for (const tile of buildFallingTileSpecs(intensity)) {
         expect(tile.xPercent).toBeGreaterThanOrEqual(0)
         expect(tile.xPercent).toBeLessThanOrEqual(100)
-        expect(tile.fallDurationSec).toBeGreaterThan(0)
-        expect(tile.spinDurationSec).toBeGreaterThan(0)
-        expect(tile.sizeRem).toBeGreaterThan(0)
+        expect(tile.fallDurationSec).toBeGreaterThanOrEqual(40)
+        expect(tile.spinDurationSec).toBeGreaterThanOrEqual(20)
+        expect(tile.sizeRem).toBeGreaterThanOrEqual(3)
         expect(tile.staticTopPercent).toBeGreaterThanOrEqual(0)
         expect(tile.staticTopPercent).toBeLessThanOrEqual(100)
         expect(FALLING_TILE_LETTERS).toContain(tile.letter)

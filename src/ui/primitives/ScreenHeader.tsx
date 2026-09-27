@@ -7,7 +7,7 @@ type ScreenHeaderProps = {
   size?: 'hero' | 'page'
   /**
    * Text tone for the surface behind the header.
-   * `onBoard` is for the home felt-green hero (T7.1).
+   * `onBoard` is reserved for dark board surfaces; light sage shells use `default`.
    */
   tone?: 'default' | 'onBoard'
 }

@@ -231,7 +231,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
-- **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); `prefers-reduced-motion` uses static faces/backs.
+- **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
 - **Turn-focused active-game layout** — promoted to **T7.3** (+ keypad **T7.4**).
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
 - **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).

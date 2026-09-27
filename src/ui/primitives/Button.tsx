@@ -23,10 +23,10 @@ const variantClass: Record<ButtonVariant, string> = {
     'border border-line bg-panel text-ink active:bg-board-soft hover:bg-board-soft',
   ghost:
     'bg-transparent text-ink-muted underline-offset-2 hover:underline active:text-ink',
-  /** Cream tile-face control for board-green hero surfaces (T7.1). */
+  /** Cream tile-face control for dark board surfaces if needed. */
   inverse:
     'bg-tile-face text-tile-letter active:bg-tile-face-edge hover:bg-tile-face-edge',
-  /** Outlined light control for secondary actions on hero surfaces (T7.1). */
+  /** Outlined light control for dark board surfaces if needed. */
   inverseSecondary:
     'border border-on-board/45 bg-board-dark/35 text-on-board backdrop-blur-sm active:bg-board-dark/55 hover:bg-board-dark/50',
 }
