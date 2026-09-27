@@ -105,11 +105,12 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Not in MVP domain:** tile bag, exchanges as a special action, challenges, “skip twice → eliminated,” automatic end when everyone passes in a row. The user still **finishes** the game manually.
 - **Why soft, not strict:** Physical Scrabble is rotational; the app should reflect that. Soft mode keeps the rule in logic without blocking the scorepad when logging lags the board.
 - **Why not full Scrabble turn ruleset now:** This product is a scorepad (D1). Encoding every official end-condition and house rule (e.g. two skips → drop out) is a scope expansion; leave seams, implement later if wanted.
+- **Post-MVP (2026-09-27):** **D36** supersedes the “log any seat” part. Seating order and pass = 0 stay. New turns must be for the current player; end-game / elimination are **D37** / **P5** / **P6**.
 
 ### D14. Score constraints (was O6)
 
 - **Status:** accepted
-- **Decision:** Integer scores only. Zero is allowed (pass). Negatives are allowed (challenge / table correction). No automatic bingo rule. Reject non-integers. No domain max; the UI may use a sanity cap (e.g. 9999) to catch typos.
+- **Decision:** Integer scores only. Zero is allowed (pass). Negatives are allowed (challenge / table correction, and later end-game rack deductions in **D37**). No automatic bingo rule. Reject non-integers. No domain max; the UI may use a sanity cap (e.g. 9999) to catch typos. The keypad includes ± (D33). Everyday mid-game scores are usually 0 or positive; official leftover-tile negatives belong to the end-game flow (**D37** / **P5**), not typing −12 as a normal turn.
 
 ### D15. Ties in standings (was O7)
 
@@ -229,10 +230,10 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Decision:** After setup (names + who starts), the in-progress game screen records **one turn for one player** at a time. Top → bottom:
   1. **Top bar** (D34): back, compact title, menu icon.
   2. **Podium standings banner**: ranked totals in a compact “olympic podium” shape (1st centre/tallest, 2nd left, 3rd right; a 4th player sits as a small chip beside the podium). Ties share a step (D15). The current player is highlighted. Totals stay derived (D3).
-  3. **Current player** shown large (suggested current by default, D13). Tapping the name opens a small picker to log a different seat (soft rotation stays).
-  4. **Score display + calculator keypad** (D31) take **most of the screen**: digits 0–9, backspace, clear, and a small sign toggle (±) for negative corrections (D14).
+  3. **Current player** shown large — this is the only seat that can receive a new turn (**D36**). The name is not a picker. To fix a wrong player after the fact, use undo or edit in **Vuorot** (D11).
+  4. **Score display + calculator keypad** (D31) take **most of the screen**: digits 0–9, backspace, clear, and a small sign toggle (±) for rare negative corrections (D14). **Pass is not a keypad key** — it is **Ohi** on the bottom bar.
   5. **Optional word** text field (system keyboard), visually secondary; never required (D18).
-  6. **Bottom action bar**: **Kumoa** (undo last, short confirm, D11), **Ohi** (records 0, explicit pass), and the large primary **Seuraava pelaaja** (save this turn and advance to the next suggested player). Primary is disabled while no score is entered.
+  6. **Bottom action bar**: **Kumoa** (undo last, short confirm, D11), **Ohi** (records 0, explicit pass), and the large primary **Seuraava pelaaja** (save this turn and advance to the next current player). Primary is disabled while no score is entered.
 - **Finished games:** the same screen shows the podium (final result), a read-only notice, and **Avaa peli uudelleen**. There is no keypad or bottom bar (D16).
 - **Not on this screen:** turn history, finish, delete, and settings. These go in the menu (D34).
 - **Why:** Family play showed the table needs “enter this player’s points, next” with fat-finger targets; everything else is secondary.
@@ -246,14 +247,43 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 ### D35. App settings and sounds (replan 2026-09-27)
 
-- **Status:** accepted direction (post-MVP; spec extension). Details marked *proposed* await confirmation.
+- **Status:** accepted (post-MVP; spec extension).
 - **Decision:**
   - **Settings** are app-wide (not per game). They are stored as their own small JSON document in `localStorage` behind a `SettingsStore` (same pattern as D9). They are never mixed into the `Game` document.
   - First setting: **sounds on / off (mute)**. More settings are added only when a task needs them.
-  - Sounds are short UI cues synthesized with the **Web Audio API**: no audio files, no dependency, and they work offline. *Proposed* events are turn saved, pass, undo, and game finished. Keypad tap clicks are optional and off by default.
-  - *Proposed* default: sounds **on**. Mute sits in Asetukset (reachable from the game menu and home top bar).
+  - Sounds are short UI cues synthesized with the **Web Audio API**: no audio files, no dependency, and they work offline.
+  - **Default: on.** Mute sits in Asetukset (reachable from the game menu and home top bar).
+  - Cue families (confirmed):
+    - **Progress** — **Seuraava pelaaja** (turn saved and the seat advances).
+    - **Revert** — **Kumoa** (and a successful edit that undoes a mistake may reuse this family).
+    - **Action** — **Ohi** (pass) and **Lopeta peli** (finish), so those taps are acknowledged without sounding like “next.”
+  - No keypad-digit click sounds.
   - Sound playback is a UI concern. The domain and use cases never trigger sounds.
-- **Why:** User wish for settings + sounds with mute; keeps persistence and layers consistent.
+- **Why:** User wish for settings + sounds with mute; next vs undo should be distinguishable by ear.
+
+### D36. Strict turn order (replan 2026-09-27)
+
+- **Status:** accepted (post-MVP; supersedes D13’s “log any seat”).
+- **Decision:**
+  - Seating order stays `Game.players` list order. The starter is still chosen at create (D25).
+  - `currentPlayerId` is **whose turn it is**, not a suggestion. A new turn must be for that player. `recordTurn` **rejects** any other `playerId`.
+  - After a turn (score or pass) for the current player, the pointer advances to the **next active seat** (wrap). Until **P6** / **D37** land, every seated player is active.
+  - The table must take an action for the current player: enter points and **Seuraava pelaaja**, or **Ohi**. There is no skip-ahead and no player picker on the turn screen.
+  - **Undo last** still restores the previous current player. **Edit** on a historical turn may still change player / score / word (D11) — that is correction, not rotation. After edit/undo, current is recomputed from remaining history (next seat after the last remaining turn, or the starter if empty), then skip inactive seats once those exist.
+  - Existing saved games stay valid: history may contain off-rotation turns from the MVP soft era. New recordings follow this rule.
+- **Why:** Official Scrabble is sequential. Soft catch-up made the scorepad sloppy; mistakes are handled by undo/edit.
+- **Still later:** skip eliminated players (**P6**); end when someone plays out and the bag is empty (**D37** / **P5**).
+
+### D37. Official-style game end and leftover tiles (replan 2026-09-27)
+
+- **Status:** accepted direction (post-MVP; do **not** implement in T7.3–T7.6). Promoted as **P5** / **T10.1**.
+- **Decision:**
+  - Mid-game, every active player must take a turn (D36). The game does **not** auto-end yet.
+  - A later slice models the common end: a player **plays out** (uses their last tiles) **and** the pouch / bag is empty. The table confirms those facts — the app does not simulate the bag or racks until we add a thin confirmation, not a board engine.
+  - Then remaining players enter **leftover rack values**. Those amounts are **deducted** from them and typically **added** to the player who went out. Record them as **explicit scoring events** on the turn list (D3 / D14 negatives live here), then **finish**.
+  - Consecutive-pass endings and skip-twice elimination (**P6**) stay separate. Manual **Lopeta peli** remains until T10.1 ships.
+- **Open when implementing T10.1:** Finnish tile-value table vs typing a single integer per opponent; whether empty-bag is a required confirm; house vs tournament wording; interaction with undo.
+- **Why:** User confirmed negatives belong mainly to this end-game, not everyday scoring. Needs its own domain + UI, not a ± tap on a normal turn.
 
 ## Open
 
@@ -264,10 +294,12 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
-- **Turn-focused active-game layout** — replanned as **D33 / D34** (single-player keypad turn screen + top-bar menu), tasks **T7.3–T7.6**.
-- **D33 / D35 details awaiting confirmation:** bottom bar = Kumoa + Ohi + Seuraava pelaaja (vs pass as a keypad key); player switch by tapping the name; ± key on the keypad; sounds default on; which events play sounds.
+- **Turn-focused active-game layout** — **D33 / D34** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker). Tasks **T7.3–T7.6**.
+- **Strict rotation** — **D36** accepted; domain change lands with the turn-screen work (T7.5).
+- **Settings / sounds** — **D35** confirmed (default on; progress / revert / action cue families).
+- **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen).
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
-- **End-of-game rack tile runoff** — backlog **P5** (when someone plays out, leftover rack values deducted from others and credited to the player who went out; scorepad entry, not a board engine).
+- **End-of-game rack tile runoff** — **D37** / **P5** / **T10.1** (play out + empty pouch; leftover values as explicit turns; not everyday keypad negatives).
 - **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
 - **PWA / installable offline shell** — backlog **P8** (deferred from T5.1; cold start offline + Add to Home Screen).
 - **Cross-device shared history** — backlog **P9** (cabin visitors on different phones; same people/stats over time). Priority vs **P8** still open when promoting.
@@ -315,3 +347,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T7.1 / P2+P10 | 2026-09-27 | Brand home + CSS falling tiles; AppShell atmosphere; canvas deferred |
 | T6.0 / D30–D32 / P15–P17 | 2026-09-27 | Backlog triage: T7/T8 chunks; delete-from-detail; keypad; Kotus word-check approach |
 | D33–D35 / P19–P20 | 2026-09-27 | Replan: single-player keypad turn screen with podium banner; top-bar game menu (history / finish / delete / settings); app settings + Web Audio sounds with mute. First T7.3 attempt reverted |
+| D33–D37 confirm | 2026-09-27 | Bottom bar confirmed; strict rotation (D36); sounds default on with progress/revert/action cues; play-out + empty bag + rack runoff directed (D37) |

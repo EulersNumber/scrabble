@@ -64,11 +64,12 @@ Later (not now), isolated modules:
 - **Screens compose primitives.** Do not hard-code reusable control chrome (colors, borders, radii, focus rings) inside `*Screen.tsx`. Layout-only utilities (`flex`, `gap`, `mt-*`) are fine. If a new control look is needed, add/extend a primitive first.
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
-- **Turn screen direction (D33–D35, T7.3+):**
+- **Turn screen direction (D33–D37, T7.3+):**
   - Screens: `ActiveGameScreen` becomes the single-player **turn screen** (in progress) / **result view** (finished). A new `TurnHistoryScreen` handles history + edit, and a new `SettingsScreen` arrives in T9.1. `navigation.ts` gains `turn-history` and `settings` entries (still no URL router, D24).
   - New primitives: `TopBar` (back + title + icon actions), `MenuSheet` (bottom sheet list), `PodiumStandings`, `ScoreDisplay`, `ScoreKeypad`, `BottomActionBar`.
   - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty) and `podium.ts` (standings → podium slots with shared-rank steps, 2–4 players).
-  - Sounds: `src/ui/sound/` wraps Web Audio cues and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
+  - Sounds: `src/ui/sound/` wraps Web Audio cues (progress / revert / action) and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
+  - **D36:** new turns only for `currentPlayerId`. **D37 / T10.1:** later play-out + leftover tiles; not in T7.3–T7.6.
 - Does not own scoring rules or persistence details.
 - Should remain replaceable without rewriting domain logic. Domain must not import React.
 
@@ -115,7 +116,7 @@ A game is the aggregate root.
 | `finishedAt` | Set when finished; empty while in progress |
 | `players` | 2–4 players, seating order = list order |
 | `turns` | Ordered list of turns; **source of truth** for scores |
-| `currentPlayerId` | Suggested whose-turn (soft rotation); advanced after each recorded turn |
+| `currentPlayerId` | Whose turn it is. MVP shipped **soft** rotation (D13); post-MVP **D36** makes this the only legal seat for a new turn |
 
 Suggested invariants:
 
@@ -123,8 +124,10 @@ Suggested invariants:
 - Player ids are unique within the game.
 - Player display names are unique within the game (trimmed, case-insensitive); blank names rejected.
 - Turns refer to a player id that exists on the game.
-- Turns are ordered. Append a turn for any player (soft rotation: suggested player is highlighted in UI, not enforced). Remove only the last turn; edit score/word/player on any turn.
-- After recording a turn for player P, set suggested current to the next seat after P (wrap).
+- Turns are ordered. Remove only the last turn; edit score/word/player on any turn (D11).
+- **MVP (D13):** a new turn may be for any seated player; `currentPlayerId` is a suggestion.
+- **Post-MVP (D36, T7.5):** a new turn must be for `currentPlayerId`; reject others. After that turn, set current to the next **active** seat (wrap). Until T10.x, every seated player is active.
+- **Later (D37 / P5 / P6):** skip eliminated players; play-out + empty bag records leftover-tile adjustments then finish.
 - When `status` is `finished`, scoring mutations are not allowed until the game is reopened.
 - Deleting a game removes its document (UI confirms first).
 - Totals are not stored as required fields on the game.
@@ -164,7 +167,7 @@ Not stored as authority:
 ## Data flow (happy path)
 
 1. User creates a game with 2–4 names → application creates a `Game` (`in_progress`) → persistence saves it.
-2. User enters a score (optional word) for a player (default: suggested current; other players allowed) → application appends a `Turn`, advances suggested current to next seat → persistence saves → UI shows derived standings.
+2. User enters a score (optional word) for the **current** player (D36; MVP still allows any seat until T7.5) → application appends a `Turn`, advances current to the next active seat → persistence saves → UI shows derived standings.
 3. User corrects a mistake → application removes or replaces a turn → persistence saves → standings recompute from turns.
 4. User finishes the game → status becomes `finished`, `finishedAt` set → persistence saves. Reopen returns it to `in_progress` so scores can be fixed.
 5. User opens history → persistence lists in-progress and finished games → UI shows summaries derived from stored turns.
@@ -177,7 +180,7 @@ Enough screens to support MVP; names can change:
 2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
 3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
-5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP target (D33/D34): top bar with menu → podium banner → large current player → score display + calculator keypad → optional word → bottom bar (Kumoa · Ohi · Seuraava pelaaja). History / finish / delete / settings in the menu.
+5. **Active game** — standings + add turn (player, score, optional word) + undo/edit + finish/reopen; **delete with confirm** also available here (D30). Finished games reuse this screen read-only until reopen (dedicated past-game summary is post-MVP). Post-MVP target (D33/D34/D36): top bar with menu → podium banner → large current player (not a picker) → score display + calculator keypad → optional word → bottom bar (Kumoa · Ohi · Seuraava pelaaja). History / finish / delete / settings in the menu.
 6. **Turn history** (T7.3) — separate screen from the game menu; newest first; tap to edit (D11).
 7. **Settings** (T9.1) — app-wide; sounds on/off first (D35).
 
