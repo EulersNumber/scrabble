@@ -283,8 +283,29 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
   - A later slice models the common end: a player **plays out** (uses their last tiles) **and** the pouch / bag is empty. The table confirms those facts — the app does not simulate the bag or racks until we add a thin confirmation, not a board engine.
   - Then remaining players enter **leftover rack values**. Those amounts are **deducted** from them and typically **added** to the player who went out. Record them as **explicit scoring events** on the turn list (D3 / D14 negatives live here), then **finish**.
   - Consecutive-pass endings and skip-twice elimination (**P6**) stay separate. Manual **Lopeta peli** remains until T10.1 ships.
-- **Open when implementing T10.1:** Finnish tile-value table vs typing a single integer per opponent; whether empty-bag is a required confirm; house vs tournament wording; interaction with undo.
+- **Open when implementing T10.1:**
+  - Finnish tile-value table vs typing a single integer per opponent; whether empty-bag is a required confirm; house vs tournament wording; interaction with undo.
+  - **Ending variants (captured 2026-10-03):** support more than one finish shape, without a general ruleset engine (still a product non-goal):
+    1. **House leftover deduct (default-shaped):** the sitting ends; each player enters remaining rack value; those amounts are **deducted only**.
+    2. **Official play-out:** a player empties their rack (typically with the bag empty). The game ends then. Remaining opponents enter leftover values; those amounts are **deducted from them and added** to the player who went out.
+  - **When the table picks a variant:** new-game setting, app-wide default, or a question at finish. Decide in **T10.1**, not before.
+- **Entry:** visible **Lopeta peli** on the turn screen is **D39** / **T10.0**; leftover math stays **T10.1**.
 - **Why:** User confirmed negatives belong mainly to this end-game, not everyday scoring. Needs its own domain + UI, not a ± tap on a normal turn.
+
+### D38. Game menu opens in place (top-right)
+
+- **Status:** accepted direction (post-MVP; do **not** implement until **T7.11**). Promoted as **P21**.
+- **Decision:** The top-bar game menu opens **in place** near the menu control — a compact panel at the **top right** — instead of a full-width bottom sheet (T7.3 / D34). Same pattern if home later uses the same menu.
+- **Why:** The affordance is in the top right; a sheet that appears at the bottom of the screen feels disconnected from the tap.
+- **Open when implementing T7.11:** popover vs dropdown chrome; phone vs tablet width; whether finish/delete confirms stay inside the menu panel.
+- **Does not change yet:** D34 still describes the shipped bottom `MenuSheet` until T7.11.
+
+### D39. Visible finish control on the turn screen
+
+- **Status:** accepted direction (post-MVP; refines D33 when **T10.0** lands). Promoted as **P22**.
+- **Decision:** The in-progress turn screen gets a secondary **Lopeta peli** control at the **bottom** (below the scoring actions), with a cautious visual cue and a confirmation before anything is written. The menu item may stay. Until **T10.1**, confirm still just finishes (D16). After T10.1, this control starts the leftover-tile end flow (D37).
+- **Why:** Ending the sitting is a natural late-game action; hiding it only behind the top-right menu is easy to miss.
+- **Does not change yet:** D33 still describes the shipped screen (finish in the menu only) until T10.0.
 
 ## Open
 
@@ -298,7 +319,9 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Turn-focused active-game layout** — **D33 / D34** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker). Tasks **T7.3–T7.6**.
 - **Strict rotation** — **D36** shipped in **T7.5** (`recordTurn` only for the current player; turn screen has no seat picker).
 - **Settings / sounds** — **D35** confirmed (default on; progress / revert / action cue families).
-- **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen).
+- **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen). House leftover-deduct vs official play-out bonus, and when the table picks that variant, are still open.
+- **Visible finish on the turn screen** — **D39** / **P22** / **T10.0** (secondary **Lopeta peli** + confirm; leftover math stays T10.1).
+- **Game menu in place** — **D38** / **P21** / **T7.11** (top-right panel instead of a bottom sheet).
 - **Statistics and leaderboards** — backlog **P4** (family stats / boards across games; depends on identity + ideally P1 timer; lasting cabin-wide stats also need **P9**).
 - **End-of-game rack tile runoff** — **D37** / **P5** / **T10.1** (play out + empty pouch; leftover values as explicit turns; not everyday keypad negatives).
 - **Dedicated past-game detail / summary** — backlog **P7** (purpose-built finished-game view instead of reusing active-game read-only).
@@ -352,3 +375,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T7.3 / D34 | 2026-09-27 | Top bar + game menu + turn history screen. Score form and soft picker unchanged until T7.4 / T7.5 |
 | T7.4 / D31 | 2026-09-27 | Calculator keypad replaces numeric score fields on the turn form and history edit. Clear is long-press on ⌫ |
 | T7.5 / D36 | 2026-09-27 | Strict turn order: `recordTurn` only for `currentPlayerId`. Turn screen is one player, keypad, and Kumoa · Ohi · Seuraava pelaaja. Standings slot waits for the T7.6 podium |
+| D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |

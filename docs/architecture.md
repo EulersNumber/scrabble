@@ -73,6 +73,7 @@ Later (not now), isolated modules:
   - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty, shipped T7.4) and `podium.ts` (standings → podium slots with shared-rank steps, 2–4 players, still T7.6).
   - Sounds: `src/ui/sound/` wraps Web Audio cues (progress / revert / action) and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
   - **D36:** new turns only for `currentPlayerId`. **D37 / T10.1:** later play-out + leftover tiles; not in T7.3–T7.6.
+  - **Later polish (do not pull into T7.6):** **D38 / T7.11** — `MenuSheet` (or a successor) opens in place at the top right instead of a bottom sheet. **D39 / T10.0** — secondary **Lopeta peli** on the turn screen with confirm; leftover variants stay T10.1.
 - Does not own scoring rules or persistence details.
 - Should remain replaceable without rewriting domain logic. Domain must not import React.
 
@@ -129,7 +130,7 @@ Suggested invariants:
 - Turns refer to a player id that exists on the game.
 - Turns are ordered. Remove only the last turn; edit score/word/player on any turn (D11).
 - **D36 (T7.5):** a new turn must be for `currentPlayerId`; reject others. After that turn, set current to the next **active** seat (wrap). Until T10.x, every seated player is active. Undo and edit recompute current from remaining history. Older documents may contain off-rotation turns; they stay valid.
-- **Later (D37 / P5 / P6):** skip eliminated players; play-out + empty bag records leftover-tile adjustments then finish.
+- **Later (D37 / P5 / P6):** skip eliminated players; play-out or house leftover-deduct records leftover-tile adjustments then finish.
 - When `status` is `finished`, scoring mutations are not allowed until the game is reopened.
 - Deleting a game removes its document (UI confirms first).
 - Totals are not stored as required fields on the game.
@@ -207,5 +208,6 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 - Custom domain for GitHub Pages (optional; D28)
 - PWA service worker / Add to Home Screen polish (backlog **P8**)
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
-- Full Scrabble end rules beyond strict rotation (D36): elimination, auto-end on all-pass, exchanges, play-out (D37)
-- Post-MVP UX polish captured in backlog **P1–P14**; triage in **T6.0** after MVP close (T5.2)
+- Full Scrabble end rules beyond strict rotation (D36): elimination, auto-end on all-pass, exchanges, play-out (D37 / T10.1), visible finish on the turn screen (D39 / T10.0)
+- Game menu in-place placement (D38 / T7.11)
+- Post-MVP UX polish captured in backlog **P1–P22**; triage in **T6.0** after MVP close (T5.2)

@@ -133,7 +133,7 @@ The family can:
 
 ## Post-MVP direction (accepted)
 
-Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**. **T7.5** ships that layout with strict turn order (D36): current player name (not a picker), keypad, optional word, and bottom actions Kumoa / Ohi / Seuraava pelaaja. The standings strip is a placeholder until the podium banner (T7.6). History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is accepted (D35). Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in this slice. See `docs/decisions.md` D33–D37 and `tasks/README.md` T7.3+ / T9.x / T10.x.
+Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**. **T7.5** ships that layout with strict turn order (D36): current player name (not a picker), keypad, optional word, and bottom actions Kumoa / Ohi / Seuraava pelaaja. The standings strip is a placeholder until the podium banner (T7.6). History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is accepted (D35). Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in this slice. Later polish: the game menu should open **in place** at the top right (**D38** / **T7.11**), and **Lopeta peli** should also sit on the turn screen with confirm (**D39** / **T10.0**) before leftover math (**T10.1**). See `docs/decisions.md` D33–D39 and `tasks/README.md` T7.3+ / T9.x / T10.x.
 
 ## Product decisions
 
