@@ -9,8 +9,9 @@ import { requireGame } from './requireGame'
 /**
  * Records a turn on a saved game and persists the result (T3.2).
  *
- * Loads the game, appends the turn via domain soft rotation (D13), then saves.
- * Domain errors (finished game, unknown player, non-integer score) propagate.
+ * Loads the game, appends the turn for the current player only (D36), then
+ * saves. Domain errors (finished game, unknown player, wrong seat, non-integer
+ * score) propagate.
  *
  * @param store - Persistence port used to load and save
  * @param gameId - Id of the in-progress game to update

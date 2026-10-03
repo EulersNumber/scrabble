@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D37). **T0.1–T7.4 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu) and T7.4 (keypad) are in; next is **T7.5** (**strict** turn screen) then T7.6 (podium), then settings/sound **T9.x**. Official play-out / rack runoff is **T10.1**. MVP still shipped soft rotation; D36 replaces that for new turns.
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D37). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in; next is **T7.6** (podium), then settings/sound **T9.x**. Official play-out / rack runoff is **T10.1**. New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -289,11 +289,11 @@ Build in this order. Do not start the next numbered task until the previous is r
   - `ScoreDisplay` + `ScoreKeypad` primitives: 3×4 grid of big targets (1–9, ±, 0, ⌫), clear via long-press or a C key.
   - Wired into the existing add-turn form in place of the numeric text field. The edit flow in the history screen uses the pad too (or note a follow-up in the PR if scope grows).
   - Points entry never opens the system keyboard. **Pass is not a keypad key** (D33).
-- **Notes:** Calculator order (7–9 on top). Clear is a long-press on ⌫ (no C key). Same pad on history edit. Pass stays **Vuoro ohi**. Layout pass is T7.5. Everyday scores are usually 0 or positive; ± is for rare corrections. Official leftover-tile negatives are **T10.1**. Next: **T7.5**.
+- **Notes:** Calculator order (7–9 on top). Clear is a long-press on ⌫ (no C key). Same pad on history edit. Pass moved to **Ohi** on the turn-screen bar in T7.5. Everyday scores are usually 0 or positive; ± is for rare corrections. Official leftover-tile negatives are **T10.1**.
 
 ### T7.5 Strict rotation + single-player turn screen (P3 / P13 / D33 / D36)
 
-- **Status:** todo.
+- **Status:** done (2026-09-27).
 - **Goal:** The in-progress game screen becomes “this player’s points, next,” and the domain **enforces** sequential turns.
 - **Acceptance:**
   - Domain: `recordTurn` **rejects** a player who is not `currentPlayerId`. Tests: success for current, reject others, wrap after last seat, undo restores current. Edit/undo still recompute current from history (D11). Existing off-rotation history from MVP remains readable.
@@ -303,7 +303,7 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Clear action hierarchy (P13): primary visually dominant; undo / pass secondary. New variants live in primitives (D27).
   - Finished state: no keypad or bottom bar. Read-only notice + **Avaa peli uudelleen**. History via menu.
   - Fits a phone viewport (~375×667) without scrolling in the in-progress state. Tablet layout stays centered.
-- **Notes:** This is the first domain change since MVP close. Elimination skip and play-out end are **T10.x**, not this task.
+- **Notes:** `recordTurn` rejects any player other than `currentPlayerId` and advances with `nextActiveSeat` (every seat is active until T10.2). Undo/edit recompute current from history, including legacy off-rotation turns. UI: `StandingsSlot` (placeholder), large current name, filling keypad, compact word field, `BottomActionBar` (Kumoa confirm in-bar, Ohi records 0, Seuraava pelaaja disabled until a score is entered). Finished view drops the keypad and bar and shows **Avaa peli uudelleen**. Elimination skip and play-out end stay **T10.x**. Next: **T7.6**.
 
 ### T7.6 Podium standings banner (D33)
 
@@ -542,7 +542,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P13. Action hierarchy and destructive/secondary styling
 
-- **Status:** folded into **T7.5** (single-player turn screen).
+- **Status:** done via **T7.5** (bottom bar: secondary Kumoa / Ohi, dominant Seuraava pelaaja).
 - **Goal:** Differentiate primary scoring actions from pass / undo / finish / delete so the eye lands on **Tallenna vuoro** first and finish/delete feel appropriately secondary or cautious.
 - **Candidates:** new Button variants or ConfirmPanel emphasis in primitives (D27); keep screens free of one-off chrome.
 - **Notes:** Small design-system pass; lands with turn-focused UI.
@@ -627,8 +627,9 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 12. Turn-screen replan (D33–D37) — docs (first T7.3 attempt reverted)
 13. Top bar + game menu + turn history screen (T7.3) — done
 14. Calculator keypad (T7.4) — done
-15. **Next agent:** **T7.5** strict rotation + turn layout → T7.6 podium banner
-16. T9.1 settings → T9.2 sounds
-17. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
+15. Strict rotation + turn layout (T7.5) — done
+16. **Next agent:** **T7.6** podium banner
+17. T9.1 settings → T9.2 sounds
+18. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
 
 Domain before UI so the learning project practices testable logic first.

@@ -5,7 +5,7 @@ import type { Game } from './types'
  * Returns a finished game to in-progress so scores can be fixed (D16).
  *
  * Clears `finishedAt` and sets `status` to `in_progress`. Turns and the
- * suggested current player are left as they were.
+ * current player are left as they were.
  *
  * @param game - Finished game to reopen
  * @returns A new game document that accepts scoring mutations again

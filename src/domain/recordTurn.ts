@@ -1,6 +1,6 @@
+import { nextActiveSeat } from './currentPlayer'
 import { DomainError } from './errors'
 import { assertGameMutable } from './gameStatus'
-import { nextSeatAfter } from './suggestedPlayer'
 import type { Game, Turn } from './types'
 
 export type RecordTurnInput = {
@@ -10,17 +10,19 @@ export type RecordTurnInput = {
 }
 
 /**
- * Appends one turn and advances soft rotation (D13, D14, D18).
+ * Appends one turn for the current player and advances the seat (D14, D18, D36).
  *
- * Accepts any seated player (not only the suggested one). After a turn for P,
- * `currentPlayerId` becomes the next seat after P (wrapping). Score must be an
- * integer; `0` is a pass; negatives are allowed. Empty/omitted word is stored
- * as absent.
+ * Rejects any player other than `currentPlayerId`. After a score or pass (0),
+ * current becomes the next active seat (wrapping). Until elimination exists,
+ * every seated player is active. Score must be an integer; negatives are
+ * allowed. Empty or omitted word is stored as absent. Saved games may still
+ * contain off-rotation turns from before this rule; those stay readable, and
+ * only new recordings are strict.
  *
  * @param game - In-progress game to update
- * @param input - Player, integer score, and optional word
- * @returns A new game with the turn appended and suggestion advanced
- * @throws {DomainError} If the game is finished, the player is unknown, or the score is not an integer
+ * @param input - Current player, integer score, and optional word
+ * @returns A new game with the turn appended and current player advanced
+ * @throws {DomainError} If the game is finished, the player is unknown, the player is not current, or the score is not an integer
  */
 export function recordTurn(game: Game, input: RecordTurnInput): Game {
   assertGameMutable(game)
@@ -28,6 +30,10 @@ export function recordTurn(game: Game, input: RecordTurnInput): Game {
   const player = game.players.find((candidate) => candidate.id === input.playerId)
   if (!player) {
     throw new DomainError('Unknown player')
+  }
+
+  if (player.id !== game.currentPlayerId) {
+    throw new DomainError("It is not this player's turn")
   }
 
   if (!Number.isInteger(input.score)) {
@@ -48,6 +54,6 @@ export function recordTurn(game: Game, input: RecordTurnInput): Game {
   return {
     ...game,
     turns: [...game.turns, turn],
-    currentPlayerId: nextSeatAfter(game, player.id),
+    currentPlayerId: nextActiveSeat(game, player.id),
   }
 }

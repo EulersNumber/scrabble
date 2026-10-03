@@ -166,7 +166,7 @@ describe('createLocalStorageGameStore', () => {
     })
     let second = createGame(['Pekka', 'Sari', 'Jussi'])
     second = recordTurn(second, {
-      playerId: second.players[1]!.id,
+      playerId: second.players[0]!.id,
       score: 15,
       word: 'peli',
     })

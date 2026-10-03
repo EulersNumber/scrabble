@@ -4,6 +4,7 @@ import { editTurn } from './editTurn'
 import { DomainError } from './errors'
 import { getStandings } from './standings'
 import { recordTurn } from './recordTurn'
+import type { Game, Turn } from './types'
 import { undoLastTurn } from './undoLastTurn'
 
 function playerIds(game: ReturnType<typeof createGame>) {
@@ -11,7 +12,7 @@ function playerIds(game: ReturnType<typeof createGame>) {
 }
 
 describe('undoLastTurn', () => {
-  it('removes the last turn and restores the suggested current player', () => {
+  it('removes the last turn and restores the current player', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
     const [aino, matti, liisa] = playerIds(game)
 
@@ -41,18 +42,19 @@ describe('undoLastTurn', () => {
     expect(undone.currentPlayerId).toBe(aino)
   })
 
-  it('restores suggested current after undoing a non-suggested player turn', () => {
+  it('recomputes current from remaining history when undoing a legacy off-rotation turn', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
-    const [aino, , liisa] = playerIds(game)
+    const [aino, matti, liisa] = playerIds(game)
+    const legacy = withTurns(game, [
+      { playerId: aino!, score: 3 },
+      { playerId: liisa!, score: 8 },
+    ])
 
-    // Suggested is Aino; log Liisa instead → suggested becomes Aino again.
-    const afterLiisa = recordTurn(game, { playerId: liisa!, score: 8 })
-    expect(afterLiisa.currentPlayerId).toBe(aino)
+    const undone = undoLastTurn(legacy)
 
-    const undone = undoLastTurn(afterLiisa)
-
-    expect(undone.turns).toHaveLength(0)
-    expect(undone.currentPlayerId).toBe(aino)
+    expect(undone.turns).toHaveLength(1)
+    expect(undone.turns[0]?.playerId).toBe(aino)
+    expect(undone.currentPlayerId).toBe(matti)
   })
 
   it('rejects undo when there are no turns', () => {
@@ -117,7 +119,7 @@ describe('editTurn', () => {
     ])
   })
 
-  it('updates suggested current when the last turn player changes', () => {
+  it('recomputes current when the last turn player changes', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
     const [aino, matti, liisa] = playerIds(game)
 
@@ -165,3 +167,20 @@ describe('editTurn', () => {
     expect(edited.turns[0]?.word).toBeUndefined()
   })
 })
+
+function withTurns(
+  game: Game,
+  scores: readonly { playerId: string; score: number }[],
+): Game {
+  const turns: Turn[] = scores.map((entry, sequence) => ({
+    id: `legacy-${sequence}`,
+    playerId: entry.playerId,
+    score: entry.score,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    sequence,
+  }))
+  return {
+    ...game,
+    turns,
+  }
+}

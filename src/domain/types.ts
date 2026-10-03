@@ -27,7 +27,7 @@ export type Turn = {
 }
 
 /**
- * Game aggregate: players + ordered turns + soft-rotation suggestion.
+ * Game aggregate: players + ordered turns + whose turn it is (D36).
  * `finishedAt` is set only when `status` is `finished`.
  */
 export type Game = {

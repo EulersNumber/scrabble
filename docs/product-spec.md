@@ -43,14 +43,14 @@ These may be considered later. The architecture should leave a seam for **word v
 - The game has between 2 and 4 players (inclusive).
 - Each player has a display name for that game.
 - Names must be unique within the game (trimmed, case-insensitive); blank names are not allowed.
-- After names are entered, the user picks **who starts** (physical letter draw). That player becomes first in seating order and the first suggested turn.
+- After names are entered, the user picks **who starts** (physical letter draw). That player becomes first in seating order and the first current player (D36).
 - The UI may suggest names from past games (recent and/or frequent); there is no separate global player roster in MVP.
 
 ### 2. Enter a player’s score for each turn
 
 - After a physical turn, the user records that player’s score.
-- **Soft rotation (MVP shipped):** the app tracks seating order and highlights whose turn it is; the user may still log a different player if needed. After a logged turn for P, suggestion advances to the next seat after P.
-- **Post-MVP (D36):** new turns are **strict** — only the current player may score or pass; mistakes use undo/edit. Official play-out / empty-bag / leftover tiles are **D37**, not this MVP item.
+- **Turn order (D36, shipped T7.5):** seating order is fixed at create. A new turn must be for the current player; score or pass advances to the next seat. Mistakes use undo or edit. Older saved games may still contain off-rotation turns from the earlier soft-rotation scorepad; they stay readable.
+- Official play-out / empty-bag / leftover tiles are **D37**, not this item.
 - A turn belongs to exactly one player and has an integer score (zero and negatives allowed). Zero records a pass.
 - The app does not calculate the score from tiles; the user enters the points on an on-screen keypad (D31 / T7.4). The optional word is still typed.
 - Player elimination after consecutive skips, and automatic end-of-game from pass streaks, are **not** MVP.
@@ -114,7 +114,7 @@ The following are **not** required for MVP even if they often appear in “real�
 - Passing, challenging, or exchanging tiles as first-class actions (a 0-point turn can record a pass)
 - Clock / timer
 - Global player profiles / roster across games
-- Enforced-only turn rotation (strict mode); soft rotation **is** in MVP
+- Strict turn order was not an MVP requirement (MVP shipped soft rotation). Post-MVP **D36** / **T7.5** now requires the current player for new turns
 - Automatic “skip twice → drop out of the game” elimination
 - Automatic finish after a full round of consecutive passes
 
@@ -133,8 +133,8 @@ The family can:
 
 ## Post-MVP direction (accepted)
 
-Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**: podium-style standings, a large calculator keypad for points, an optional word, and bottom actions for undo / pass / next player. **Turn order is strict** (D36): the current player must score or pass; there is no seat picker. History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is accepted (D35). Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in the first keypad slice. See `docs/decisions.md` D33–D37 and `tasks/README.md` T7.3+ / T9.x / T10.x.
+Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**. **T7.5** ships that layout with strict turn order (D36): current player name (not a picker), keypad, optional word, and bottom actions Kumoa / Ohi / Seuraava pelaaja. The standings strip is a placeholder until the podium banner (T7.6). History, finish, delete, and settings move to a top-bar menu. A small **settings** area with **sounds and mute** is accepted (D35). Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in this slice. See `docs/decisions.md` D33–D37 and `tasks/README.md` T7.3+ / T9.x / T10.x.
 
 ## Product decisions
 
-MVP product rules are **accepted** in `docs/decisions.md` (D8–D29), including soft rotation (D13). Family distribution uses GitHub Pages (D28).
+MVP product rules are **accepted** in `docs/decisions.md` (D8–D29). Soft rotation (D13) shipped with MVP; **D36** supersedes it for new turns. Family distribution uses GitHub Pages (D28).

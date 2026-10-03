@@ -17,11 +17,10 @@ type PlayerPickListProps = {
 }
 
 /**
- * Soft-rotation player picker: exclusive choice with suggested highlight (D13, D27).
+ * Exclusive player choice for correcting a past turn (D11, D27).
  *
- * The suggested seat is visually marked when `suggestedId` matches, but any
- * seated player remains selectable so late logging still works. Used for add
- * turn and edit turn on the active-game screen.
+ * Any seated player can be selected. `suggestedId` can mark the current seat.
+ * The in-progress turn screen does not use this picker (D36); history edit does.
  */
 export function PlayerPickList({
   name,

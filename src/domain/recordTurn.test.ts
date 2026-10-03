@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { createGame } from './createGame'
 import { DomainError } from './errors'
+import { getStandings } from './standings'
 import { recordTurn } from './recordTurn'
+import type { Game, Turn } from './types'
 
 function playerIds(game: ReturnType<typeof createGame>) {
   return game.players.map((player) => player.id)
 }
 
 describe('recordTurn', () => {
-  it('appends a turn for the suggested player and advances to the next seat', () => {
+  it('appends a turn for the current player and advances to the next seat', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
     const [aino, matti] = playerIds(game)
 
@@ -29,17 +31,37 @@ describe('recordTurn', () => {
     expect(game.currentPlayerId).toBe(aino)
   })
 
-  it('allows recording a non-suggested player and advances from that player', () => {
+  it('rejects a seated player who is not current', () => {
     const game = createGame(['Aino', 'Matti', 'Liisa'])
-    const [aino, , liisa] = playerIds(game)
+    const [, matti, liisa] = playerIds(game)
 
-    const next = recordTurn(game, { playerId: liisa!, score: 8 })
-
-    expect(next.turns[0]?.playerId).toBe(liisa)
-    expect(next.currentPlayerId).toBe(aino)
+    expect(() => recordTurn(game, { playerId: liisa!, score: 8 })).toThrow(DomainError)
+    expect(() => recordTurn(game, { playerId: matti!, score: 8 })).toThrow(
+      "It is not this player's turn",
+    )
+    expect(game.turns).toHaveLength(0)
+    expect(game.currentPlayerId).toBe(playerIds(game)[0])
   })
 
-  it('wraps the suggested player after the last seat', () => {
+  it('keeps legacy off-rotation history readable and still requires the current player', () => {
+    const game = createGame(['Aino', 'Matti', 'Liisa'])
+    const [aino, matti, liisa] = playerIds(game)
+    const legacy = withTurn(game, liisa!, 9, aino!)
+
+    expect(getStandings(legacy).find((entry) => entry.playerId === liisa)?.total).toBe(
+      9,
+    )
+    expect(() => recordTurn(legacy, { playerId: liisa!, score: 4 })).toThrow(
+      "It is not this player's turn",
+    )
+
+    const next = recordTurn(legacy, { playerId: aino!, score: 4 })
+
+    expect(next.turns.map((turn) => turn.playerId)).toEqual([liisa, aino])
+    expect(next.currentPlayerId).toBe(matti)
+  })
+
+  it('wraps the current player after the last seat', () => {
     const game = createGame(['Aino', 'Matti'])
     const [aino, matti] = playerIds(game)
 
@@ -94,3 +116,24 @@ describe('recordTurn', () => {
     ).toThrow(DomainError)
   })
 })
+
+/** Saved-game shape from the soft-rotation era: history need not match seats. */
+function withTurn(
+  game: Game,
+  turnPlayerId: string,
+  score: number,
+  currentPlayerId: string,
+): Game {
+  const turn: Turn = {
+    id: 'legacy-turn',
+    playerId: turnPlayerId,
+    score,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    sequence: 0,
+  }
+  return {
+    ...game,
+    turns: [turn],
+    currentPlayerId,
+  }
+}
