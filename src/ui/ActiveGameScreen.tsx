@@ -30,9 +30,9 @@ import {
   ConfirmPanel,
   FormError,
   MenuSheet,
-  PodiumStandings,
   ScoreDisplay,
   ScoreKeypad,
+  StandingsSlot,
   TextField,
   TopBar,
   type MenuSheetItem,
@@ -52,13 +52,13 @@ type ActiveGameScreenProps = {
 }
 
 /**
- * Single-player turn screen (T7.5 / T7.6 / D33 / D36).
+ * Single-player turn screen (T7.5 / D33 / D36).
  *
- * In progress: podium standings, the current player's name (not a picker),
+ * In progress: standings slot, the current player's name (not a picker),
  * score keypad, optional word, and the bottom bar (Kumoa, Ohi, Seuraava
  * pelaaja). A new turn is always for `currentPlayerId`. Finished games show
- * the podium as the final result, a read-only notice, and reopen — no keypad
- * or bar. History, finish, and delete stay in the top-bar menu (D34).
+ * the standings slot, a read-only notice, and reopen — no keypad or bar.
+ * History, finish, and delete stay in the top-bar menu (D34).
  */
 export function ActiveGameScreen({
   store,
@@ -315,7 +315,7 @@ export function ActiveGameScreen({
 
         {finished ? (
           <div className="mt-4 flex flex-col gap-4">
-            <PodiumStandings
+            <StandingsSlot
               heading={strings.standingsHeading}
               standings={standings}
               pointsLabel={strings.pointsLabel}
@@ -332,7 +332,7 @@ export function ActiveGameScreen({
             className="mt-2 flex min-h-0 flex-1 flex-col gap-2"
             onSubmit={handleRecord}
           >
-            <PodiumStandings
+            <StandingsSlot
               heading={strings.standingsHeading}
               standings={standings}
               pointsLabel={strings.pointsLabel}

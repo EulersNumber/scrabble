@@ -27,8 +27,6 @@ export {
   scoreKeypadFromInteger,
   toggleScoreSign,
 } from './scoreKeypad'
-export { podiumLayout } from './podium'
-export type { PodiumLayout, PodiumPlayer, PodiumStep, PodiumStepId } from './podium'
 export type { ScoreKeypadState } from './scoreKeypad'
 export {
   orderNamesWithStarterFirst,
@@ -45,12 +43,12 @@ export {
   ListRowButton,
   MenuSheet,
   PlayerPickList,
-  PodiumStandings,
   RadioGroup,
   ScoreDisplay,
   ScoreKeypad,
   ScreenHeader,
   StandingsList,
+  StandingsSlot,
   TextField,
   TopBar,
   TurnHistoryList,
