@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D39). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in; next is **T7.6** (podium), then settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D39). **T0.1–T7.6 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), T7.5 (strict single-player layout), and T7.6 (podium) are in; next is settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -307,13 +307,13 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.6 Podium standings banner (D33)
 
-- **Status:** todo.
+- **Status:** done (2026-10-03).
 - **Goal:** Compact olympic-podium standings at the top of the game screen.
 - **Acceptance:**
   - Pure helper `podium.ts`: standings → podium slots for 2–4 players. Shared ranks share a step (D15). A 4th place goes beside the podium. Unit tests (2/3/4 players, ties incl. all tied).
   - `PodiumStandings` primitive: 1st centre/tallest, 2nd left, 3rd right; name + total; current player highlighted; compact height.
   - Used on in-progress and finished states (finished = final result).
-- **Notes:** Can land before T7.5 if preferred. It only replaces the standings slot.
+- **Notes:** Replaces the T7.5 `StandingsSlot`. Rank 1 is centre, rank 2 left, rank 3 right; a shared rank shares that step (so 1, 1, 3 leaves the left step empty). Rank 4 is a chip beside the podium. When everyone is tied, the single centre step spans the width so the opening 0–0 board stays short. Finished games show the podium without a current-player highlight. Next: **T9.1**.
 
 ### T7.7 Edit-turn affordance (P11)
 
@@ -670,8 +670,8 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 13. Top bar + game menu + turn history screen (T7.3) — done
 14. Calculator keypad (T7.4) — done
 15. Strict rotation + turn layout (T7.5) — done
-16. **Next agent:** **T7.6** podium banner
-17. T9.1 settings → T9.2 sounds
+16. Podium standings banner (T7.6) — done
+17. **Next agent:** **T9.1** settings → T9.2 sounds
 18. Polish T7.7–T7.10; T7.11 menu in place when ready
 19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary)
 
