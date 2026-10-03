@@ -242,7 +242,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 | 4 | **P19 + P20** master settings shell + sounds (T9.1–T9.2); then names (T9.3) and about (T9.4) | **P6** skip-twice elimination (T10.2); **P26** UI language; **P27** per-cue sounds |
 | 4b | **P11, P12, P14, P18** polish (T7.7–T7.10) | **P21** menu in place (T7.11); **P22** visible finish (T10.0) |
 | 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
-| — | — | **P8** PWA shell; **P9** cross-device sync |
+| — | — | **P8** PWA shell; **P9** cross-device sync; **P28** timestamped titles; **P29** game-elapsed clock |
 
 ### T7.1 Brand home + falling Scrabble tiles (P10 + P2)
 
@@ -483,17 +483,20 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P1. End-of-game celebration + light recap (+ turn timer foundation)
 
-- **Status:** idea (backlog only; not MVP).
+- **Status:** idea (backlog only; not MVP). Reinforced 2026-10-03 from the turn screen.
 - **Goal:** When a game is finished, show a short, light celebration moment, then a small recap screen (or overlay) with a few highlights.
 - **Recap candidates:**
-  - Winner and a simple podium / final standings
+  - Winner and a simple final standings line
   - Highest single-turn score
-  - Overall game length (`createdAt` → `finishedAt`)
+  - Overall sitting span (`createdAt` → `finishedAt`) — wall-clock, no live clock required
   - Pace highlights driven by a **real per-turn timer** (not inferred from log timestamps)
-- **Turn timer (product choice — accepted for post-MVP):**
-  - Record **how long each turn took** as first-class data on the turn (start/stop or duration when the turn is saved).
-  - Enables later stats: average time per turn, average points per turn, and **cross-game per-person** aggregates (how long someone usually takes, etc.).
-  - Cross-game person stats imply a later naming/identity approach beyond today’s per-game display names (still no roster in MVP — D12); decide that when promoting stats work.
+- **Turn timer (priority 1 of the timer ideas — accepted for post-MVP):**
+  - Visible on the **turn-specific screen**: how long *this* seat’s turn has been going.
+  - Persist **how long each turn took** as first-class data on the turn (start when that player becomes current / the turn screen is shown for them; stop when the turn is saved or passed). Do **not** infer duration from `createdAt` gaps — those include app-closed time and logging delays.
+  - This is the data **P4** needs after many sittings (e.g. after ~100 games): average time per turn per person, who usually takes longer, average points per turn.
+  - Cross-game person stats still need a naming/identity approach beyond today’s per-game display names (no roster in MVP — D12); decide that when promoting stats work.
+- **Open when promoting:** backgrounding / phone sleep / leaving the app overnight; undo/edit of a timed turn; what a live display does while the keypad is open.
+- **Not in this first timer slice:** a running clock for the whole sitting. That is later / optional — **P29**.
 - **Notes:** Clock/timer and detailed stats stay out of MVP product scope until this is promoted. Celebration animation should stay modest. Depends on finish flow (T4.4) and history detail (T4.5). Do not implement until promoted.
 
 ### P2. Falling Scrabble-tile background animation
@@ -703,12 +706,31 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 - **Goal:** Choose which cues play, beyond a single mute.
 - **Notes:** **D35** stands for T9.1 and T9.2: one mute, default on, three cue families. Promote only if family play wants more.
 
+### P28. Timestamped game titles
+
+- **Status:** idea (backlog only; not MVP). Product wish 2026-10-03.
+- **Goal:** A sitting’s displayed name is more than a comma-separated player list. Include the **start timestamp** so “Nico, Marika” from Saturday evening is distinct from the same pair last week.
+- **Sketch:**
+  - Derive the title from seated names + `Game.createdAt`. No stored custom title unless a later task wants rename.
+  - Suggested shape: date + clock, e.g. **DD.MM.YYYY HH.MM** (Finnish punctuation) or a compact **DDMMYYYY HHMM**. Exact format is chosen when promoting.
+  - Surfaces: turn-screen top-bar title (today `formatPlayerNames` only), continue/history **primary** line, and any other place that currently reads as the game’s name.
+- **Why:** Player names alone are boring and collide across sittings. List rows already show a locale date as secondary text (`formatGameCreatedAt`); this is about the **name** itself.
+- **Related:** **P12** is winner / ordered totals on list rows — different problem. Keep both if both ship.
+- **Notes:** Presentation-only if derived. Do not implement until promoted. Numbered **P28** because **P23–P27** were taken by the settings hub (D41).
+
+### P29. Live elapsed game clock (later)
+
+- **Status:** idea (backlog only; later than **P1**). Product wish 2026-10-03: interesting, **not** needed in the first timer version.
+- **Goal:** Show how long the sitting has lasted — a running clock from `createdAt` while in progress, frozen at `finishedAt` when finished.
+- **Why:** Nice recap / “this game took three hours” flavour. Priority **2** versus the per-turn timer; per-turn duration is what later person stats need.
+- **Notes:** Recap in **P1** can still print the wall-clock span `createdAt` → `finishedAt` without a live ticking clock. Do not pull this into the first timer slice. Numbered **P29** because **P24** is about / app version.
+
 ## Out of backlog (do not pull into MVP silently)
 
 - Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
 - Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.5 (D33/D36/D40; podium dropped), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** master settings → T9.1 / D41, **P20** sounds → T9.2, **P21** menu in place → T7.11 / D38, **P22** visible finish → T10.0 / D39, **P23** remembered names → T9.3 / D42, **P24** about → T9.4, **P25** user words + dictionary choice → T8.3, **P26** UI language parked, **P27** per-cue sounds parked.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.5 (D33/D36/D40; podium dropped), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** master settings → T9.1 / D41, **P20** sounds → T9.2, **P21** menu in place → T7.11 / D38, **P22** visible finish → T10.0 / D39, **P23** remembered names → T9.3 / D42, **P24** about → T9.4, **P25** user words + dictionary choice → T8.3, **P26** UI language parked, **P27** per-cue sounds parked, **P28** timestamped game titles, **P29** live game-elapsed clock (later than P1).
 
 ---
 

@@ -347,7 +347,8 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Skip-twice → player eliminated** — direction captured in backlog **P6** (warn before the eliminating pass; remaining players continue). Exact tournament vs house wording still open when promoting.
 - Automatic game end after a full round of consecutive passes (official-style), instead of only manual finish.
 - Tile exchange as a first-class turn type (vs recording 0).
-- **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
+- **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (visible turn-screen timer; persist duration on each turn; later per-person averages after many games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP). A live **whole-game elapsed clock** is a later, optional idea (**P29**), not part of the first timer slice.
+- **Timestamped game titles** — backlog **P28**. Displayed name = seated players + start date/time from `createdAt` (suggested DD.MM.YYYY HH.MM). Prefer derived display; no stored custom title unless a later task wants rename.
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
 - **Turn-focused active-game layout** — **D33 / D34 / D40** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker; standings are a thin line). **T7.3–T7.5** shipped. The olympic podium (T7.6) was removed.
 - **Strict rotation** — **D36** shipped in **T7.5** (`recordTurn` only for the current player; turn screen has no seat picker).
@@ -413,3 +414,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D40 | 2026-10-03 | Podium removed. Turn-screen standings stay the thin line; current player highlighted. Do not rebuild the podium |
 | D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |
 | D41–D42 / P23–P27 | 2026-10-03 | Master settings hub: gear on the home hero, **Asetukset** in the game menu. T9.1 is the shell + sounds toggle; T9.2 plays cues. Later: hide a name from suggestions, about/version, user words + dictionary choice. UI language and per-cue sound switches stay parked |
+| P1 (clarify) / P28–P29 | 2026-10-03 | Turn timer is the first timer slice (on-screen + stored duration for later person stats). Timestamped game titles (**P28**). Live sitting clock parked as later (**P29**) |

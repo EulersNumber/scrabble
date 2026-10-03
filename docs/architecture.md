@@ -159,6 +159,8 @@ No persistent rating, avatar, or account.
 
 The product does not require modeling the physical board. A turn is a scoring event, not a full placement of tiles.
 
+**Later (P1, not now):** persist how long the physical turn took as first-class data (duration or start/stop). `createdAt` is when the score was logged, not how long the seat thought. A live whole-game elapsed clock is a separate later idea (**P29**). Displayed game titles may include `Game.createdAt` (**P28**) without storing a custom title field.
+
 ### Derived values
 
 Not stored as authority:
@@ -210,5 +212,6 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble end rules beyond strict rotation (D36): elimination, auto-end on all-pass, exchanges, play-out (D37 / T10.1), visible finish on the turn screen (D39 / T10.0)
 - Game menu in-place placement (D38 / T7.11)
-- Post-MVP UX polish captured in backlog **P1–P27**; triage in **T6.0** after MVP close (T5.2)
+- Post-MVP UX polish captured in backlog **P1–P29**; triage in **T6.0** after MVP close (T5.2)
 - Master settings beyond the sounds toggle: remembered names (D42 / T9.3), about (T9.4), user words and dictionary choice (T8.3). UI language (P26) and per-cue sound switches (P27) stay parked
+- Timestamped game titles (**P28**) and a live sitting clock (**P29**, later than the per-turn timer in **P1**)

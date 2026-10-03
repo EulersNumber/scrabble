@@ -112,7 +112,7 @@ The following are **not** required for MVP even if they often appear in “real�
 - Tile rack, board, or premium-square UI
 - Bingo / 50-point bonus as a special rule (user can include it in the number they enter)
 - Passing, challenging, or exchanging tiles as first-class actions (a 0-point turn can record a pass)
-- Clock / timer
+- Clock / timer (post-MVP ideas: per-turn duration **P1**; live sitting clock **P29**)
 - Global player profiles / roster across games (a later hide-list for name suggestions is **D42**, not profiles)
 - Strict turn order was not an MVP requirement (MVP shipped soft rotation). Post-MVP **D36** / **T7.5** now requires the current player for new turns
 - Automatic “skip twice → drop out of the game” elimination
@@ -133,7 +133,7 @@ The family can:
 
 ## Post-MVP direction (accepted)
 
-Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**. **T7.5** ships that layout with strict turn order (D36): current player name (not a picker), keypad, optional word, and bottom actions Kumoa / Ohi / Seuraava pelaaja. Standings stay a thin line in leading order, with the current player highlighted (**D40**). An olympic podium was tried and removed. History, finish, and delete sit in the turn-screen hamburger. **Master settings** (D41) is a separate screen: a gear on the home hero, and **Asetukset** inside that hamburger. The first control is sounds on/off (D35); playback is a following task. Later settings sections (hide a suggested name, about, dictionary extras) join the same screen when built. Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in this slice. Later polish: the game menu should open **in place** at the top right (**D38** / **T7.11**), and **Lopeta peli** should also sit on the turn screen with confirm (**D39** / **T10.0**) before leftover math (**T10.1**). See `docs/decisions.md` D33–D42 and `tasks/README.md` T7.3+ / T9.x / T10.x.
+Beyond MVP, the family-play replan (2026-09-27) sets the scoring screen as a **single-player turn screen**. **T7.5** ships that layout with strict turn order (D36): current player name (not a picker), keypad, optional word, and bottom actions Kumoa / Ohi / Seuraava pelaaja. Standings stay a thin line in leading order, with the current player highlighted (**D40**). An olympic podium was tried and removed. History, finish, and delete sit in the turn-screen hamburger. **Master settings** (D41) is a separate screen: a gear on the home hero, and **Asetukset** inside that hamburger. The first control is sounds on/off (D35); playback is a following task. Later settings sections (hide a suggested name, about, dictionary extras) join the same screen when built. Official **play-out + empty bag + leftover-tile runoff** is directed (D37) but not in this slice. Later polish: the game menu should open **in place** at the top right (**D38** / **T7.11**), and **Lopeta peli** should also sit on the turn screen with confirm (**D39** / **T10.0**) before leftover math (**T10.1**). Parked ideas from the turn screen: a **per-turn timer** stored for later person stats (**P1**), timestamped game titles (**P28**), and an optional live sitting clock later (**P29**). See `docs/decisions.md` D33–D42 and `tasks/README.md` T7.3+ / T9.x / T10.x.
 
 ## Product decisions
 
