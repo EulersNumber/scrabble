@@ -65,13 +65,13 @@ Later (not now), isolated modules:
 - Feature-specific pure helpers (list sort/filter, new-game validate/suggest) may sit next to the flow as exported functions; split when large or shared. Not a global utils dump.
 - Mobile-first scorepad column; wider max-width on tablet breakpoints for iPad use.
 - **Turn screen direction (D33–D37, T7.3+):**
-  - **Shipped in T7.3 (D34):** `TopBar` (back, compact title, menu icon), `MenuSheet`, and `TurnHistoryScreen` (`turn-history`). The open game no longer scrolls history, finish, or delete. Menu items are Vuorot, Lopeta peli / Avaa peli uudelleen, and Poista peli. Settings menu item waits for T9.1.
+  - **Shipped in T7.3 (D34):** `TopBar` (back, compact title, menu icon), `MenuSheet`, and `TurnHistoryScreen` (`turn-history`). The open game no longer scrolls history, finish, or delete. Menu items are Vuorot, Lopeta peli / Avaa peli uudelleen, and Poista peli. **Asetukset** waits for T9.1 (D41) and opens master settings; it does not replace this menu.
   - **Shipped in T7.4 (D31):** `scoreKeypad.ts` plus `ScoreDisplay` and `ScoreKeypad`. Points on the turn screen and on history edit use the pad (calculator order, long-press ⌫ to clear). Pass is **Ohi** on the bottom bar, not a keypad key. The optional word stays a text field.
   - **Shipped in T7.5 (D33 / D36 / D40):** `ActiveGameScreen` is the single-player turn screen. `recordTurn` rejects anyone but `currentPlayerId` and advances to the next active seat. The screen shows a thin `StandingsSlot` (standing order; current player highlighted), a large current-player name, a filling keypad, the optional word, and `BottomActionBar` (Kumoa · Ohi · Seuraava pelaaja). Finished games have no keypad or bar; they show the same line, a read-only notice, and **Avaa peli uudelleen**.
-  - Screens still to come: `SettingsScreen` arrives in T9.1. `navigation.ts` gains a `settings` entry then (still no URL router, D24). `turn-history` is already present.
+  - Screens still to come: `SettingsScreen` arrives in T9.1 (D41). Home keeps its hero and adds a top-right gear that opens it; the turn-screen hamburger gains **Asetukset** to the same screen. `navigation.ts` gains a `settings` entry then (still no URL router, D24). `turn-history` is already present. T9.1 has no sound playback; `src/ui/sound/` arrives in T9.2.
   - New pure helpers (tested): `scoreKeypad.ts` (append digit / backspace / clear / sign toggle / sanity cap → integer or empty, shipped T7.4).
   - **D40:** the olympic podium was removed. Do not replace `StandingsSlot` with steps or a green bar.
-  - Sounds: `src/ui/sound/` wraps Web Audio cues (progress / revert / action) and reads the mute setting. Screens call it after successful actions. Domain and use cases never play sounds.
+  - Sounds (T9.2, D35): `src/ui/sound/` wraps Web Audio cues (progress / revert / action) and reads the mute setting from T9.1. Screens call it after successful actions. Domain and use cases never play sounds.
   - **D36:** new turns only for `currentPlayerId`. **D37 / T10.1:** later play-out + leftover tiles; not in T7.3–T7.6.
   - **Later polish:** **D38 / T7.11** — `MenuSheet` (or a successor) opens in place at the top right instead of a bottom sheet. **D39 / T10.0** — secondary **Lopeta peli** on the turn screen with confirm; leftover variants stay T10.1.
 - Does not own scoring rules or persistence details.
@@ -95,13 +95,13 @@ Later (not now), isolated modules:
 - Saves and loads games locally so a refresh, app restart, or offline session does not lose an in-progress or finished game.
 - Mechanism: `localStorage` + JSON, wrapped so the rest of the app depends on a store interface, not on `localStorage` directly.
 - Store the **game document** (players + ordered turns + status). Do not persist derived standings as an independent source of truth. Derived values may be cached in memory for the UI.
-- **App settings (D35, T9.1):** a separate `SettingsStore` persists one small settings document (e.g. `{ soundsEnabled }`) under its own `localStorage` key. It has its own version/defaults handling and is never part of `Game`. Application exposes `getSettings` / `updateSettings`; UI reads settings once at app start and passes them down (a small React context is fine).
+- **App settings (D35 / D41, T9.1):** a separate `SettingsStore` persists one small settings document under its own `localStorage` key. T9.1 stores `{ soundsEnabled }` (default on). Later tasks may add a hidden-name list (D42) and a user-word allowlist (T8.3) to this document or a sibling store — still never inside `Game`. It has its own version/defaults handling. Application exposes `getSettings` / `updateSettings`; UI reads settings once at app start and passes them down (a small React context is fine).
 
 ### Future Scrabble-specific logic (boundary only)
 
 Two empty seams, unused in MVP:
 
-1. **Word validation** — would accept a word (and later a language/lexicon) and return valid/invalid. Post-MVP direction (**D32** / **P17**): advisory offline checks via Kotus **Nykysuomen sanalista** (then inflected forms); not a scrape of Kielitoimiston sanakirja.
+1. **Word validation** — would accept a word (and later a language/lexicon) and return valid/invalid. Post-MVP direction (**D32** / **P17**): advisory offline checks via Kotus **Nykysuomen sanalista** (then inflected forms); not a scrape of Kielitoimiston sanakirja. After that checker exists, settings may hold user-added words and a dictionary choice (**T8.3**). Not part of the T9.1 settings shell.
 2. **Automatic scoring** — would accept a play description and return a point value.
 
 MVP records a user-supplied integer score and an optional string word. Do not call these modules until a promoted task (T8.x) lands. Do not build a fake dictionary “to be ready.”
@@ -159,7 +159,7 @@ No persistent rating, avatar, or account.
 
 The product does not require modeling the physical board. A turn is a scoring event, not a full placement of tiles.
 
-**Later (P1, not now):** persist how long the physical turn took as first-class data (duration or start/stop). `createdAt` is when the score was logged, not how long the seat thought. A live whole-game elapsed clock is a separate later idea (**P24**). Displayed game titles may include `Game.createdAt` (**P23**) without storing a custom title field.
+**Later (P1, not now):** persist how long the physical turn took as first-class data (duration or start/stop). `createdAt` is when the score was logged, not how long the seat thought. A live whole-game elapsed clock is a separate later idea (**P29**). Displayed game titles may include `Game.createdAt` (**P28**) without storing a custom title field.
 
 ### Derived values
 
@@ -181,13 +181,13 @@ Not stored as authority:
 
 Enough screens to support MVP; names can change:
 
-1. **Home** — hub: primary **new game**; secondary **continue** and **history** entry points (D17, D29).
+1. **Home** — hub: primary **new game**; secondary **continue** and **history** entry points (D17, D29). A gear at the top right of the hero opens master settings (D41 / T9.1). Home does not get the game hamburger.
 2. **Continue list** — in-progress games (newest `createdAt` first); open resumes scoring; delete with confirm.
 3. **History list** — finished games (newest `finishedAt` first); open shows read-only active-game view; delete with confirm.
 4. **New game** — enter 2–4 player names (optional suggestions from history); pick who starts; start (D25).
 5. **Active game** — single-player turn screen (D33 / D36 / D40, T7.5): thin standings line, large current player (not a picker), keypad score, optional word, bottom bar (Kumoa · Ohi · Seuraava pelaaja). Finish, reopen, and delete with confirm are in the top-bar menu (D30 / D34, T7.3). Finished games reuse this screen without the keypad or bar, with the standings line as the final result, a read-only notice, and **Avaa peli uudelleen**. Dedicated past-game summary remains post-MVP.
 6. **Turn history** (T7.3) — separate screen from the game menu; newest first; tap to edit while in progress (D11), including the same score keypad (T7.4). Finished games are read-only here until reopen.
-7. **Settings** (T9.1) — app-wide; sounds on/off first (D35).
+7. **Settings** (T9.1 / D41) — app-wide master settings. First control is sounds on/off (D35). Playback is T9.2. Later sections (remembered names, about, dictionary extras) join this screen in their own tasks. The turn-screen menu item **Asetukset** opens the same screen.
 
 Mobile-first: one primary column, large tap targets, standings always visible during an active game if practical.
 
@@ -212,4 +212,6 @@ Mobile-first: one primary column, large tap targets, standings always visible du
 - URL router (T4 currently uses React screen state; add a router if deep links are needed)
 - Full Scrabble end rules beyond strict rotation (D36): elimination, auto-end on all-pass, exchanges, play-out (D37 / T10.1), visible finish on the turn screen (D39 / T10.0)
 - Game menu in-place placement (D38 / T7.11)
-- Post-MVP UX polish captured in backlog **P1–P24**; triage in **T6.0** after MVP close (T5.2)
+- Post-MVP UX polish captured in backlog **P1–P29**; triage in **T6.0** after MVP close (T5.2)
+- Master settings beyond the sounds toggle: remembered names (D42 / T9.3), about (T9.4), user words and dictionary choice (T8.3). UI language (P26) and per-cue sound switches (P27) stay parked
+- Timestamped game titles (**P28**) and a live sitting clock (**P29**, later than the per-turn timer in **P1**)
