@@ -22,6 +22,9 @@ export const strings = {
   turnsCount: (count: number) =>
     count === 1 ? '1 vuoro' : `${count} vuoroa`,
   back: 'Takaisin',
+  settingsTitle: 'Asetukset',
+  soundsLabel: 'Äänet',
+  settingsSaveFailed: 'Asetusten tallennus epäonnistui. Yritä uudelleen.',
   menuLabel: 'Valikko',
   closeMenu: 'Sulje',
   gameMenuTitle: 'Valikko',

@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D42). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in. The olympic podium (**T7.6**) was built and removed (**D40**); standings stay a thin line. Next is the master settings shell **T9.1** (sounds toggle only), then sound cues **T9.2**. Later on that same screen: remembered names (**T9.3**), about (**T9.4**), dictionary extras (**T8.3**). Also later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D42). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in. The olympic podium (**T7.6**) was built and removed (**D40**); standings stay a thin line. **T9.1** (master settings shell, sounds toggle) is done. Next is sound cues **T9.2**. Later on that same screen: remembered names (**T9.3**), about (**T9.4**), dictionary extras (**T8.3**). Also later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -358,7 +358,7 @@ Master settings is one screen (D41). **T9.1** is only the shell and the sounds t
 
 ### T9.1 Master settings shell + sounds toggle (P19 / D35 / D41)
 
-- **Status:** todo.
+- **Status:** done (2026-10-03).
 - **Goal:** One app-wide **Asetukset** screen, with a saved sounds on/off control and two ways in.
 - **Acceptance:**
   - `SettingsStore` interface + `localStorage` implementation (own key, defaults for missing/corrupt data). Persistence tests with fake storage.
@@ -367,7 +367,7 @@ Master settings is one screen (D41). **T9.1** is only the shell and the sounds t
   - **Home:** gear at the top right of the existing hero (primitive, D27). Opens settings. Home does not gain the game hamburger.
   - **Turn screen:** existing hamburger gains **Asetukset**, which opens the same screen. Vuorot, finish, and delete stay as they are.
   - Settings are never stored inside `Game`.
-- **Notes:** No sound playback in this task (T9.2). The gear is not a second menu of game actions.
+- **Notes:** `scrabble.settings` holds `{ version, soundsEnabled }`. Missing or corrupt data reads as sounds on. The toggle saves immediately. Menu order is Vuorot, Lopeta / Avaa uudelleen, Asetukset, Poista (delete stays last). No sound playback (T9.2). The gear is not a second menu of game actions. Next: **T9.2**.
 
 ### T9.2 Sound cues (P20 / D35)
 
@@ -752,8 +752,9 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 14. Calculator keypad (T7.4) — done
 15. Strict rotation + turn layout (T7.5) — done
 16. Podium standings banner (T7.6) — dropped (D40); thin standings line stays
-17. **Next agent:** **T9.1** master settings shell + sounds toggle → **T9.2** sound cues
-18. Later on that screen: **T9.3** remembered names, **T9.4** about. Polish T7.7–T7.10; T7.11 menu in place when ready
-19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary), including **T8.3** user words once the checker exists
+17. Master settings shell + sounds toggle (T9.1) — done
+18. **Next agent:** **T9.2** sound cues
+19. Later on that screen: **T9.3** remembered names, **T9.4** about. Polish T7.7–T7.10; T7.11 menu in place when ready
+20. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary), including **T8.3** user words once the checker exists
 
 Domain before UI so the learning project practices testable logic first.

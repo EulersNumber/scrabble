@@ -73,7 +73,9 @@ export function MenuSheet({
     return () => {
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = previousOverflow
-      previouslyFocused?.focus()
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus()
+      }
     }
   }, [open])
 
