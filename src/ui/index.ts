@@ -1,5 +1,6 @@
 export { ActiveGameScreen } from './ActiveGameScreen'
 export { HomeScreen } from './HomeScreen'
+export { SettingsScreen } from './SettingsScreen'
 export { NewGameScreen } from './NewGameScreen'
 export { SavedGamesListScreen } from './SavedGamesListScreen'
 export { TurnHistoryScreen } from './TurnHistoryScreen'
@@ -40,6 +41,8 @@ export {
   ChoiceChip,
   ConfirmPanel,
   FormError,
+  GearIcon,
+  IconButton,
   ListRowButton,
   MenuSheet,
   PlayerPickList,
@@ -49,6 +52,7 @@ export {
   ScreenHeader,
   StandingsList,
   StandingsSlot,
+  Switch,
   TextField,
   TopBar,
   TurnHistoryList,

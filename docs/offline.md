@@ -9,6 +9,7 @@ After the app **has loaded** in the browser, creating a game, scoring, undo/edit
 That is already true by design:
 
 - Game data is stored only in the browser (`localStorage` via `GameStore`).
+- App settings (sounds on/off) use a separate `localStorage` key via `SettingsStore`.
 - Scoring and history use cases do not call a network API.
 - There is no cloud sync in MVP.
 

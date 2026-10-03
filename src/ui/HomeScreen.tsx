@@ -1,6 +1,8 @@
 import {
   AppShell,
   Button,
+  GearIcon,
+  IconButton,
   ScreenHeader,
 } from './primitives'
 import { strings } from './strings'
@@ -9,6 +11,8 @@ type HomeScreenProps = {
   onNewGame: () => void
   onContinueList: () => void
   onHistory: () => void
+  /** Opens master settings (T9.1). Not a game menu. */
+  onSettings: () => void
 }
 
 /**
@@ -16,15 +20,23 @@ type HomeScreenProps = {
  *
  * Shares the light sage-green shell family with continue/history. Product name
  * stays hero-level; primary action is new game; continue and history share the
- * second row (D29). Visual chrome comes from tokens + primitives (D27).
+ * second row (D29). A gear at the top right opens settings (D41); the hero
+ * does not gain the game hamburger. Visual chrome comes from tokens + primitives (D27).
  */
 export function HomeScreen({
   onNewGame,
   onContinueList,
   onHistory,
+  onSettings,
 }: HomeScreenProps) {
   return (
     <AppShell atmosphere="hero">
+      <div className="flex justify-end">
+        <IconButton label={strings.settingsTitle} onClick={onSettings}>
+          <GearIcon />
+        </IconButton>
+      </div>
+
       <ScreenHeader
         size="hero"
         title={strings.appTitle}

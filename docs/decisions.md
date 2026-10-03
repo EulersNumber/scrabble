@@ -325,7 +325,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Decision:** **Asetukset** is one app-wide screen, not a sounds-only page and not a copy of the game menu.
   - **Home:** a gear at the **top right of the hero** opens it. The branded hero stays. Home does not gain the turn-screen hamburger.
   - **Turn screen:** the existing hamburger stays. **Asetukset** is one item in that menu and opens the same screen.
-  - **T9.1** shows only what works: the sounds on/off toggle (default on), saved in `SettingsStore`. No placeholder rows for sections that are not built.
+  - **T9.1** shows only what works: the sounds on/off toggle (default on), saved in `SettingsStore`. No placeholder rows for sections that are not built. Shipped: gear on the home hero, **Asetukset** in the game menu (above delete), immediate save, no playback yet.
   - Later sections appear on this same screen when their tasks land: remembered names (**D42** / **T9.3**), about / version (**T9.4**), user-added words and dictionary choice (**T8.3**, after the checker). UI language stays Finnish (**D19** / **P26**).
 - **Why:** The family wants one place for preferences. The turn screen already has a hamburger for game actions; home needs a direct way in without pretending home is a game menu.
 
@@ -414,4 +414,5 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | D40 | 2026-10-03 | Podium removed. Turn-screen standings stay the thin line; current player highlighted. Do not rebuild the podium |
 | D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |
 | D41–D42 / P23–P27 | 2026-10-03 | Master settings hub: gear on the home hero, **Asetukset** in the game menu. T9.1 is the shell + sounds toggle; T9.2 plays cues. Later: hide a name from suggestions, about/version, user words + dictionary choice. UI language and per-cue sound switches stay parked |
+| T9.1 / D41 | 2026-10-03 | Master settings screen shipped: sounds on/off in `SettingsStore` (default on, own key). Gear on the home hero; **Asetukset** in the game menu. No playback yet (T9.2) |
 | P1 (clarify) / P28–P29 | 2026-10-03 | Turn timer is the first timer slice (on-screen + stored duration for later person stats). Timestamped game titles (**P28**). Live sitting clock parked as later (**P29**) |

@@ -72,16 +72,22 @@ describe('turnsNewestFirst', () => {
 })
 
 describe('gameMenuActions', () => {
-  it('offers history, finish, and delete while the game is in progress', () => {
+  it('offers history, finish, settings, and delete while the game is in progress', () => {
     expect(gameMenuActions('in_progress')).toEqual([
       'turns',
       'finish',
+      'settings',
       'delete',
     ])
   })
 
   it('swaps finish for reopen when the game is finished', () => {
-    expect(gameMenuActions('finished')).toEqual(['turns', 'reopen', 'delete'])
+    expect(gameMenuActions('finished')).toEqual([
+      'turns',
+      'reopen',
+      'settings',
+      'delete',
+    ])
   })
 })
 

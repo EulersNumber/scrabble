@@ -1,10 +1,14 @@
-import { useState } from 'react'
-import { createLocalStorageGameStore } from './persistence'
+import { useEffect, useLayoutEffect, useState } from 'react'
+import {
+  createLocalStorageGameStore,
+  createLocalStorageSettingsStore,
+} from './persistence'
 import {
   ActiveGameScreen,
   HomeScreen,
   NewGameScreen,
   SavedGamesListScreen,
+  SettingsScreen,
   TurnHistoryScreen,
   listFinishedGamesNewestFirst,
   listInProgressGamesNewestFirst,
@@ -13,15 +17,27 @@ import {
 } from './ui'
 
 const store = createLocalStorageGameStore()
+const settingsStore = createLocalStorageSettingsStore()
 
 /**
- * Root shell: wires localStorage store to home, setup, lists, active game,
- * and turn history.
+ * Root shell: wires local stores to home, setup, lists, active game,
+ * turn history, and settings.
  *
  * Screen switching is plain React state (D24) — no router dependency for MVP.
+ * Games and settings use separate storage keys (D35).
  */
 function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
+
+  // A tap in the bottom sheet can leave the window scrolled. Reset so the
+  // next screen's controls start in view.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [screen])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [screen])
 
   if (screen.name === 'new-game') {
     return (
@@ -69,6 +85,16 @@ function App() {
     )
   }
 
+  if (screen.name === 'settings') {
+    const { returnTo } = screen
+    return (
+      <SettingsScreen
+        store={settingsStore}
+        onBack={() => setScreen(returnTo)}
+      />
+    )
+  }
+
   if (screen.name === 'turn-history') {
     const { gameId, backTo } = screen
     return (
@@ -88,6 +114,12 @@ function App() {
         gameId={gameId}
         onOpenTurns={() =>
           setScreen({ name: 'turn-history', gameId, backTo })
+        }
+        onOpenSettings={() =>
+          setScreen({
+            name: 'settings',
+            returnTo: { name: 'active-game', gameId, backTo },
+          })
         }
         onBack={() => {
           if (backTo === 'continue') {
@@ -109,6 +141,9 @@ function App() {
       onNewGame={() => setScreen({ name: 'new-game' })}
       onContinueList={() => setScreen({ name: 'continue' })}
       onHistory={() => setScreen({ name: 'history' })}
+      onSettings={() =>
+        setScreen({ name: 'settings', returnTo: { name: 'home' } })
+      }
     />
   )
 }

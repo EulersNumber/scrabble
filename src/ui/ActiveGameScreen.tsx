@@ -49,6 +49,8 @@ type ActiveGameScreenProps = {
   onBack: () => void
   /** Opens the turn-history screen (T7.3). */
   onOpenTurns: () => void
+  /** Opens master settings (T9.1 / D41). */
+  onOpenSettings: () => void
 }
 
 /**
@@ -58,13 +60,14 @@ type ActiveGameScreenProps = {
  * score keypad, optional word, and the bottom bar (Kumoa, Ohi, Seuraava
  * pelaaja). A new turn is always for `currentPlayerId`. Finished games show
  * the standings slot, a read-only notice, and reopen — no keypad or bar.
- * History, finish, and delete stay in the top-bar menu (D34).
+ * History, finish, delete, and settings stay in the top-bar menu (D34 / D41).
  */
 export function ActiveGameScreen({
   store,
   gameId,
   onBack,
   onOpenTurns,
+  onOpenSettings,
 }: ActiveGameScreenProps) {
   const initial = store.getById(gameId)
   const [game, setGame] = useState<Game | null>(initial)
@@ -260,6 +263,15 @@ export function ActiveGameScreen({
           id: action,
           label: strings.reopenGame,
           onSelect: handleReopen,
+        }
+      case 'settings':
+        return {
+          id: action,
+          label: strings.settingsTitle,
+          onSelect: () => {
+            closeMenu()
+            onOpenSettings()
+          },
         }
       case 'delete':
         return {

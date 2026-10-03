@@ -89,22 +89,22 @@ export function playerNameById(
   return players.find((player) => player.id === playerId)?.name ?? playerId
 }
 
-/** Secondary actions in the open-game menu (T7.3 / D34). Settings arrive in T9.1. */
-export type GameMenuAction = 'turns' | 'finish' | 'reopen' | 'delete'
+/** Secondary actions in the open-game menu (T7.3 / D34 / D41). */
+export type GameMenuAction = 'turns' | 'finish' | 'reopen' | 'settings' | 'delete'
 
 /**
- * Chooses game-menu entries from status (T7.3 / D34 / D16 / D30).
+ * Chooses game-menu entries from status (T7.3 / D34 / D16 / D30 / D41).
  *
- * In progress: turn history, finish, delete. Finished: turn history, reopen,
- * delete. Undo stays on the turn screen and is not a menu entry. No settings
- * item until T9.1.
+ * In progress: turn history, finish, settings, delete. Finished: turn history,
+ * reopen, settings, delete. Settings opens the app screen; it is not a game
+ * mutation. Delete stays last. Undo stays on the turn screen.
  *
  * @param status - Current game lifecycle
  * @returns Menu actions in display order
  */
 export function gameMenuActions(status: GameStatus): GameMenuAction[] {
   if (status === 'finished') {
-    return ['turns', 'reopen', 'delete']
+    return ['turns', 'reopen', 'settings', 'delete']
   }
-  return ['turns', 'finish', 'delete']
+  return ['turns', 'finish', 'settings', 'delete']
 }
