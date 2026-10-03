@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D39). **T0.1–T7.6 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), T7.5 (strict single-player layout), and T7.6 (podium) are in; next is settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D40). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in. The olympic podium (**T7.6**) was built and removed (**D40**); standings stay a thin line. Next is settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -297,23 +297,19 @@ Build in this order. Do not start the next numbered task until the previous is r
 - **Goal:** The in-progress game screen becomes “this player’s points, next,” and the domain **enforces** sequential turns.
 - **Acceptance:**
   - Domain: `recordTurn` **rejects** a player who is not `currentPlayerId`. Tests: success for current, reject others, wrap after last seat, undo restores current. Edit/undo still recompute current from history (D11). Existing off-rotation history from MVP remains readable.
-  - Layout per D33: top bar, standings slot (placeholder until T7.6), **large current player name** (display only — **not** a picker), score display + keypad using most of the height, optional word field (secondary), bottom action bar.
+  - Layout per D33 / D40: top bar, thin standings line, **large current player name** (display only — **not** a picker), score display + keypad using most of the height, optional word field (secondary), bottom action bar.
   - `BottomActionBar` primitive: **Kumoa** (short confirm), **Ohi** (records 0), large primary **Seuraava pelaaja** (save this player + advance). Primary is disabled with no score entered.
   - After save or pass, the screen shows the next current player with an empty pad.
   - Clear action hierarchy (P13): primary visually dominant; undo / pass secondary. New variants live in primitives (D27).
   - Finished state: no keypad or bottom bar. Read-only notice + **Avaa peli uudelleen**. History via menu.
   - Fits a phone viewport (~375×667) without scrolling in the in-progress state. Tablet layout stays centered.
-- **Notes:** `recordTurn` rejects any player other than `currentPlayerId` and advances with `nextActiveSeat` (every seat is active until T10.2). Undo/edit recompute current from history, including legacy off-rotation turns. UI: `StandingsSlot` (placeholder), large current name, filling keypad, compact word field, `BottomActionBar` (Kumoa confirm in-bar, Ohi records 0, Seuraava pelaaja disabled until a score is entered). Finished view drops the keypad and bar and shows **Avaa peli uudelleen**. Elimination skip and play-out end stay **T10.x**. Next: **T7.6**.
+- **Notes:** `recordTurn` rejects any player other than `currentPlayerId` and advances with `nextActiveSeat` (every seat is active until T10.2). Undo/edit recompute current from history, including legacy off-rotation turns. UI: thin `StandingsSlot` (D40), large current name, filling keypad, compact word field, `BottomActionBar` (Kumoa confirm in-bar, Ohi records 0, Seuraava pelaaja disabled until a score is entered). Finished view drops the keypad and bar and shows **Avaa peli uudelleen**. Elimination skip and play-out end stay **T10.x**.
 
 ### T7.6 Podium standings banner (D33)
 
-- **Status:** done (2026-10-03).
+- **Status:** dropped (2026-10-03, **D40**).
 - **Goal:** Compact olympic-podium standings at the top of the game screen.
-- **Acceptance:**
-  - Pure helper `podium.ts`: standings → podium slots for 2–4 players. Shared ranks share a step (D15). A 4th place goes beside the podium. Unit tests (2/3/4 players, ties incl. all tied).
-  - `PodiumStandings` primitive: 1st centre/tallest, 2nd left, 3rd right; name + total; current player highlighted; compact height.
-  - Used on in-progress and finished states (finished = final result).
-- **Notes:** Replaces the T7.5 `StandingsSlot`. Rank 1 is centre, rank 2 left, rank 3 right; a shared rank shares that step (so 1, 1, 3 leaves the left step empty). Rank 4 is a chip beside the podium. When everyone is tied, the single centre step spans the width so the opening 0–0 board stays short. Finished games show the podium without a current-player highlight. Next: **T9.1**.
+- **Notes:** Built, then removed the same day. The steps and green bar took space away from taking the turn and were confusing. Standings stay the thin `StandingsSlot` line from T7.5: standing order, current player highlighted. Do not rebuild the podium. Next: **T9.1**.
 
 ### T7.7 Edit-turn affordance (P11)
 
@@ -331,7 +327,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 - **Status:** todo.
 - **Goal:** Brief confirmation after save/pass/edit so table users trust the save.
-- **Acceptance:** Subtle (podium total pulse, inline flash). Pairs with the sound cue in T9.2 but must work muted.
+- **Acceptance:** Subtle (standings-line pulse, inline flash). Pairs with the sound cue in T9.2 but must work muted.
 
 ### T7.10 Display / brand font pass (P18)
 
@@ -345,7 +341,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ### T7.11 Game menu opens in place (P21 / D38)
 
-- **Status:** todo (polish; after T7.6 or independently). Do not start before T7.6 unless the human asks.
+- **Status:** todo (polish).
 - **Goal:** The top-right menu control opens a compact panel **next to the button**, not a full-width sheet at the bottom of the screen.
 - **Acceptance:**
   - Tapping the turn-screen menu icon (and home’s later copy of the same pattern) shows the list **in place** at the **top right**.
@@ -388,7 +384,7 @@ Build after the keypad turn screen is playable. Do not pull these into T7.3–T7
 
 ### T10.0 Visible finish on the turn screen (P22 / D39)
 
-- **Status:** todo (after T7.6; can land before leftover math).
+- **Status:** todo (can land before leftover math).
 - **Goal:** Ending a sitting is an obvious late-game action on the turn screen, not only a menu item.
 - **Acceptance:**
   - In-progress turn screen shows a secondary **Lopeta peli** control **below** the scoring actions (bottom of the turn-specific screen).
@@ -477,7 +473,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P3. Turn-focused active-game UI (per-turn screen)
 
-- **Status:** replanned by **D33/D34/D36** → **T7.3–T7.6** (menu, keypad, strict single-player layout, podium).
+- **Status:** replanned by **D33/D34/D36/D40** → **T7.3–T7.5** (menu, keypad, strict single-player layout, thin standings line). The olympic podium (**T7.6**) was dropped.
 - **Goal:** Make scoring feel turn-centric instead of one dense “dashboard” for the whole game.
 - **Sketch:**
   - Compact **standings banner** at the top (who’s leading / current totals)
@@ -632,7 +628,7 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P21. Game menu opens in place (top-right)
 
-- **Status:** directed → **D38** / **T7.11**. Do not start before T7.6 unless asked.
+- **Status:** directed → **D38** / **T7.11**.
 - **Goal:** The turn-screen menu (top-right icon) opens **next to the control**, not as a bottom sheet that appears far from the tap.
 - **Why:** Family play: the menu control is at the top right, but the sheet lands at the bottom of the screen and feels disconnected.
 - **Notes:** Extend `MenuSheet` or add a successor primitive (D27). Finish/delete confirms must still work. No scoring-rule changes.
@@ -670,7 +666,7 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 13. Top bar + game menu + turn history screen (T7.3) — done
 14. Calculator keypad (T7.4) — done
 15. Strict rotation + turn layout (T7.5) — done
-16. Podium standings banner (T7.6) — done
+16. Podium standings banner (T7.6) — dropped (D40); thin standings line stays
 17. **Next agent:** **T9.1** settings → T9.2 sounds
 18. Polish T7.7–T7.10; T7.11 menu in place when ready
 19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary)

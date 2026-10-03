@@ -230,12 +230,12 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Status:** accepted (post-MVP; replaces the first T7.3 “trimmed dashboard” attempt, which was reverted).
 - **Decision:** After setup (names + who starts), the in-progress game screen records **one turn for one player** at a time. Top → bottom:
   1. **Top bar** (D34): back, compact title, menu icon.
-  2. **Podium standings banner**: ranked totals in a compact “olympic podium” shape (1st centre/tallest, 2nd left, 3rd right; a 4th player sits as a small chip beside the podium). Ties share a step (D15). The current player is highlighted. Totals stay derived (D3).
+  2. **Standings line** (revised by **D40**): one thin row in standing order — who is leading, with rank, name, and total. Ties stay shared ranks (D15). The current player is highlighted. Totals stay derived (D3). Not an olympic podium.
   3. **Current player** shown large — this is the only seat that can receive a new turn (**D36**). The name is not a picker. To fix a wrong player after the fact, use undo or edit in **Vuorot** (D11).
   4. **Score display + calculator keypad** (D31) take **most of the screen**: digits 0–9, backspace, clear, and a small sign toggle (±) for rare negative corrections (D14). **Pass is not a keypad key** — it is **Ohi** on the bottom bar.
   5. **Optional word** text field (system keyboard), visually secondary; never required (D18).
   6. **Bottom action bar**: **Kumoa** (undo last, short confirm, D11), **Ohi** (records 0, explicit pass), and the large primary **Seuraava pelaaja** (save this turn and advance to the next current player). Primary is disabled while no score is entered.
-- **Finished games:** the same screen shows the podium (final result), a read-only notice, and **Avaa peli uudelleen**. There is no keypad or bottom bar (D16).
+- **Finished games:** the same screen shows the standings line (final result), a read-only notice, and **Avaa peli uudelleen**. There is no keypad or bottom bar (D16). The current-player highlight is omitted when the game is finished.
 - **Not on this screen:** turn history, finish, delete, and settings. These go in the menu (D34).
 - **Why:** Family play showed the table needs “enter this player’s points, next” with fat-finger targets; everything else is secondary.
 
@@ -307,6 +307,13 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Why:** Ending the sitting is a natural late-game action; hiding it only behind the top-right menu is easy to miss.
 - **Does not change yet:** D33 still describes the shipped screen (finish in the menu only) until T10.0.
 
+### D40. Turn-screen standings stay a thin line
+
+- **Status:** accepted (2026-10-03). Supersedes the olympic-podium clause of **D33**.
+- **Decision:** Standings on the turn screen are one thin row (`StandingsSlot`): standing order, rank, name, and total. The player taking the turn is highlighted. A finished game shows the same line as the final result, without that highlight.
+- **Rejected:** The olympic podium (centre/left/right steps, green step bars, a 4th-place chip). It was built as T7.6 and removed the same day. It used too much of the turn screen and the green bar was confusing. Do not rebuild it.
+- **Why:** The turn screen is for taking the turn. Who is leading should be visible, and it should stay out of the way of the current player, the keypad, and **Seuraava pelaaja**.
+
 ## Open
 
 ### Possible scope expansion (not in MVP)
@@ -316,7 +323,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
-- **Turn-focused active-game layout** — **D33 / D34** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker). **T7.3–T7.6** shipped, including the podium banner.
+- **Turn-focused active-game layout** — **D33 / D34 / D40** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker; standings are a thin line). **T7.3–T7.5** shipped. The olympic podium (T7.6) was removed.
 - **Strict rotation** — **D36** shipped in **T7.5** (`recordTurn` only for the current player; turn screen has no seat picker).
 - **Settings / sounds** — **D35** confirmed (default on; progress / revert / action cue families).
 - **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen). House leftover-deduct vs official play-out bonus, and when the table picks that variant, are still open.
@@ -376,4 +383,5 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T7.4 / D31 | 2026-09-27 | Calculator keypad replaces numeric score fields on the turn form and history edit. Clear is long-press on ⌫ |
 | T7.5 / D36 | 2026-09-27 | Strict turn order: `recordTurn` only for `currentPlayerId`. Turn screen is one player, keypad, and Kumoa · Ohi · Seuraava pelaaja. Standings slot waits for the T7.6 podium |
 | T7.6 / D33 | 2026-10-03 | Olympic podium replaces the standings strip. Shared ranks share a step; 4th place sits beside the podium |
+| D40 | 2026-10-03 | Podium removed. Turn-screen standings stay the thin line; current player highlighted. Do not rebuild the podium |
 | D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |
