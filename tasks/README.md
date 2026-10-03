@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D37). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in; next is **T7.6** (podium), then settings/sound **T9.x**. Official play-out / rack runoff is **T10.1**. New turns follow strict rotation (D36).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D39). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in; next is **T7.6** (podium), then settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -240,7 +240,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 | 2 | **P16** delete from open game detail | **P4** stats / leaderboards |
 | 3 | **D33/D34/D36** single-player keypad turn screen: menu (T7.3) → keypad (T7.4) → strict layout (T7.5) → podium (T7.6) | **P5 / D37** play-out + rack runoff (T10.1) |
 | 4 | **P19 + P20** settings + sounds with mute (T9.1–T9.2) | **P6** skip-twice elimination (T10.2) |
-| 4b | **P11, P12, P14, P18** polish (T7.7–T7.10) | — |
+| 4b | **P11, P12, P14, P18** polish (T7.7–T7.10) | **P21** menu in place (T7.11); **P22** visible finish (T10.0) |
 | 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
 | — | — | **P8** PWA shell; **P9** cross-device sync |
 
@@ -343,6 +343,17 @@ Build in this order. Do not start the next numbered task until the previous is r
   - Keep Finnish UI readable at phone width; respect existing motion/reduced-motion behavior.
 - **Notes:** Deferred from T7.1. Ask before introducing a new webfont family.
 
+### T7.11 Game menu opens in place (P21 / D38)
+
+- **Status:** todo (polish; after T7.6 or independently). Do not start before T7.6 unless the human asks.
+- **Goal:** The top-right menu control opens a compact panel **next to the button**, not a full-width sheet at the bottom of the screen.
+- **Acceptance:**
+  - Tapping the turn-screen menu icon (and home’s later copy of the same pattern) shows the list **in place** at the **top right**.
+  - Backdrop / close / Escape still dismiss. Finish and delete confirms still work.
+  - New chrome lives in a primitive (extend `MenuSheet` or add a successor). Screens stay free of one-off control styles (D27).
+- **Open in-task:** popover vs dropdown; phone vs tablet width.
+- **Notes:** D34 still describes the shipped bottom sheet until this lands. No scoring or finish-rule changes.
+
 ---
 
 ## 9. Settings and sound (build after T7.3–T7.6, before T8)
@@ -375,17 +386,32 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 Build after the keypad turn screen is playable. Do not pull these into T7.3–T7.6.
 
+### T10.0 Visible finish on the turn screen (P22 / D39)
+
+- **Status:** todo (after T7.6; can land before leftover math).
+- **Goal:** Ending a sitting is an obvious late-game action on the turn screen, not only a menu item.
+- **Acceptance:**
+  - In-progress turn screen shows a secondary **Lopeta peli** control **below** the scoring actions (bottom of the turn-specific screen).
+  - Cautious visual cue (secondary/destructive primitive, not competing with **Seuraava pelaaja**).
+  - Confirmation required (“Oletko varma, että peli lopetetaan?” or equivalent Finnish). Cancel leaves the game unchanged.
+  - Menu **Lopeta peli** may remain. Until **T10.1**, confirm still just finishes (D16).
+  - Finished state unchanged: no finish button; **Avaa peli uudelleen** stays.
+- **Notes:** Refines D33 when this ships. Leftover-tile questions are **T10.1**, not this task.
+
 ### T10.1 Play-out, empty bag, leftover-tile runoff (P5 / D37)
 
-- **Status:** todo (after T7.5–T7.6).
-- **Goal:** When a player uses their last tiles **and** the pouch is empty, enter leftover rack values, adjust scores, and finish.
+- **Status:** todo (after T7.5–T7.6; after or with T10.0).
+- **Goal:** When the sitting ends, enter leftover rack values, adjust scores, and finish — supporting both a simple deduct and official play-out.
 - **Acceptance:**
-  - Table confirms “played out” + “bag empty” (checkboxes or an end-game step). The app does **not** simulate the bag or a full rack editor.
-  - Remaining players enter leftover **point values** (integers). Those amounts are recorded as **explicit scoring events** (deduct from them; typically credit the player who went out) so standings still derive from history (D3).
+  - Table confirms the end (and, for official play-out, that someone emptied their rack / the bag is empty). The app does **not** simulate the bag or a full rack editor.
+  - Remaining players enter leftover **point values** (integers). Those amounts are recorded as **explicit scoring events** so standings still derive from history (D3).
+  - **House leftover deduct:** each entered amount is deducted only.
+  - **Official play-out:** leftover amounts are deducted from those players **and added** to the player who went out.
   - Then the game finishes (D16). Undo/edit of those events follows D11.
   - Mid-game turns stay 0 / positive / rare ± corrections. This flow is how official negatives usually appear.
-- **Open in-task:** Finnish tile-value helper vs type-the-sum; exact tournament vs house wording.
-- **Notes:** Manual **Lopeta peli** stays until this ships. Consecutive-pass auto-end is still a separate idea.
+  - **Lopeta peli** (menu and, once T10.0 ships, the turn-screen button) starts this flow instead of finishing with no rack step.
+- **Open in-task:** Finnish tile-value helper vs type-the-sum; exact tournament vs house wording; when the table picks the variant (new-game setting, app default, or a question at finish). Not a general ruleset engine.
+- **Notes:** Consecutive-pass auto-end is still a separate idea. Do not invent extra rulesets beyond these two end shapes.
 
 ### T10.2 Skip-twice elimination (P6)
 
@@ -473,12 +499,14 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P5. End-of-game rack adjustment (official-style tile runoff)
 
-- **Status:** directed → **D37** / **T10.1**. Do not start until the keypad turn screen is playable.
-- **Goal:** Support the common end: a player **plays out** (last tiles) **and** the pouch is empty. Remaining racks are **deducted** from those players and typically **added** to the player who went out (sum of unplayed face values). That is where everyday **negatives** belong.
+- **Status:** directed → **D37** / **T10.1**. Do not start until the keypad turn screen is playable. Visible finish CTA is the smaller sibling **P22** / **T10.0**.
+- **Goal:** Support ending a sitting with leftover tiles, in two shapes:
+  1. **House leftover deduct:** each player’s remaining rack value is **deducted** from their total (no transfer).
+  2. **Official play-out:** a player uses their last tiles (typically with the pouch empty). Remaining racks are **deducted** from those players **and added** to the player who went out.
 - **Sketch for a scorepad (not a board engine):**
-  - Dedicated end step: confirm played-out + bag empty (table facts; no bag simulation).
-  - Each other player enters leftover **point values**. Domain records explicit scoring events so standings still derive from history (D3).
-- **Open when implementing:** house vs tournament wording; Finnish tile-value table vs type-the-sum; consecutive-pass ending as a separate idea.
+  - Dedicated end step from **Lopeta peli** (menu and, after T10.0, the turn-screen button): confirm the end facts; no bag simulation.
+  - Each other player (or every player, in the house variant) enters leftover **point values**. Domain records explicit scoring events so standings still derive from history (D3).
+- **Open when implementing:** house vs tournament wording; Finnish tile-value table vs type-the-sum; consecutive-pass ending as a separate idea; **when the table picks the variant** (new-game setting, app-wide default, or a question at finish). Not a general ruleset engine.
 - **Notes:** Mid-game keypad ± stays for rare corrections only. Manual finish remains until T10.1.
 
 ### P7. Dedicated past-game detail / summary
@@ -602,12 +630,26 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 - **Goal:** Short, pleasant cues (save, pass, undo, finish) that make the table scorepad feel alive; mutable in settings.
 - **Notes:** Web Audio synthesized, offline, no dependency. Default **on**. Progress / revert / action families confirmed (D35).
 
+### P21. Game menu opens in place (top-right)
+
+- **Status:** directed → **D38** / **T7.11**. Do not start before T7.6 unless asked.
+- **Goal:** The turn-screen menu (top-right icon) opens **next to the control**, not as a bottom sheet that appears far from the tap.
+- **Why:** Family play: the menu control is at the top right, but the sheet lands at the bottom of the screen and feels disconnected.
+- **Notes:** Extend `MenuSheet` or add a successor primitive (D27). Finish/delete confirms must still work. No scoring-rule changes.
+
+### P22. Visible finish on the turn screen
+
+- **Status:** directed → **D39** / **T10.0**. Leftover-tile math stays **P5** / **T10.1**.
+- **Goal:** A secondary **Lopeta peli** control at the **bottom** of the in-progress turn screen, with a cautious visual cue and a confirmation question.
+- **Why:** Ending the sitting is a natural late-game action; hiding it only in the menu is easy to miss. T4.4 used to put finish at the bottom of the active-game screen; T7.3 moved it into the menu.
+- **Notes:** Menu item may remain. Until T10.1, confirm still just finishes (D16). After T10.1, this button starts the leftover-tile flow.
+
 ## Out of backlog (do not pull into MVP silently)
 
 - Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
 - Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.6 (D33/D36), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** settings → T9.1, **P20** sounds → T9.2.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.6 (D33/D36), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** settings → T9.1, **P20** sounds → T9.2, **P21** menu in place → T7.11 / D38, **P22** visible finish → T10.0 / D39.
 
 ---
 
@@ -630,6 +672,7 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 15. Strict rotation + turn layout (T7.5) — done
 16. **Next agent:** **T7.6** podium banner
 17. T9.1 settings → T9.2 sounds
-18. Polish T7.7–T7.10; T10.1 play-out / rack runoff and T10.2 elimination when ready; then T8.1+ (dictionary)
+18. Polish T7.7–T7.10; T7.11 menu in place when ready
+19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary)
 
 Domain before UI so the learning project practices testable logic first.
