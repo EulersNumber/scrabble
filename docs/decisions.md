@@ -90,6 +90,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 - **Status:** accepted
 - **Decision:** Display names live on the game. No global player roster in MVP.
+- **Post-MVP (2026-10-03):** **D42** adds a local hide-list so a name can stop appearing in new-game suggestions. That is not a roster, an identity, or a stats profile. The name stored on each game stays the record.
 
 ### D13. Turn order: soft rotation (was O5)
 
@@ -136,6 +137,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 
 - **Status:** accepted
 - **Decision:** User-facing copy is Finnish. Identifiers, comments, docs, and tests stay English. No i18n framework; a small strings module is enough.
+- **Later:** A UI language picker is parked (**P26**). Do not add one, or an i18n framework, until a second UI language is actually wanted and a new decision says so. Choosing a dictionary language later (**T8.3**) is a word-list choice, not a translation of the app.
 
 ### D20. Distribution shape (was O12, P1)
 
@@ -223,6 +225,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
   - Do **not** scrape or depend on unofficial kielitoimistonsanakirja.fi APIs; full dictionary articles remain out of scope.
   - Prefer **offline** assets derived from Kotus open data (**Nykysuomen sanalista**, CC BY 4.0) for headword checks, then a later phase for **inflected forms** (paradigm expansion and/or Voikko-class morphology), with attribution.
   - Implement behind the existing empty dictionary seam in architecture.
+  - **Settings later (T8.3 / P25), not in T9.1:** once the checker exists, master settings can hold an allowlist of **user-added words** (treated as known by the advisory check) and, when more than one lexicon exists, a **dictionary choice**. Finnish is the first lexicon. This does not translate the UI (D19).
 - **Why:** Matches the user’s Kielitoimiston intent via the lawful open headword list; cabin play needs offline; morphology is a larger follow-up.
 
 ### D33. Single-player turn screen, keypad-dominant (replan 2026-09-27)
@@ -242,7 +245,8 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 ### D34. Game top bar and menu (replan 2026-09-27)
 
 - **Status:** accepted (post-MVP; refines D30 placement).
-- **Decision:** Active-game secondary functions live behind a **menu icon in a top bar** and open as a sheet. Menu items: **Vuorot** (turn history screen with edit, D11), **Lopeta peli** (confirm, D16), **Poista peli** (confirm, D30), **Asetukset** (D35, once it exists). Undo stays on the turn screen's bottom bar because it is part of the scoring flow. Home gets the same top-bar pattern with a settings entry when settings land.
+- **Decision:** Active-game secondary functions live behind a **menu icon in a top bar** (the hamburger) and open as a sheet. Menu items: **Vuorot** (turn history screen with edit, D11), **Lopeta peli** (confirm, D16), **Poista peli** (confirm, D30), **Asetukset** (D41, once it exists). Undo stays on the turn screen's bottom bar because it is part of the scoring flow.
+- **Home is not that menu.** The hero stays as it is. A **gear** at the top right of the hero opens the same master settings screen directly (D41). Home does not get Vuorot, Lopeta, or Poista.
 - **Turn history** becomes its own in-app screen (navigation state, D24): newest first, tap a row to edit player / score / word, back returns to the turn screen.
 - **Why:** Keeps the first viewport about scoring; one predictable place for “more.”
 
@@ -251,15 +255,16 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Status:** accepted (post-MVP; spec extension).
 - **Decision:**
   - **Settings** are app-wide (not per game). They are stored as their own small JSON document in `localStorage` behind a `SettingsStore` (same pattern as D9). They are never mixed into the `Game` document.
-  - First setting: **sounds on / off (mute)**. More settings are added only when a task needs them.
+  - The screen is the **master settings** hub (**D41**). The first control on it is **sounds on / off (mute)**.
   - Sounds are short UI cues synthesized with the **Web Audio API**: no audio files, no dependency, and they work offline.
-  - **Default: on.** Mute sits in Asetukset (reachable from the game menu and home top bar).
-  - Cue families (confirmed):
+  - **Default: on.** One mute covers every cue. Per-cue or “where sounds play” switches are parked (**P27**), not part of T9.1 or T9.2.
+  - Cue families (confirmed, implemented in **T9.2**):
     - **Progress** — **Seuraava pelaaja** (turn saved and the seat advances).
     - **Revert** — **Kumoa** (and a successful edit that undoes a mistake may reuse this family).
     - **Action** — **Ohi** (pass) and **Lopeta peli** (finish), so those taps are acknowledged without sounding like “next.”
   - No keypad-digit click sounds.
   - Sound playback is a UI concern. The domain and use cases never trigger sounds.
+  - **Split:** **T9.1** ships the hub and the saved mute toggle, with no audio. **T9.2** plays the cues and reads that toggle. The hub will hold more than sounds, and the audio engine is its own chunk, so they stay separate chats.
 - **Why:** User wish for settings + sounds with mute; next vs undo should be distinguishable by ear.
 
 ### D36. Strict turn order (replan 2026-09-27)
@@ -314,6 +319,27 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Rejected:** The olympic podium (centre/left/right steps, green step bars, a 4th-place chip). It was built as T7.6 and removed the same day. It used too much of the turn screen and the green bar was confusing. Do not rebuild it.
 - **Why:** The turn screen is for taking the turn. Who is leading should be visible, and it should stay out of the way of the current player, the keypad, and **Seuraava pelaaja**.
 
+### D41. Master settings hub
+
+- **Status:** accepted direction (2026-10-03). Refines how **D34** and **D35** are reached. First slice is **T9.1**.
+- **Decision:** **Asetukset** is one app-wide screen, not a sounds-only page and not a copy of the game menu.
+  - **Home:** a gear at the **top right of the hero** opens it. The branded hero stays. Home does not gain the turn-screen hamburger.
+  - **Turn screen:** the existing hamburger stays. **Asetukset** is one item in that menu and opens the same screen.
+  - **T9.1** shows only what works: the sounds on/off toggle (default on), saved in `SettingsStore`. No placeholder rows for sections that are not built.
+  - Later sections appear on this same screen when their tasks land: remembered names (**D42** / **T9.3**), about / version (**T9.4**), user-added words and dictionary choice (**T8.3**, after the checker). UI language stays Finnish (**D19** / **P26**).
+- **Why:** The family wants one place for preferences. The turn screen already has a hamburger for game actions; home needs a direct way in without pretending home is a game menu.
+
+### D42. Remembered names (hide from suggestions)
+
+- **Status:** accepted direction (2026-10-03). Implement in **T9.3**, not in T9.1. Promoted as **P23**.
+- **Decision:** Master settings can hide a display name so new-game suggestions stop offering it (someone no longer at the table).
+  - The hide-list lives with app settings, not inside `Game`.
+  - Hiding does not edit, delete, or anonymise past or in-progress games. Those games keep the name that was played.
+  - The name can still be typed into a new game. This is not a ban and not a player account.
+  - Still no cross-game identity, stats profile, or roster (**D12**). Suggestions stay plain strings (**D25**).
+- **Open in T9.3:** whether playing that name again clears the hide, or the hide stays until the user restores the name in settings.
+- **Why:** Name suggestions should stay useful as the family changes, without rewriting history.
+
 ## Open
 
 ### Possible scope expansion (not in MVP)
@@ -325,7 +351,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
 - **Turn-focused active-game layout** — **D33 / D34 / D40** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker; standings are a thin line). **T7.3–T7.5** shipped. The olympic podium (T7.6) was removed.
 - **Strict rotation** — **D36** shipped in **T7.5** (`recordTurn` only for the current player; turn screen has no seat picker).
-- **Settings / sounds** — **D35** confirmed (default on; progress / revert / action cue families).
+- **Master settings** — **D41** / **T9.1**: gear on the home hero and **Asetukset** in the game hamburger; first control is the sounds toggle. Sound playback is **T9.2**. Remembered names (**D42** / **T9.3**), about (**T9.4**), and dictionary extras (**T8.3**) come later on the same screen. UI language picker parked (**P26**). Per-cue sound switches parked (**P27**). **D35** still stands: default on; one mute; progress / revert / action cues.
 - **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen). House leftover-deduct vs official play-out bonus, and when the table picks that variant, are still open.
 - **Visible finish on the turn screen** — **D39** / **P22** / **T10.0** (secondary **Lopeta peli** + confirm; leftover math stays T10.1).
 - **Game menu in place** — **D38** / **P21** / **T7.11** (top-right panel instead of a bottom sheet).
@@ -344,8 +370,9 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - **Decision:**
   - On the new-game screen (T4.1), after 2–4 names are entered, the user **selects the starting player** (reflecting the physical letter draw). Seating order is rotated so that player is first; suggested current starts as that player (D13).
   - Name entry may **suggest** display names derived from saved game history: a combination of **most recently seen** and **most frequently appearing** names. This is UI convenience only — still no global player roster (D12); suggestions are plain strings from past `Game.players`.
+  - Once **T9.3** lands, suggestions omit names the user has hidden (**D42**). Past games are not rewritten.
 - **Why:** Matches table ritual (lowest letter starts) without encoding tile draws in domain; reuse of family names speeds setup once history exists.
-- **Out:** Word autocomplete, dictionary, accounts, or a persisted player directory.
+- **Out:** Word autocomplete, accounts, or a player-identity roster. Hiding a suggestion is **D42**, not a directory of people.
 
 ### D26. Game list presentation order is a UI concern
 
@@ -385,3 +412,4 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T7.6 / D33 | 2026-10-03 | Olympic podium replaces the standings strip. Shared ranks share a step; 4th place sits beside the podium |
 | D40 | 2026-10-03 | Podium removed. Turn-screen standings stay the thin line; current player highlighted. Do not rebuild the podium |
 | D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |
+| D41–D42 / P23–P27 | 2026-10-03 | Master settings hub: gear on the home hero, **Asetukset** in the game menu. T9.1 is the shell + sounds toggle; T9.2 plays cues. Later: hide a name from suggestions, about/version, user words + dictionary choice. UI language and per-cue sound switches stay parked |
