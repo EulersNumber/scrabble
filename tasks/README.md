@@ -1,6 +1,6 @@
 # MVP backlog
 
-Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D40). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in. The olympic podium (**T7.6**) was built and removed (**D40**); standings stay a thin line. Next is settings/sound **T9.x**. Later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
+Small implementation tasks for the scorekeeping app. Stack and MVP defaults are **accepted** in `docs/decisions.md` (D8–D42). **T0.1–T7.5 are done**. The turn screen was **replanned on 2026-09-27** (D33–D37): T7.3 (top bar + menu), T7.4 (keypad), and T7.5 (strict single-player layout) are in. The olympic podium (**T7.6**) was built and removed (**D40**); standings stay a thin line. Next is the master settings shell **T9.1** (sounds toggle only), then sound cues **T9.2**. Later on that same screen: remembered names (**T9.3**), about (**T9.4**), dictionary extras (**T8.3**). Also later: menu in place (**T7.11**), visible finish (**T10.0**), official play-out / rack runoff (**T10.1**). New turns follow strict rotation (D36).
 
 Each task should be one focused change, with tests where the task says so. Commit when the user asks. **One task (or one numbered chunk) per agent chat.**
 
@@ -238,8 +238,8 @@ Build in this order. Do not start the next numbered task until the previous is r
 | --- | --- | --- |
 | 1 | **P10 + P2** brand atmosphere + falling tiles (grouped) | **P1** celebration / turn timer |
 | 2 | **P16** delete from open game detail | **P4** stats / leaderboards |
-| 3 | **D33/D34/D36** single-player keypad turn screen: menu (T7.3) → keypad (T7.4) → strict layout (T7.5) → podium (T7.6) | **P5 / D37** play-out + rack runoff (T10.1) |
-| 4 | **P19 + P20** settings + sounds with mute (T9.1–T9.2) | **P6** skip-twice elimination (T10.2) |
+| 3 | **D33/D34/D36/D40** single-player keypad turn screen: menu (T7.3) → keypad (T7.4) → strict layout (T7.5); thin standings line (podium dropped) | **P5 / D37** play-out + rack runoff (T10.1) |
+| 4 | **P19 + P20** master settings shell + sounds (T9.1–T9.2); then names (T9.3) and about (T9.4) | **P6** skip-twice elimination (T10.2); **P26** UI language; **P27** per-cue sounds |
 | 4b | **P11, P12, P14, P18** polish (T7.7–T7.10) | **P21** menu in place (T7.11); **P22** visible finish (T10.0) |
 | 5 | **P17** Finnish word check (phased; after scoring UX) | **P7** dedicated past-game summary |
 | — | — | **P8** PWA shell; **P9** cross-device sync |
@@ -309,7 +309,7 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 - **Status:** dropped (2026-10-03, **D40**).
 - **Goal:** Compact olympic-podium standings at the top of the game screen.
-- **Notes:** Built, then removed the same day. The steps and green bar took space away from taking the turn and were confusing. Standings stay the thin `StandingsSlot` line from T7.5: standing order, current player highlighted. Do not rebuild the podium. Next: **T9.1**.
+- **Notes:** Built, then removed the same day. The steps and green bar took space away from taking the turn and were confusing. Standings stay the thin `StandingsSlot` line from T7.5: standing order, current player highlighted. Do not rebuild the podium. Next: **T9.1** (master settings shell, D41).
 
 ### T7.7 Edit-turn affordance (P11)
 
@@ -352,29 +352,52 @@ Build in this order. Do not start the next numbered task until the previous is r
 
 ---
 
-## 9. Settings and sound (build after T7.3–T7.6, before T8)
+## 9. Settings and sound (build after T7.3–T7.5, before T8)
 
-### T9.1 Settings store + settings screen (P19 / D35)
+Master settings is one screen (D41). **T9.1** is only the shell and the sounds toggle. **T9.2** is playback, in a later chat: the hub will hold more than sounds, and the audio engine is its own chunk. Do not add empty rows for T9.3, T9.4, or T8.3 until those tasks land.
+
+### T9.1 Master settings shell + sounds toggle (P19 / D35 / D41)
 
 - **Status:** todo.
-- **Goal:** App-wide settings with a first toggle: sounds on/off.
+- **Goal:** One app-wide **Asetukset** screen, with a saved sounds on/off control and two ways in.
 - **Acceptance:**
   - `SettingsStore` interface + `localStorage` implementation (own key, defaults for missing/corrupt data). Persistence tests with fake storage.
   - Application `getSettings` / `updateSettings` with tests.
-  - `SettingsScreen` (navigation entry `settings`), Finnish copy (“Asetukset”, “Äänet”). Reachable from the game menu (**Asetukset**) and a home top-bar icon.
+  - `SettingsScreen` (navigation entry `settings`), Finnish copy (“Asetukset”, “Äänet”). One toggle, default **on**. No placeholder rows for later sections.
+  - **Home:** gear at the top right of the existing hero (primitive, D27). Opens settings. Home does not gain the game hamburger.
+  - **Turn screen:** existing hamburger gains **Asetukset**, which opens the same screen. Vuorot, finish, and delete stay as they are.
   - Settings are never stored inside `Game`.
-- **Notes:** No sounds yet; the toggle is persisted and read.
+- **Notes:** No sound playback in this task (T9.2). The gear is not a second menu of game actions.
 
 ### T9.2 Sound cues (P20 / D35)
 
 - **Status:** todo (after T9.1).
-- **Goal:** Short, pleasant sound cues for key actions, respecting mute.
+- **Goal:** Short, pleasant sound cues for key actions, respecting the mute toggle from T9.1.
 - **Acceptance:**
   - `src/ui/sound/`: Web Audio synthesized cues, with no audio files or dependency. Lazily create the `AudioContext` on first user gesture (iOS/Safari rule).
-  - Cue families per D35: **progress** (Seuraava pelaaja), **revert** (Kumoa), **action** (Ohi, Lopeta peli). Default **on**. No keypad-digit clicks.
+  - Cue families per D35: **progress** (Seuraava pelaaja), **revert** (Kumoa), **action** (Ohi, Lopeta peli). Default **on**. No keypad-digit clicks. One mute; no per-cue switches (P27 stays parked).
   - Silent when sounds are off. Never throws if audio is unavailable.
   - Pure parts (cue definitions / gating) unit-tested where non-trivial.
-- **Notes:** Domain and use cases stay silent. Screens trigger cues after successful actions.
+- **Notes:** Domain and use cases stay silent. Screens trigger cues after successful actions. Kept separate from T9.1 so the settings shell does not absorb the audio engine.
+
+### T9.3 Remembered names (P23 / D42)
+
+- **Status:** todo (after T9.1; not the next agent).
+- **Goal:** In master settings, hide a display name so new-game suggestions stop offering it.
+- **Acceptance:**
+  - Hide-list stored with app settings, not inside `Game`.
+  - New-game suggestions (D25) omit hidden names. Past and in-progress games still show the name that was played.
+  - The name can still be typed into a new game.
+  - No player accounts, stats identity, or roster (D12).
+- **Open in-task:** whether using the name again clears the hide, or the hide stays until restored in settings.
+- **Notes:** This is “someone left the table,” not a directory of people.
+
+### T9.4 About (P24)
+
+- **Status:** todo (after T9.1; small).
+- **Goal:** Master settings shows which version of the app is running.
+- **Acceptance:** A short **Tietoja** (or equivalent Finnish) block with the app version. No changelog and no update checker.
+- **Notes:** Version comes from the build. Do not invent extra about-content.
 
 ---
 
@@ -441,6 +464,16 @@ Build after the keypad turn screen is playable. Do not pull these into T7.3–T7
   - Still offline-capable after assets cached; still advisory.
   - Decision update if a specific engine/dependency is chosen.
 - **Notes:** Larger than T8.1; do not start until phase A proves useful at the table.
+
+### T8.3 Dictionary extras in settings (P25 / D32)
+
+- **Status:** todo (after T8.1; not part of T9.1).
+- **Goal:** On the master settings screen, let the table keep words the chosen dictionary does not list, and choose a lexicon once more than one exists.
+- **Acceptance:**
+  - User-added words are stored outside `Game`. The advisory checker treats them as known. Recording a score is still never blocked (D32).
+  - Finnish remains the first lexicon. A dictionary picker appears only when a second lexicon is actually available.
+  - This does not translate the UI (D19). A UI language picker stays parked (**P26**).
+- **Notes:** Depends on the checker from T8.1. Do not add an empty “dictionary” row in T9.1.
 
 ---
 
@@ -616,9 +649,9 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 
 ### P19. App settings
 
-- **Status:** promoted → **T9.1** (D35).
-- **Goal:** One app-wide place for preferences (first: sounds on/off), reachable from the game menu and home.
-- **Notes:** Separate `SettingsStore`; never inside `Game`. Add more settings only when a task needs them.
+- **Status:** promoted → **T9.1** (D35 / D41).
+- **Goal:** One app-wide master settings screen. First control is sounds on/off. Home opens it from a gear on the hero; the turn screen opens it from **Asetukset** in the existing hamburger.
+- **Notes:** Separate `SettingsStore`; never inside `Game`. T9.1 does not show empty rows for later sections. Those land as **T9.3**, **T9.4**, and **T8.3**.
 
 ### P20. Sound cues + mute
 
@@ -640,12 +673,42 @@ Capture product wishes here. Promoted items stay listed with pointer to T7/T8 ta
 - **Why:** Ending the sitting is a natural late-game action; hiding it only in the menu is easy to miss. T4.4 used to put finish at the bottom of the active-game screen; T7.3 moved it into the menu.
 - **Notes:** Menu item may remain. Until T10.1, confirm still just finishes (D16). After T10.1, this button starts the leftover-tile flow.
 
+### P23. Remembered names (hide from suggestions)
+
+- **Status:** promoted → **T9.3** (D42). After T9.1, not the next build.
+- **Goal:** Stop suggesting a display name when that person is no longer at the table.
+- **Notes:** Hide-list in settings. History keeps the name. Not a roster or account (D12).
+
+### P24. About / app version
+
+- **Status:** promoted → **T9.4**. After T9.1.
+- **Goal:** Master settings shows the running app version.
+- **Notes:** Short Finnish block. No update checker.
+
+### P25. User-added words and dictionary choice
+
+- **Status:** promoted → **T8.3** (D32). After the advisory checker (T8.1), not part of T9.1.
+- **Goal:** Keep a list of words the table allows even when the dictionary does not, and later choose which dictionary is in use.
+- **Notes:** Advisory only. Finnish lexicon first. Does not translate the app.
+
+### P26. UI language picker
+
+- **Status:** parked. Not a task.
+- **Goal:** Someday choose the language of the app itself, with Finnish as the default.
+- **Notes:** **D19** stands: Finnish UI, no i18n framework, until this is promoted with a new decision. Dictionary language is **P25**, not this.
+
+### P27. Finer sound settings
+
+- **Status:** parked. Not a task.
+- **Goal:** Choose which cues play, beyond a single mute.
+- **Notes:** **D35** stands for T9.1 and T9.2: one mute, default on, three cue families. Promote only if family play wants more.
+
 ## Out of backlog (do not pull into MVP silently)
 
 - Auto-scoring from tiles, accounts, sync, sharing, payments, alternate full rulesets (still out unless promoted).
 - Scraping or unofficial use of kielitoimistonsanakirja.fi private APIs (see **P17** — use Kotus open sanalista / morphology instead).
 
-Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.6 (D33/D36), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** settings → T9.1, **P20** sounds → T9.2, **P21** menu in place → T7.11 / D38, **P22** visible finish → T10.0 / D39.
+Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** turn-focused UI → T7.3–T7.5 (D33/D36/D40; podium dropped), **P4** statistics & leaderboards, **P5** play-out + rack runoff → T10.1 / D37, **P6** skip-twice elimination → T10.2, **P7** dedicated past-game detail, **P8** PWA shell, **P9** cross-device shared history, **P10** visual atmosphere → T7.1, **P11** edit affordance → T7.7, **P12** richer list rows → T7.8, **P13** action hierarchy → T7.5, **P14** save feedback → T7.9, **P15** calculator keypad → T7.4, **P16** delete from detail → T7.2, **P17** Finnish word check → T8.1/T8.2, **P18** display font pass → T7.10, **P19** master settings → T9.1 / D41, **P20** sounds → T9.2, **P21** menu in place → T7.11 / D38, **P22** visible finish → T10.0 / D39, **P23** remembered names → T9.3 / D42, **P24** about → T9.4, **P25** user words + dictionary choice → T8.3, **P26** UI language parked, **P27** per-cue sounds parked.
 
 ---
 
@@ -667,8 +730,8 @@ Tracked ideas: **P1** turn timer / recap, **P2** falling tiles → T7.1, **P3** 
 14. Calculator keypad (T7.4) — done
 15. Strict rotation + turn layout (T7.5) — done
 16. Podium standings banner (T7.6) — dropped (D40); thin standings line stays
-17. **Next agent:** **T9.1** settings → T9.2 sounds
-18. Polish T7.7–T7.10; T7.11 menu in place when ready
-19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary)
+17. **Next agent:** **T9.1** master settings shell + sounds toggle → **T9.2** sound cues
+18. Later on that screen: **T9.3** remembered names, **T9.4** about. Polish T7.7–T7.10; T7.11 menu in place when ready
+19. T10.0 visible finish → T10.1 play-out / leftover variants and T10.2 elimination when ready; then T8.1+ (dictionary), including **T8.3** user words once the checker exists
 
 Domain before UI so the learning project practices testable logic first.
