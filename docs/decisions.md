@@ -316,7 +316,7 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 - Tile exchange as a first-class turn type (vs recording 0).
 - **Real per-turn timer + cross-game pace/points stats** — direction captured in backlog **P1** (timer duration on each turn; later per-person averages across games). Still needs a decision on player identity across games when promoting (D12 has no roster in MVP).
 - **Falling tile ambient UI** — implemented in **T7.1** (with **P10**): CSS/DOM tiles + math-driven specs (no canvas/WebGL); slow variable fall/spin; light sage shell shared by home and inner screens; `prefers-reduced-motion` uses static faces/backs.
-- **Turn-focused active-game layout** — **D33 / D34** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker). Tasks **T7.3–T7.6**.
+- **Turn-focused active-game layout** — **D33 / D34** confirmed (bottom bar Kumoa · Ohi · Seuraava; pass not on keypad; ± on keypad; no player picker). **T7.3–T7.6** shipped, including the podium banner.
 - **Strict rotation** — **D36** shipped in **T7.5** (`recordTurn` only for the current player; turn screen has no seat picker).
 - **Settings / sounds** — **D35** confirmed (default on; progress / revert / action cue families).
 - **Official play-out + empty bag + rack runoff** — **D37** / **P5** / **T10.1** (after the keypad screen). House leftover-deduct vs official play-out bonus, and when the table picks that variant, are still open.
@@ -375,4 +375,5 @@ Chosen with the user (stack, UI language) or as recorded agent defaults after th
 | T7.3 / D34 | 2026-09-27 | Top bar + game menu + turn history screen. Score form and soft picker unchanged until T7.4 / T7.5 |
 | T7.4 / D31 | 2026-09-27 | Calculator keypad replaces numeric score fields on the turn form and history edit. Clear is long-press on ⌫ |
 | T7.5 / D36 | 2026-09-27 | Strict turn order: `recordTurn` only for `currentPlayerId`. Turn screen is one player, keypad, and Kumoa · Ohi · Seuraava pelaaja. Standings slot waits for the T7.6 podium |
+| T7.6 / D33 | 2026-10-03 | Olympic podium replaces the standings strip. Shared ranks share a step; 4th place sits beside the podium |
 | D38–D39 / P21–P22 | 2026-10-03 | Backlog: game menu opens in place (top-right); visible **Lopeta peli** on the turn screen. D37 expanded with house leftover-deduct vs official play-out variants |
